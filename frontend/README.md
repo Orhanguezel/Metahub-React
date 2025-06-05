@@ -151,7 +151,7 @@ modules/
 * **Routing:**
 
   * Alle Routen werden zentral über `routes/index.jsx` verwaltet.
-  * Verschiedene Layouts (`VisitorLayout`, `AdminLayout`, `UserLayout`) werden auf Routenebene zugewiesen.
+  * Verschiedene Layouts (`PublicLayout`, `AdminLayout`, `UserLayout`) werden auf Routenebene zugewiesen.
 * **State Management:**
 
   * Jedes Modul verwaltet seinen eigenen State über einen eigenen Slice.
