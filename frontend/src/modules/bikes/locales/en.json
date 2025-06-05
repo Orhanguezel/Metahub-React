@@ -1,0 +1,19 @@
+{
+  "title": "All Our Bike Models",
+  "details": "See all bike details",
+  "buy": "Buy Now",
+  "category": "Category",
+  "discover_more": "Discover more",
+  "coming_soon": "More details coming soon...",
+  "go_back": "← Back",
+  "loading": "Loading...",
+  "error": "An error occurred: {{error}}",
+  "price": "Price",
+  "stock": "Stock",
+  "tags": "Tags",
+  "brand": "Brand",
+  "description": "Description",
+  "not_found": "Bike not found.",
+  "more_images": "More Images"
+}
+

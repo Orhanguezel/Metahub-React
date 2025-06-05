@@ -1,0 +1,18 @@
+{
+  "title": "Tüm Bisiklet Modellerimiz",
+  "details": "Tüm bisiklet detaylarını gör",
+  "buy": "Şimdi Satın Al",
+  "category": "Kategori",
+  "discover_more": "Daha fazla keşfet",
+  "coming_soon": "Daha fazla detay yakında...",
+  "go_back": "← Geri Dön",
+  "loading": "Yükleniyor...",
+  "error": "Bir hata oluştu: {{error}}",
+  "price": "Fiyat",
+  "stock": "Stok",
+  "tags": "Etiketler",
+  "brand": "Marka",
+  "description": "Açıklama",
+  "not_found": "Bisiklet bulunamadı.",
+  "more_images": "Diğer Görseller"
+}

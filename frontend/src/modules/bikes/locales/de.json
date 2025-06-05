@@ -1,0 +1,18 @@
+{
+  "title": "Alle unsere Fahrradmodelle",
+  "details": "Alle Fahrrad-Details ansehen",
+  "buy": "Jetzt kaufen",
+  "category": "Kategorie",
+  "discover_more": "Mehr entdecken",
+  "coming_soon": "Weitere Details folgen in Kürze...",
+  "go_back": "← Zurück",
+  "loading": "Wird geladen...",
+  "error": "Ein Fehler ist aufgetreten: {{error}}",
+  "price": "Preis",
+  "stock": "Bestand",
+  "tags": "Tags",
+  "brand": "Marke",
+  "description": "Beschreibung",
+  "not_found": "Fahrrad nicht gefunden.",
+  "more_images": "Weitere Bilder"
+}
