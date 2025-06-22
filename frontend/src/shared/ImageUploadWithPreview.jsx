@@ -84,19 +84,19 @@ const ImageUploadWithPreview = ({
 
 export default ImageUploadWithPreview;
 
-
 const Wrapper = styled.div`
-  margin-top: ${({ theme }) => theme.spacing.md};
+  margin-top: ${({ theme }) => theme.spacings.md};
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.md};
+  gap: ${({ theme }) => theme.spacings.md};
 `;
 const FileInput = styled.input``;
 const UploadButton = styled.button`
   background: ${({ theme, disabled }) =>
     disabled ? theme.colors.disabled : theme.buttons.primary.background};
   color: ${({ theme }) => theme.buttons.primary.text};
-  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  padding: ${({ theme }) => theme.spacings.sm}
+    ${({ theme }) => theme.spacings.md};
   border: none;
   border-radius: ${({ theme }) => theme.radii.sm};
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
@@ -109,7 +109,7 @@ const UploadButton = styled.button`
 `;
 const PreviewGrid = styled.div`
   display: flex;
-  gap: ${({ theme }) => theme.spacing.sm};
+  gap: ${({ theme }) => theme.spacings.sm};
   flex-wrap: wrap;
 `;
 const PreviewBox = styled.div`

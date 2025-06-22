@@ -1,0 +1,16 @@
+{
+  "formTitle": "Bize Mesaj Gönderin",
+  "yourName": "Adınız",
+  "yourEmail": "E-posta Adresiniz",
+  "yourMessage": "Mesajınız",
+  "sendMessage": "Mesajı Gönder",
+  "contactInfoTitle": "İletişim Bilgileri",
+  "addressLabel": "Adres:",
+  "phoneLabel": "Telefon:",
+  "emailLabel": "E-posta:",
+  "hoursLabel": "Çalışma Saatleri:",
+  "hoursValue": "Pazartesi - Cuma: 9:00 - 17:00",
+  "modalTitle": "Mesaj Gönderildi!",
+  "modalMessage": "Mesajınız için teşekkürler! En kısa sürede sizinle iletişime geçeceğiz.",
+  "close": "Kapat"
+}

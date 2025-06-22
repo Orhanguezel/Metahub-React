@@ -1,9 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
+import { Skeleton } from "@/shared";
 
 export default function BikeList({
-  product,
+  bikes,
   lang,
   loading,
   error,
@@ -11,159 +12,169 @@ export default function BikeList({
   onDelete,
   onTogglePublish,
 }) {
-  const { t } = useTranslation("admin");
+  const { t } = useTranslation("bike");
 
   if (loading) {
     return (
       <SkeletonWrapper>
         {[...Array(3)].map((_, i) => (
-          <SkeletonBox key={i}>{t("loading", "Loading...")}</SkeletonBox>
+          <Skeleton key={i} />
         ))}
       </SkeletonWrapper>
     );
   }
 
   if (error) return <ErrorText>❌ {error}</ErrorText>;
-  if (!Array.isArray(product)) return null;
-  if (product.length === 0)
-    return <Empty>{t("product.empty", "No product available.")}</Empty>;
+  if (!Array.isArray(bikes)) return null;
+  if (bikes.length === 0)
+    return <Empty>{t("admin.bike.empty", "No bike available.")}</Empty>;
+
+  // Eğer dilde veri yoksa "en" fallback
+  const getLabel = (obj) => (obj && (obj[lang] || obj.en)) || "—";
 
   return (
     <div>
-      {product.map((item) => (
-        <ProductCard key={item._id}>
-          <h2>{item.name?.[lang] || "—"}</h2>
-          <p>{item.description?.[lang] || "—"}</p>
+      {bikes.map((item) => (
+        <BikeCard key={item._id}>
+          <h2>{getLabel(item.name)}</h2>
+          <p>{getLabel(item.description)}</p>
 
           {Array.isArray(item.images) && item.images.length > 0 ? (
             <ImageGrid>
               {item.images.map((img, i) => (
-                <img key={i} src={img.url} alt={`product-${i}`} />
+                <img key={i} src={img.url} alt={`bike-${i}`} />
               ))}
             </ImageGrid>
           ) : (
-            <small>{t("product.no_images", "No images")}</small>
+            <small>{t("admin.bike.no_images", "No images")}</small>
           )}
 
-          <InfoLine><strong>{t("product.brand", "Brand")}:</strong> {item.brand}</InfoLine>
-          <InfoLine><strong>{t("product.price", "Price")}:</strong> €{item.price}</InfoLine>
-          <InfoLine><strong>{t("product.stock", "Stock")}:</strong> {item.stock}</InfoLine>
-          <InfoLine><strong>{t("product.tags", "Tags")}:</strong> {item.tags?.join(", ") || t("none", "None")}</InfoLine>
-          <InfoLine><strong>{t("product.publish_status", "Published")}:</strong> {item.isPublished ? t("yes", "Yes") : t("no", "No")}</InfoLine>
+          <InfoLine>
+            <strong>{t("admin.bike.brand", "Brand")}:</strong> {item.brand}
+          </InfoLine>
+
+          <InfoLine>
+            <strong>{t("admin.bike.price", "Price")}:</strong> €{item.price}
+          </InfoLine>
+
+          <InfoLine>
+            <strong>{t("admin.bike.stock", "Stock")}:</strong> {item.stock}
+          </InfoLine>
+
+          <InfoLine>
+            <strong>{t("admin.bike.tags", "Tags")}:</strong>{" "}
+            {Array.isArray(item.tags) && item.tags.length > 0
+              ? item.tags.join(", ")
+              : t("none", "None")}
+          </InfoLine>
+
+          <InfoLine>
+            <strong>{t("admin.bike.publish_status", "Published")}:</strong>{" "}
+            {item.isPublished ? t("yes", "Yes") : t("no", "No")}
+          </InfoLine>
 
           {(onEdit || onDelete || onTogglePublish) && (
             <ButtonGroup>
-              {onEdit && <ActionButton onClick={() => onEdit(item)}>{t("edit", "Edit")}</ActionButton>}
-              {onDelete && <DeleteButton onClick={() => onDelete(item._id)}>{t("delete", "Delete")}</DeleteButton>}
+              {onEdit && (
+                <ActionButton onClick={() => onEdit(item)}>
+                  {t("admin.edit", "Edit")}
+                </ActionButton>
+              )}
+              {onDelete && (
+                <DeleteButton onClick={() => onDelete(item._id)}>
+                  {t("admin.delete", "Delete")}
+                </DeleteButton>
+              )}
               {onTogglePublish && (
-                <ToggleButton onClick={() => onTogglePublish(item._id, item.isPublished)}>
+                <ToggleButton
+                  onClick={() => onTogglePublish(item._id, item.isPublished)}
+                >
                   {item.isPublished
-                    ? t("product.unpublish", "Unpublish")
-                    : t("product.publish", "Publish")}
+                    ? t("admin.bike.unpublish", "Unpublish")
+                    : t("admin.bike.publish", "Publish")}
                 </ToggleButton>
               )}
             </ButtonGroup>
           )}
-        </ProductCard>
+        </BikeCard>
       ))}
     </div>
   );
 }
 
+// --- Styled Components ---
+
 const SkeletonWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.md};
+  gap: 1rem;
 `;
 
-const SkeletonBox = styled.div`
-  background-color: ${({ theme }) => theme.colors.skeletonBackground};
-  height: 80px;
-  border-radius: ${({ theme }) => theme.radii.sm};
-`;
-
-const ProductCard = styled.div`
-  border: ${({ theme }) => theme.borders.thin};
-  border-color: ${({ theme }) => theme.colors.border};
+const BikeCard = styled.div`
+  border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.md};
-  padding: ${({ theme }) => theme.spacing.lg};
-  margin-bottom: ${({ theme }) => theme.spacing.xl};
+  padding: 1rem;
+  margin-bottom: 1rem;
   background: ${({ theme }) => theme.colors.cardBackground};
-  box-shadow: ${({ theme }) => theme.shadows.card};
-
-  h2 {
-    color: ${({ theme }) => theme.colors.textPrimary};
-    font-size: ${({ theme }) => theme.fontSizes.lg};
-    margin-bottom: ${({ theme }) => theme.spacing.sm};
-  }
-
-  p {
-    color: ${({ theme }) => theme.colors.textSecondary};
-    font-size: ${({ theme }) => theme.fontSizes.sm};
-  }
 `;
 
 const ImageGrid = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing.sm};
-  margin-top: ${({ theme }) => theme.spacing.md};
+  gap: 1rem;
+  margin-top: 1rem;
 
   img {
-    width: 120px;
-    height: auto;
-    border-radius: ${({ theme }) => theme.radii.sm};
-    object-fit: cover;
+    width: 150px;
+    border-radius: 4px;
   }
 `;
 
 const InfoLine = styled.p`
-  margin-top: ${({ theme }) => theme.spacing.sm};
+  margin-top: 0.5rem;
   color: ${({ theme }) => theme.colors.text};
-  font-size: ${({ theme }) => theme.fontSizes.sm};
 `;
 
 const Empty = styled.p`
   text-align: center;
-  color: ${({ theme }) => theme.colors.textMuted};
-  font-size: ${({ theme }) => theme.fontSizes.sm};
+  color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
 const ErrorText = styled.p`
   color: ${({ theme }) => theme.colors.danger};
-  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  font-weight: bold;
 `;
 
 const ButtonGroup = styled.div`
-  margin-top: ${({ theme }) => theme.spacing.md};
+  margin-top: 1rem;
   display: flex;
   flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing.sm};
+  gap: 0.5rem;
 `;
 
 const ActionButton = styled.button`
-  padding: ${({ theme }) => theme.spacing.xs} ${({ theme }) => theme.spacing.md};
+  padding: 0.4rem 0.75rem;
   background: ${({ theme }) => theme.colors.warning};
-  color: ${({ theme }) => theme.colors.buttonText};
+  color: white;
   border: none;
-  border-radius: ${({ theme }) => theme.radii.sm};
+  border-radius: 4px;
   cursor: pointer;
 `;
 
 const DeleteButton = styled.button`
-  padding: ${({ theme }) => theme.spacing.xs} ${({ theme }) => theme.spacing.md};
+  padding: 0.4rem 0.75rem;
   background: ${({ theme }) => theme.colors.danger};
-  color: ${({ theme }) => theme.colors.white};
+  color: white;
   border: none;
-  border-radius: ${({ theme }) => theme.radii.sm};
+  border-radius: 4px;
   cursor: pointer;
 `;
 
 const ToggleButton = styled.button`
-  padding: ${({ theme }) => theme.spacing.xs} ${({ theme }) => theme.spacing.md};
+  padding: 0.4rem 0.75rem;
   background: ${({ theme }) => theme.colors.success};
-  color: ${({ theme }) => theme.colors.white};
+  color: white;
   border: none;
-  border-radius: ${({ theme }) => theme.radii.sm};
+  border-radius: 4px;
   cursor: pointer;
 `;

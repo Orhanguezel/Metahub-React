@@ -1,18 +1,34 @@
 {
-  "title": "Alle unsere Fahrradmodelle",
-  "details": "Alle Fahrrad-Details ansehen",
-  "buy": "Jetzt kaufen",
-  "category": "Kategorie",
-  "discover_more": "Mehr entdecken",
-  "coming_soon": "Weitere Details folgen in Kürze...",
-  "go_back": "← Zurück",
+  "allBikes": {
+    "title": "Fahrradkategorien",
+    "all": "Alle",
+    "loading": "Wird geladen...",
+    "error": "Ein Fehler ist aufgetreten: {{error}}",
+    "noBikes": "In dieser Kategorie wurden keine Fahrräder gefunden."
+  },
+  "bikeCard": {
+    "defaultTitle": "Fahrrad",
+    "defaultDesc": "Weitere Details folgen in Kürze...",
+    "discover": "Entdecken"
+  },
   "loading": "Wird geladen...",
-  "error": "Ein Fehler ist aufgetreten: {{error}}",
-  "price": "Preis",
-  "stock": "Bestand",
-  "tags": "Tags",
-  "brand": "Marke",
-  "description": "Beschreibung",
-  "not_found": "Fahrrad nicht gefunden.",
-  "more_images": "Weitere Bilder"
+  "allCategories": "Alle Kategorien",
+  "noBikesInCategory": "In der Kategorie \"{{category}}\" wurden keine Fahrräder gefunden.",
+  "selectSize": "Größe wählen:",
+  "selectSizeAlert": "Bitte wählen Sie vor dem Hinzufügen zum Warenkorb eine Größe aus.",
+  "addToCart": "In den Warenkorb",
+  "keyFeatures": "Wichtige Merkmale",
+  "fullSpecs": "Alle technischen Daten",
+  "bikeNotFoundTitle": "Fahrrad nicht gefunden",
+  "bikeNotFoundDesc": "Entschuldigung, kein Fahrrad mit der ID {{id}} gefunden.",
+  "backToCategories": "Zurück zu allen Fahrradkategorien",
+  "galleryImageAlt": "Galeriebild {{index}}",
+  "category": {
+    "noName": "Namenlose Kategorie"
+  },
+  "categoryPage": {
+    "loading": "Wird geladen...",
+    "noBikes": "In dieser Kategorie wurden keine Fahrräder gefunden.",
+    "pageTitle": "Fahrradkategorie: {{category}}"
+  }
 }

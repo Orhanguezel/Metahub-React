@@ -1,0 +1,16 @@
+{
+  "formTitle": "Wyślij nam wiadomość",
+  "yourName": "Twoje imię i nazwisko",
+  "yourEmail": "Twój e-mail",
+  "yourMessage": "Twoja wiadomość",
+  "sendMessage": "Wyślij wiadomość",
+  "contactInfoTitle": "Informacje kontaktowe",
+  "addressLabel": "Adres:",
+  "phoneLabel": "Telefon:",
+  "emailLabel": "E-mail:",
+  "hoursLabel": "Godziny otwarcia:",
+  "hoursValue": "Poniedziałek - Piątek: 9:00 - 17:00",
+  "modalTitle": "Wiadomość wysłana!",
+  "modalMessage": "Dziękujemy za Twoją wiadomość! Skontaktujemy się z Tobą wkrótce.",
+  "close": "Zamknij"
+}

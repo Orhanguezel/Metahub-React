@@ -1,6 +1,19 @@
-// src/api/apiCall.js
 import API from "./api";
 
+// Dinamik dil seçici
+const getLang = () => {
+  if (typeof window === "undefined") return "de";
+  return (
+    localStorage.getItem("lang") ||
+    (window.navigator.language && window.navigator.language.split("-")[0]) ||
+    "de"
+  );
+};
+
+// Vite için environment kontrolü
+const isDev = import.meta.env.DEV;
+
+// **Universal API Call**
 const apiCall = async (
   method,
   url,
@@ -9,10 +22,14 @@ const apiCall = async (
   config = {}
 ) => {
   try {
-    console.log(`📡 API CALL → [${method.toUpperCase()}] ${url}`);
-    if (data) console.log("📤 Request Payload:", data);
+    if (isDev) {
+      console.log(`📡 [API] ${method.toUpperCase()} → ${url}`);
+      if (data) console.log("📤 Payload:", data);
+    }
 
-    const isFormData = typeof FormData !== "undefined" && data instanceof FormData;
+    // FormData ise Content-Type elle eklenmez
+    const isFormData =
+      typeof FormData !== "undefined" && data instanceof FormData;
 
     const finalConfig = {
       ...config,
@@ -20,35 +37,68 @@ const apiCall = async (
       headers: {
         ...(config?.headers || {}),
         ...(isFormData ? {} : { "Content-Type": "application/json" }),
+        "Accept-Language": getLang(),
       },
     };
 
+    // GET için payload param ile, diğerlerinde klasik payload
     const response =
       method === "get"
         ? await API.get(url, { ...finalConfig, params: data })
         : await API[method](url, data, finalConfig);
 
-    console.log(`✅ API Response [${method.toUpperCase()} ${url}]:`, response.data);
+    if (isDev) {
+      console.log(`✅ [API] ${method.toUpperCase()} ${url}`, response.data);
+    }
+
     return response.data;
   } catch (error) {
     const status = error?.response?.status || "Unknown";
     const errorData = error?.response?.data ?? {};
     const message =
       errorData?.message ||
-      errorData?.errors?.[Object.keys(errorData.errors || {})[0]]?.message ||
+      (errorData?.errors && errorData.errors[Object.keys(errorData.errors)[0]]?.message) ||
       error?.message ||
-      "Something went wrong!";
+      "Etwas ist schiefgelaufen!";
 
-    if (error?.response) {
-      const { status, data, config } = error.response;
-      console.error("❌ API Error Details:", {
-        url: config?.url || "Unknown URL",
-        status,
-        data,
-      });
+    if (status === 401 && url === "/account/me") {
+      if (isDev) {
+        console.warn("🔐 [account/me] için 401 — kullanıcı login değil.");
+      }
+      return null;
     }
 
-    return rejectWithValue({ status, message, data: errorData });
+    // Hata logu ve reject
+    if (error?.response) {
+      const res = error.response;
+      const logObj = {
+        url: res?.config?.url || url || "Unbekannte URL",
+        status: res?.status ?? "-",
+        data: res?.data ?? "-",
+        method:
+          (res?.config?.method && res.config.method.toUpperCase && res.config.method.toUpperCase()) ||
+          (method && method.toUpperCase && method.toUpperCase()) ||
+          "-",
+      };
+      const isEmptyObj = Object.values(logObj).every(
+        (v) => v === "-" || v === "" || v == null
+      );
+      if (!isEmptyObj) {
+        console.error("❌ API Fehler / Error Details:", logObj);
+      } else {
+        console.error("❌ API Fehler / Error: Empty or invalid error object.");
+      }
+    } else {
+      console.error("❌ API Network/Error:", {
+        url,
+        message: error?.message || message,
+        error,
+      });
+    }
+    if (rejectWithValue) {
+      return rejectWithValue({ status, message, data: errorData });
+    }
+    throw error;
   }
 };
 

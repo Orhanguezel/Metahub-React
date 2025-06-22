@@ -1,9 +1,9 @@
 import React, { useRef, useEffect } from "react";
 import styled from "styled-components";
-import { useGsap } from "@/contexts/GsapContext";  // GSAP hook import
+import { useGsap } from "@/contexts/GsapContext"; // GSAP hook import
 
 const Footer = ({ currentSlide, totalSlides, showCounter }) => {
-  const gsap = useGsap(); 
+  const gsap = useGsap();
   const footerRef = useRef(null);
 
   useEffect(() => {
@@ -54,7 +54,8 @@ const FooterWrapper = styled.footer`
   bottom: 0;
   left: 0;
   width: 100vw;
-  padding: ${({ theme }) => theme.spacing.md} ${({ theme }) => theme.spacing.lg};
+  padding: ${({ theme }) => theme.spacings.md}
+    ${({ theme }) => theme.spacings.lg};
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -65,7 +66,8 @@ const FooterWrapper = styled.footer`
   will-change: opacity;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.mobile || "600px"}) {
-    padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+    padding: ${({ theme }) => theme.spacings.sm}
+      ${({ theme }) => theme.spacings.md};
   }
 `;
 
@@ -73,7 +75,8 @@ const SliderCounterDisplay = styled.div`
   display: flex;
   align-items: baseline;
   color: ${({ theme }) => theme.colors.text || "#fff"};
-  font-family: ${({ theme }) => theme.fonts.main || '"PP Neue Montreal", sans-serif'};
+  font-family: ${({ theme }) =>
+    theme.fonts.main || '"PP Neue Montreal", sans-serif'};
   font-size: ${({ theme }) => theme.fontSizes.small || "15px"};
   font-weight: 300;
   pointer-events: auto;

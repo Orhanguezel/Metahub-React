@@ -215,8 +215,8 @@ const inputStyles = css`
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.md};
-  padding: ${({ theme }) => theme.spacing.lg};
+  gap: ${({ theme }) => theme.spacings.md};
+  padding: ${({ theme }) => theme.spacings.lg};
   background: ${({ theme }) => theme.colors.cardBackground};
   border: ${({ theme }) => theme.borders.thin}
     ${({ theme }) => theme.colors.border};

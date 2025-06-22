@@ -31,7 +31,8 @@ const fadeIn = keyframes`
 const Overlay = styled.div`
   position: fixed;
   inset: 0;
-  background: ${({ theme }) => theme.colors.overlayBackground || "rgba(0, 0, 0, 0.6)"};
+  background: ${({ theme }) =>
+    theme.colors.overlayBackground || "rgba(0, 0, 0, 0.6)"};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -40,7 +41,7 @@ const Overlay = styled.div`
 
 const Content = styled.div`
   background: ${({ theme }) => theme.colors.cardBackground};
-  padding: ${({ theme }) => theme.spacing.lg};
+  padding: ${({ theme }) => theme.spacings.lg};
   border-radius: ${({ theme }) => theme.radii.lg};
   width: 90%;
   max-width: 500px;
@@ -53,8 +54,8 @@ const Content = styled.div`
 
 const CloseButton = styled.button`
   position: absolute;
-  top: ${({ theme }) => theme.spacing.sm};
-  right: ${({ theme }) => theme.spacing.sm};
+  top: ${({ theme }) => theme.spacings.sm};
+  right: ${({ theme }) => theme.spacings.sm};
   background: transparent;
   border: none;
   color: ${({ theme }) => theme.colors.textSecondary};

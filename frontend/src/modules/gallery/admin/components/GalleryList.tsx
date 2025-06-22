@@ -216,13 +216,13 @@ export default GalleryList;
 const Controls = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing.sm};
-  margin-bottom: ${({ theme }) => theme.spacing.md};
+  gap: ${({ theme }) => theme.spacings.sm};
+  margin-bottom: ${({ theme }) => theme.spacings.md};
 `;
 
 const CategoryButtons = styled.div`
   display: flex;
-  gap: ${({ theme }) => theme.spacing.xs};
+  gap: ${({ theme }) => theme.spacings.xs};
 `;
 
 const CategoryButton = styled.button<{ $active: boolean }>`
@@ -251,18 +251,18 @@ const SearchInput = styled.input`
 `;
 
 const BatchActions = styled.div`
-  margin: ${({ theme }) => theme.spacing.sm} 0;
+  margin: ${({ theme }) => theme.spacings.sm} 0;
 `;
 
 const GridWrapper = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: ${({ theme }) => theme.spacing.sm};
+  gap: ${({ theme }) => theme.spacings.sm};
 `;
 
 const SmallCard = styled.div`
   background: ${({ theme }) => theme.colors.cardBackground};
-  padding: ${({ theme }) => theme.spacing.sm};
+  padding: ${({ theme }) => theme.spacings.sm};
   border-radius: ${({ theme }) => theme.radii.md};
   box-shadow: ${({ theme }) => theme.shadows.sm};
   display: flex;
@@ -289,7 +289,7 @@ const FavoriteButton = styled.button<{ $active: boolean }>`
 `;
 
 const Info = styled.div`
-  margin-top: ${({ theme }) => theme.spacing.xs};
+  margin-top: ${({ theme }) => theme.spacings.xs};
 `;
 
 const CategoryText = styled.p`
@@ -304,7 +304,7 @@ const Type = styled.p`
 
 const ButtonGroup = styled.div`
   display: flex;
-  gap: ${({ theme }) => theme.spacing.xs};
+  gap: ${({ theme }) => theme.spacings.xs};
 `;
 
 const ActionButton = styled.button`

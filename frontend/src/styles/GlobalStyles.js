@@ -1,46 +1,50 @@
 // src/styles/GlobalStyles.js
-import { createGlobalStyle } from "styled-components";
+import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyles = createGlobalStyle`
-  *, *::before, *::after {
-    box-sizing: border-box;
+ 
+
+  * {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
   }
 
   body {
-    font-family: ${({ theme }) => theme.fonts.body};
-    background-color: ${({ theme }) => theme.colors.primary};
-    color: ${({ theme }) => theme.colors.text};
-    line-height: 1.5;
-    overflow-x: hidden;
+    font-family: "PP Neue Montreal", sans-serif; 
+    background-color: ${({ theme }) => theme.colors.primary || '#0a0a0a'};
+    color: ${({ theme }) => theme.colors.text || '#fff'};
+    overflow-x: hidden; 
+    /* overflow-y: auto; 
+    line-height: 1.4;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  img, picture, video, canvas, svg {
-    display: block;
+  img {
     max-width: 100%;
-  }
-
-  button, input, textarea, select {
-    font: inherit;
+    height: auto; 
+    display: block; 
   }
 
   a {
-    color: inherit;
     text-decoration: none;
+    color: inherit; 
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-weight: ${({ theme }) => theme.fontWeights.semiBold};
+    font-weight: 500; 
     line-height: 1.2;
+    margin: 0; 
+    padding: 0; 
   }
 
-  ::selection {
-    background-color: ${({ theme }) => theme.colors.accent};
-    color: #fff;
+  /* Keyframes  */
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
   }
 `;
 
-export default GlobalStyles;
+export default GlobalStyles; 

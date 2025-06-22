@@ -1,59 +1,88 @@
 import React, { useState } from "react";
+import { useEffect } from "react";
 import styled from "styled-components";
 import { XCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import {
   updateAdminModule,
   fetchAdminModules,
-} from "../../slice/adminModuleSlice";
+} from "@/modules/adminmodules/slice/adminModuleSlice";
+import { useAppDispatch } from "@/store/hooks";
 import { toast } from "react-toastify";
+import { SUPPORTED_LOCALES } from "@/i18n";
+import { getCurrentLocale } from "@/utils/getCurrentLocale";
 
-const EditModuleModal = ({ module, onClose }) => {
+const getLangLabel = (lang) => lang.toUpperCase();
+
+export default function EditModuleModal({ module, onClose }) {
   const dispatch = useAppDispatch();
   const { t } = useTranslation("adminModules");
-  const { selectedProject } = useAppSelector((state) => state.adminModule);
+  const lang = getCurrentLocale();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Her dil için label fallback
+  const safeLabel = SUPPORTED_LOCALES.reduce(
+    (acc, l) => ({ ...acc, [l]: module.label?.[l] ?? "" }),
+    {}
+  );
+
+  // Form state
   const [form, setForm] = useState({
-    label: { ...module.label },
+    label: safeLabel,
     icon: module.icon || "box",
     roles: Array.isArray(module.roles) ? module.roles.join(", ") : "",
-    visibleInSidebar: module.visibleInSidebar ?? true,
-    useAnalytics: module.useAnalytics ?? false,
-    enabled: module.enabled ?? true,
-    showInDashboard: module.showInDashboard ?? true,
-    order: module.order ?? 0,
+    visibleInSidebar: !!module.visibleInSidebar,
+    useAnalytics: !!module.useAnalytics,
+    enabled: !!module.enabled,
+    showInDashboard: !!module.showInDashboard,
+    order: Number.isFinite(module.order) ? module.order : 0,
   });
 
+  // Input değişimi
   const handleChange = (e) => {
-    const { name, value, type } = e.target;
-    if (type === "checkbox") {
-      const checked = e.target.checked;
-      setForm((prev) => ({ ...prev, [name]: checked }));
-    } else if (type === "number") {
-      setForm((prev) => ({ ...prev, [name]: parseInt(value, 10) || 0 }));
-    } else {
-      setForm((prev) => ({ ...prev, [name]: value }));
-    }
-  };
-
-  const handleLabelChange = (lang, value) => {
+    const { name, value, type, checked } = e.target;
     setForm((prev) => ({
       ...prev,
-      label: { ...prev.label, [lang]: value },
+      [name]:
+        type === "checkbox"
+          ? checked
+          : type === "number"
+          ? parseInt(value) || 0
+          : value,
     }));
   };
 
+  // Çok dilli label
+  const handleLabelChange = (l, value) => {
+    setForm((prev) => ({
+      ...prev,
+      label: { ...prev.label, [l]: value },
+    }));
+  };
+
+  // Hata/success için mesaj fallback
+  const getMsg = (msg) => {
+    if (!msg) return "";
+    return typeof msg === "string" ? msg : msg?.[lang] || msg?.en || "";
+  };
+
+  // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
+      const rolesArray = form.roles
+        .split(",")
+        .map((r) => r.trim())
+        .filter(Boolean);
+
       await dispatch(
         updateAdminModule({
           name: module.name,
           updates: {
             label: form.label,
             icon: form.icon,
-            roles: form.roles.split(",").map((r) => r.trim()),
+            roles: rolesArray,
             visibleInSidebar: form.visibleInSidebar,
             useAnalytics: form.useAnalytics,
             enabled: form.enabled,
@@ -63,17 +92,31 @@ const EditModuleModal = ({ module, onClose }) => {
         })
       ).unwrap();
 
-      if (selectedProject) {
-        await dispatch(fetchAdminModules(selectedProject));
-      }
-
-      toast.success(t("updateSuccess", "Module updated successfully!"));
+      await dispatch(fetchAdminModules());
+      toast.success(t("updateSuccess", "Module updated successfully."));
       onClose();
     } catch (err) {
-      console.error("Update error:", err);
-      toast.error(t("updateError", "An error occurred during update."));
+      toast.error(getMsg(err?.message) || t("updateError", "Update failed."));
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    setForm({
+      label: SUPPORTED_LOCALES.reduce(
+        (acc, l) => ({ ...acc, [l]: module.label?.[l] ?? "" }),
+        {}
+      ),
+      icon: module.icon || "box",
+      roles: Array.isArray(module.roles) ? module.roles.join(", ") : "",
+      visibleInSidebar: !!module.visibleInSidebar,
+      useAnalytics: !!module.useAnalytics,
+      enabled: !!module.enabled,
+      showInDashboard: !!module.showInDashboard,
+      order: Number.isFinite(module.order) ? module.order : 0,
+    });
+  }, [module]);
 
   return (
     <Overlay>
@@ -86,16 +129,18 @@ const EditModuleModal = ({ module, onClose }) => {
         </Header>
 
         <form onSubmit={handleSubmit}>
-          {["tr", "en", "de"].map((lang) => (
-            <InputGroup key={lang}>
-              <label>{t(`label.${lang}`, `Label (${lang.toUpperCase()})`)}</label>
+          {SUPPORTED_LOCALES.map((l) => (
+            <InputGroup key={l}>
+              <label htmlFor={`label-${l}`}>{getLangLabel(l)}</label>
               <input
-                value={form.label[lang]}
-                onChange={(e) => handleLabelChange(lang, e.target.value)}
+                id={`label-${l}`}
+                value={form.label[l]}
+                onChange={(e) => handleLabelChange(l, e.target.value)}
                 placeholder={t(
-                  `labelPlaceholder.${lang}`,
-                  `Enter label (${lang.toUpperCase()})`
+                  `labelPlaceholder.${l}`,
+                  "Module name in this language"
                 )}
+                autoComplete="off"
               />
             </InputGroup>
           ))}
@@ -106,7 +151,8 @@ const EditModuleModal = ({ module, onClose }) => {
               name="icon"
               value={form.icon}
               onChange={handleChange}
-              placeholder={t("iconPlaceholder", "Enter icon name")}
+              placeholder={t("iconPlaceholder", "Icon")}
+              autoComplete="off"
             />
           </InputGroup>
 
@@ -117,6 +163,7 @@ const EditModuleModal = ({ module, onClose }) => {
               value={form.roles}
               onChange={handleChange}
               placeholder="admin, editor"
+              autoComplete="off"
             />
           </InputGroup>
 
@@ -127,37 +174,40 @@ const EditModuleModal = ({ module, onClose }) => {
               name="order"
               value={form.order}
               onChange={handleChange}
+              min={0}
+              autoComplete="off"
             />
           </InputGroup>
 
           <CheckboxGroup>
             {[
-              { name: "visibleInSidebar", label: t("visibleInSidebar", "Show in Sidebar") },
-              { name: "useAnalytics", label: t("useAnalytics", "Enable Analytics") },
-              { name: "enabled", label: t("enabled", "Enabled") },
-              { name: "showInDashboard", label: t("showInDashboard", "Show on Dashboard") },
-            ].map((item) => (
-              <label key={item.name}>
+              ["visibleInSidebar", t("visibleInSidebar", "Show in Sidebar")],
+              ["useAnalytics", t("useAnalytics", "Enable Analytics")],
+              ["enabled", t("enabled", "Enabled")],
+              ["showInDashboard", t("showInDashboard", "Show on Dashboard")],
+            ].map(([name, label]) => (
+              <CheckboxLabel key={name}>
                 <input
                   type="checkbox"
-                  name={item.name}
-                  checked={form[item.name]}
+                  name={name}
+                  checked={!!form[name]}
                   onChange={handleChange}
                 />
-                {item.label}
-              </label>
+                <span>{label}</span>
+              </CheckboxLabel>
             ))}
           </CheckboxGroup>
 
-          <SubmitButton type="submit">{t("save", "Save")}</SubmitButton>
+          <SubmitButton type="submit" disabled={isSubmitting}>
+            {isSubmitting ? t("saving", "Saving...") : t("save", "Save")}
+          </SubmitButton>
         </form>
       </Modal>
     </Overlay>
   );
-};
+}
 
-export default EditModuleModal;
-
+// --- Styled Components ---
 const Overlay = styled.div`
   position: fixed;
   inset: 0;
@@ -170,7 +220,7 @@ const Overlay = styled.div`
 
 const Modal = styled.div`
   background: ${({ theme }) => theme.colors.background};
-  padding: ${({ theme }) => theme.spacing.lg};
+  padding: ${({ theme }) => theme.spacings.lg};
   border-radius: ${({ theme }) => theme.radii.md};
   width: 95%;
   max-width: 500px;
@@ -181,13 +231,13 @@ const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: ${({ theme }) => theme.spacing.md};
+  margin-bottom: ${({ theme }) => theme.spacings.md};
 `;
 
 const Title = styled.h3`
   margin: 0;
   font-size: ${({ theme }) => theme.fontSizes.lg};
-  color: ${({ theme }) => theme.colors.textPrimary};
+  color: ${({ theme }) => theme.colors.text};
 `;
 
 const CloseButton = styled.button`
@@ -196,23 +246,26 @@ const CloseButton = styled.button`
   cursor: pointer;
   color: ${({ theme }) => theme.colors.danger};
   transition: color ${({ theme }) => theme.transition.fast};
-
   &:hover {
     color: ${({ theme }) => theme.colors.error};
   }
 `;
 
 const InputGroup = styled.div`
-  margin-bottom: ${({ theme }) => theme.spacing.md};
+  margin-bottom: ${({ theme }) => theme.spacings.md};
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs};
-
+  gap: ${({ theme }) => theme.spacings.xs};
+  label {
+    font-size: ${({ theme }) => theme.fontSizes.sm};
+    color: ${({ theme }) => theme.colors.text};
+  }
   input,
   select {
-    padding: ${({ theme }) => theme.spacing.sm};
+    padding: ${({ theme }) => theme.spacings.sm};
     border-radius: ${({ theme }) => theme.radii.sm};
-    border: ${({ theme }) => theme.borders.thin} ${({ theme }) => theme.colors.border};
+    border: ${({ theme }) => theme.borders.thin}
+      ${({ theme }) => theme.colors.border};
     font-size: ${({ theme }) => theme.fontSizes.md};
     background: ${({ theme }) => theme.inputs.background};
     color: ${({ theme }) => theme.inputs.text};
@@ -220,17 +273,28 @@ const InputGroup = styled.div`
 `;
 
 const CheckboxGroup = styled.div`
-  margin-top: ${({ theme }) => theme.spacing.md};
+  margin-top: ${({ theme }) => theme.spacings.md};
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.sm};
+  gap: ${({ theme }) => theme.spacings.sm};
+`;
+
+const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacings.xs};
   font-size: ${({ theme }) => theme.fontSizes.sm};
+  color: ${({ theme }) => theme.colors.text};
+  cursor: pointer;
+  input[type="checkbox"] {
+    accent-color: ${({ theme }) => theme.colors.primary};
+  }
 `;
 
 const SubmitButton = styled.button`
   width: 100%;
-  padding: ${({ theme }) => theme.spacing.sm};
-  margin-top: ${({ theme }) => theme.spacing.md};
+  padding: ${({ theme }) => theme.spacings.sm};
+  margin-top: ${({ theme }) => theme.spacings.md};
   background: ${({ theme }) => theme.buttons.primary.background};
   color: ${({ theme }) => theme.buttons.primary.text};
   border: none;
@@ -239,7 +303,6 @@ const SubmitButton = styled.button`
   font-weight: ${({ theme }) => theme.fontWeights.semiBold};
   cursor: pointer;
   transition: background ${({ theme }) => theme.transition.fast};
-
   &:hover {
     background: ${({ theme }) => theme.buttons.primary.backgroundHover};
   }

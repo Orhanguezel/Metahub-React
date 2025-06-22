@@ -8,26 +8,31 @@ import { resetProfile } from "@/modules/users/slice/accountSlice";
 import { MdHome, MdLogout, MdClose, MdRefresh } from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import { useAppSelector } from "@/store/hooks";
+import { toast } from "react-toastify";
 
 export default function Sidebar({ isOpen, onClose }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const { i18n, t } = useTranslation("sidebar");
-  const currentLang = i18n.language;
+  const lang = i18n.language;
 
+  // Tenant'a göre aktif modüller (moduleSettings slice!)
   const { sidebarModules, isLoading } = useSidebarModules();
-  const { settings = [] } = useAppSelector((state) => state.setting || {});
-  const navbarLogoSetting = settings.find((s) => s.key === "navbar_logo_text");
-  const title =
-    (navbarLogoSetting?.value || {})?.title?.[currentLang] || "E-Admin-RadAnoR";
-  const slogan = (navbarLogoSetting?.value || {})?.slogan?.[currentLang] || "";
 
+  // Ayar ve başlıklar
+  const settings = useAppSelector((state) => state.setting?.settings) || [];
+  const navbarLogoSetting = settings.find((s) => s.key === "navbar_logo_text");
+  const title = navbarLogoSetting?.value?.title?.[lang];
+  const slogan = navbarLogoSetting?.value?.slogan?.[lang];
+
+  // Aktif route kontrolü
   const isActive = (linkPath) =>
     linkPath === "/admin"
       ? location.pathname === "/admin"
       : location.pathname.startsWith(linkPath);
 
+  // Logout işlemi
   const handleLogout = async () => {
     try {
       await dispatch(logoutUser()).unwrap();
@@ -36,11 +41,11 @@ export default function Sidebar({ isOpen, onClose }) {
       navigate("/login", { replace: true });
       if (onClose) onClose();
     } catch (err) {
-      console.error("Logout failed:", err);
-      alert(t("logoutError", "Logout failed. Please try again."));
+      toast.error(t("logoutError", "Logout failed. Please try again.", err));
     }
   };
 
+  // Sidebar responsive kapanma
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768 && onClose) onClose();
@@ -72,29 +77,25 @@ export default function Sidebar({ isOpen, onClose }) {
             </IconWrapper>
             <span>{t("dashboard", "Dashboard")}</span>
           </MenuLink>
-
           {isLoading ? (
             <LoadingText>
               <MdRefresh className="spin" />
               {t("loading", "Loading menu...")}
             </LoadingText>
           ) : (
-            sidebarModules.map((mod) => {
-              const { key, path, label, Icon } = mod;
-              return (
-                <MenuLink
-                  key={key}
-                  to={path}
-                  $active={isActive(path)}
-                  onClick={onClose}
-                >
-                  <IconWrapper $active={isActive(path)}>
-                    <Icon size={18} />
-                  </IconWrapper>
-                  <span>{label}</span>
-                </MenuLink>
-              );
-            })
+            sidebarModules.map(({ key, path, label, Icon }) => (
+              <MenuLink
+                key={key}
+                to={path}
+                $active={isActive(path)}
+                onClick={onClose}
+              >
+                <IconWrapper $active={isActive(path)}>
+                  <Icon size={18} />
+                </IconWrapper>
+                <span>{label}</span>
+              </MenuLink>
+            ))
           )}
         </Nav>
 
@@ -107,13 +108,12 @@ export default function Sidebar({ isOpen, onClose }) {
           </LogoutButton>
         </LogoutSection>
       </SidebarWrapper>
-
       {isOpen && <Overlay onClick={onClose} />}
     </>
   );
 }
 
-// Styled Components
+// --- Styled Components aynen kalabilir ---
 
 const SidebarWrapper = styled.aside`
   width: 240px;
@@ -128,7 +128,6 @@ const SidebarWrapper = styled.aside`
     ${({ theme }) => theme.colors.border};
   transition: ${({ theme }) => theme.transition.normal};
   z-index: ${({ theme }) => theme.zIndex.dropdown};
-
   @media (max-width: 1024px) {
     transform: translateX(-100%);
     &.open {
@@ -139,7 +138,6 @@ const SidebarWrapper = styled.aside`
 
 const Overlay = styled.div`
   display: none;
-
   @media (max-width: 768px) {
     display: block;
     position: fixed;
@@ -156,7 +154,6 @@ const CloseButton = styled.button`
   border: none;
   color: ${({ theme }) => theme.colors.text};
   cursor: pointer;
-
   @media (max-width: 768px) {
     display: block;
   }
@@ -165,7 +162,7 @@ const CloseButton = styled.button`
 const LogoSection = styled.div`
   display: flex;
   align-items: center;
-  padding: ${({ theme }) => theme.spacing.md};
+  padding: ${({ theme }) => theme.spacings.md};
   border-bottom: ${({ theme }) => theme.borders.thin}
     ${({ theme }) => theme.colors.border};
 `;
@@ -174,12 +171,12 @@ const LogoIcon = styled.div`
   width: 32px;
   height: 32px;
   background: ${({ theme }) => theme.colors.primary};
-  color: ${({ theme }) => theme.colors.whiteColor};
+  color: ${({ theme }) => theme.colors.white};
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: ${({ theme }) => theme.radii.md};
-  margin-right: ${({ theme }) => theme.spacing.sm};
+  margin-right: ${({ theme }) => theme.spacings.sm};
 `;
 
 const LogoTextWrapper = styled.div`
@@ -202,17 +199,18 @@ const Nav = styled.nav`
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: ${({ theme }) => theme.spacing.sm} 0;
+  padding: ${({ theme }) => theme.spacings.sm} 0;
   overflow-y: auto;
 `;
 
 const MenuLink = styled(Link)`
   display: flex;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.sm};
+  gap: ${({ theme }) => theme.spacings.sm};
   font-size: ${({ theme }) => theme.fontSizes.md};
-  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
-  margin: ${({ theme }) => theme.spacing.xs} 0;
+  padding: ${({ theme }) => theme.spacings.sm}
+    ${({ theme }) => theme.spacings.md};
+  margin: ${({ theme }) => theme.spacings.xs} 0;
   text-decoration: none;
   color: ${({ theme, $active }) =>
     $active ? theme.colors.primary : theme.colors.textMuted};
@@ -223,7 +221,6 @@ const MenuLink = styled(Link)`
   border-left: 3px solid
     ${({ theme, $active }) => ($active ? theme.colors.primary : "transparent")};
   transition: ${({ theme }) => theme.transition.fast};
-
   &:hover {
     color: ${({ theme }) => theme.colors.primary};
     background: ${({ theme }) => theme.colors.hoverBackground};
@@ -241,7 +238,7 @@ const IconWrapper = styled.div`
 `;
 
 const LogoutSection = styled.div`
-  padding: ${({ theme }) => theme.spacing.md};
+  padding: ${({ theme }) => theme.spacings.md};
   border-top: ${({ theme }) => theme.borders.thin}
     ${({ theme }) => theme.colors.border};
 `;
@@ -249,9 +246,10 @@ const LogoutSection = styled.div`
 const LogoutButton = styled.button`
   display: flex;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.sm};
+  gap: ${({ theme }) => theme.spacings.sm};
   font-size: ${({ theme }) => theme.fontSizes.md};
-  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  padding: ${({ theme }) => theme.spacings.sm}
+    ${({ theme }) => theme.spacings.md};
   width: 100%;
   background: none;
   border: none;
@@ -260,25 +258,22 @@ const LogoutButton = styled.button`
   border-radius: ${({ theme }) => theme.radii.sm};
   transition: background ${({ theme }) => theme.transition.fast},
     color ${({ theme }) => theme.transition.fast};
-
   &:hover {
     background: ${({ theme }) => theme.colors.hoverBackground};
-    color: ${({ theme }) => theme.colors.dangerHover || theme.colors.error};
+    color: ${({ theme }) => theme.colors.dangerHover || theme.colors.danger};
   }
 `;
 
 const LoadingText = styled.div`
   font-size: ${({ theme }) => theme.fontSizes.sm};
   color: ${({ theme }) => theme.colors.textSecondary};
-  padding: ${({ theme }) => theme.spacing.md};
+  padding: ${({ theme }) => theme.spacings.md};
   display: flex;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.sm};
-
+  gap: ${({ theme }) => theme.spacings.sm};
   .spin {
     animation: spin 1s linear infinite;
   }
-
   @keyframes spin {
     0% {
       transform: rotate(0deg);

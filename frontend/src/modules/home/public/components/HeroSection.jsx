@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import styled from "styled-components";
-import { useGsap } from "@/contexts/GsapContext"; 
+import { useGsap } from "@/contexts/GsapContext";
 
 const HeroSection = ({ animate = false }) => {
   const gsap = useGsap();
@@ -11,15 +11,22 @@ const HeroSection = ({ animate = false }) => {
 
   useEffect(() => {
     if (!gsap) {
-      if (animate) console.error("[HeroSection.jsx] gsap not available from context!");
+      if (animate)
+        console.error("[HeroSection.jsx] gsap not available from context!");
       return;
     }
 
-    const elements = [heading1Ref.current, heading2Ref.current, paragraphRef.current];
+    const elements = [
+      heading1Ref.current,
+      heading2Ref.current,
+      paragraphRef.current,
+    ];
     if (elements.some((el) => !el)) return;
 
     if (animate) {
-      const tl = gsap.timeline({ defaults: { duration: 1, ease: "power3.out" } });
+      const tl = gsap.timeline({
+        defaults: { duration: 1, ease: "power3.out" },
+      });
       tl.to(heading1Ref.current, { y: "0%", opacity: 1, delay: 0.2 });
       tl.to(heading2Ref.current, { y: "0%", opacity: 1 }, "-=0.8");
       tl.to(paragraphRef.current, { y: "0%", opacity: 1 }, "-=0.7");
@@ -55,7 +62,6 @@ const HeroSection = ({ animate = false }) => {
 
 export default HeroSection;
 
-
 // --- Styled Components ---
 const HeroWrapper = styled.section`
   width: 100%;
@@ -63,7 +69,7 @@ const HeroWrapper = styled.section`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.lg};
+  gap: ${({ theme }) => theme.spacings.lg};
   color: ${({ theme }) => theme.colors.text};
   text-align: center;
 
@@ -74,7 +80,7 @@ const HeroCopy = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.sm};
+  gap: ${({ theme }) => theme.spacings.sm};
 `;
 
 const Line = styled.div`
@@ -106,7 +112,7 @@ const HeroParagraph = styled.p`
   color: ${({ theme }) => theme.colors.textSecondary};
   max-width: 640px;
   margin: 0 auto;
-  padding: 0 ${({ theme }) => theme.spacing.sm};
+  padding: 0 ${({ theme }) => theme.spacings.sm};
   transform: translateY(100px);
   opacity: 0;
   will-change: transform, opacity;

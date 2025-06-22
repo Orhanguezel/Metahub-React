@@ -37,7 +37,7 @@ export const registerUser = createAsyncThunk(
 export const changePassword = createAsyncThunk(
   "auth/changePassword",
   async (data, { rejectWithValue }) => {
-    const res = await apiCall("put", "/account/me/password", data, rejectWithValue);
+    const res = await apiCall("put", "/users/account/me/password", data, rejectWithValue);
     return { message: res.message || "Password changed successfully." };
   }
 );

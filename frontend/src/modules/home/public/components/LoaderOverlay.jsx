@@ -38,7 +38,11 @@ const LoaderOverlay = ({ onLoaded }) => {
   }, [counterData.length]);
 
   const assignCountItemRef = (el, index) => {
-    if (el && countItemRefs.current[index] && !countItemRefs.current[index].current) {
+    if (
+      el &&
+      countItemRefs.current[index] &&
+      !countItemRefs.current[index].current
+    ) {
       countItemRefs.current[index].current = el;
       if (countItemRefs.current.every((ref) => ref && ref.current)) {
         setAllRefsReady(true);
@@ -48,7 +52,9 @@ const LoaderOverlay = ({ onLoaded }) => {
 
   useEffect(() => {
     if (!gsap) {
-      console.error("[LoaderOverlay.jsx] GSAP instance not available, aborting animation.");
+      console.error(
+        "[LoaderOverlay.jsx] GSAP instance not available, aborting animation."
+      );
       return;
     }
     if (!allRefsReady && counterData.length > 0) {
@@ -63,17 +69,30 @@ const LoaderOverlay = ({ onLoaded }) => {
     const divider = dividerLineRef.current;
     const spinner = spinnerElementRef.current;
 
-    const essentialRefs = [loaderElement, blockLeft, blockRight, word1, word2, divider, spinner];
+    const essentialRefs = [
+      loaderElement,
+      blockLeft,
+      blockRight,
+      word1,
+      word2,
+      divider,
+      spinner,
+    ];
     if (essentialRefs.some((ref) => !ref)) {
-      console.warn("[LoaderOverlay] Some essential refs are missing, aborting animation.");
+      console.warn(
+        "[LoaderOverlay] Some essential refs are missing, aborting animation."
+      );
       return;
     }
 
     const allCounterH1sPopulated = countItemRefs.current.every(
-      (ref) => ref && ref.current && ref.current.querySelectorAll("h1").length >= 1
+      (ref) =>
+        ref && ref.current && ref.current.querySelectorAll("h1").length >= 1
     );
     if (!allCounterH1sPopulated && countItemRefs.current.length > 0) {
-      console.warn("[LoaderOverlay] Not all counter H1 elements are populated.");
+      console.warn(
+        "[LoaderOverlay] Not all counter H1 elements are populated."
+      );
       return;
     }
 
@@ -86,7 +105,9 @@ const LoaderOverlay = ({ onLoaded }) => {
         gsap.set(ref.current.querySelectorAll("h1"), { y: "120%", opacity: 0 });
       }
     });
-    gsap.set([blockLeft, blockRight], { clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)" });
+    gsap.set([blockLeft, blockRight], {
+      clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+    });
 
     // Timeline setup
     const tl = gsap.timeline({
@@ -112,7 +133,11 @@ const LoaderOverlay = ({ onLoaded }) => {
     const LAST_COUNT_EXIT_DURATION = 0.5;
     const initialElementsEntryTime = 0;
 
-    tl.to(spinner, { opacity: 0, duration: 0.3 }, initialElementsEntryTime + 0.5);
+    tl.to(
+      spinner,
+      { opacity: 0, duration: 0.3 },
+      initialElementsEntryTime + 0.5
+    );
 
     let currentTime = initialElementsEntryTime;
     const TOTAL_COUNT_ANIMATIONS = counterData.length;
@@ -121,23 +146,63 @@ const LoaderOverlay = ({ onLoaded }) => {
       if (ref && ref.current) {
         const digits = ref.current.querySelectorAll("h1");
         if (digits.length > 0) {
-          tl.to(digits, { y: "0%", opacity: 1, duration: COUNT_ANIM_DURATION, stagger: STAGGER_TIME }, currentTime);
+          tl.to(
+            digits,
+            {
+              y: "0%",
+              opacity: 1,
+              duration: COUNT_ANIM_DURATION,
+              stagger: STAGGER_TIME,
+            },
+            currentTime
+          );
           if (index < TOTAL_COUNT_ANIMATIONS - 1) {
-            tl.to(digits, { y: "-120%", opacity: 0, duration: COUNT_ANIM_DURATION, stagger: STAGGER_TIME }, currentTime + COUNT_PAUSE_BEFORE_EXIT);
+            tl.to(
+              digits,
+              {
+                y: "-120%",
+                opacity: 0,
+                duration: COUNT_ANIM_DURATION,
+                stagger: STAGGER_TIME,
+              },
+              currentTime + COUNT_PAUSE_BEFORE_EXIT
+            );
           } else {
-            tl.to(digits, { y: "-120%", opacity: 0, duration: LAST_COUNT_EXIT_DURATION, stagger: 0.05 }, currentTime + COUNT_PAUSE_BEFORE_EXIT + LAST_COUNT_EXIT_DELAY);
+            tl.to(
+              digits,
+              {
+                y: "-120%",
+                opacity: 0,
+                duration: LAST_COUNT_EXIT_DURATION,
+                stagger: 0.05,
+              },
+              currentTime + COUNT_PAUSE_BEFORE_EXIT + LAST_COUNT_EXIT_DELAY
+            );
           }
         }
         currentTime += COUNT_PAUSE_BEFORE_EXIT;
       }
     });
 
-    const goLettersExitTime = (TOTAL_COUNT_ANIMATIONS - 1) * COUNT_PAUSE_BEFORE_EXIT + COUNT_PAUSE_BEFORE_EXIT + LAST_COUNT_EXIT_DELAY + LAST_COUNT_EXIT_DURATION;
+    const goLettersExitTime =
+      (TOTAL_COUNT_ANIMATIONS - 1) * COUNT_PAUSE_BEFORE_EXIT +
+      COUNT_PAUSE_BEFORE_EXIT +
+      LAST_COUNT_EXIT_DELAY +
+      LAST_COUNT_EXIT_DURATION;
     const wordsEntryDelayAfterCounters = 0.2;
-    const wordsEntryStartTime = goLettersExitTime + wordsEntryDelayAfterCounters;
+    const wordsEntryStartTime =
+      goLettersExitTime + wordsEntryDelayAfterCounters;
 
-    tl.to([word1, word2], { y: "0%", opacity: 1, duration: 1, stagger: 0.1 }, wordsEntryStartTime);
-    tl.to(divider, { scaleY: "100%", opacity: 1, duration: 1 }, wordsEntryStartTime);
+    tl.to(
+      [word1, word2],
+      { y: "0%", opacity: 1, duration: 1, stagger: 0.1 },
+      wordsEntryStartTime
+    );
+    tl.to(
+      divider,
+      { scaleY: "100%", opacity: 1, duration: 1 },
+      wordsEntryStartTime
+    );
 
     const wordsVisibleDuration = 1.0;
     const wordsExitStartTime = wordsEntryStartTime + wordsVisibleDuration;
@@ -245,7 +310,7 @@ const IntroLogoContainer = styled.div`
   left: 50%;
   z-index: 3;
   display: flex;
-  gap: ${({ theme }) => theme.spacing.xs};
+  gap: ${({ theme }) => theme.spacings.xs};
   transform: translate(-50%, -50%);
 `;
 

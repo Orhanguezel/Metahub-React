@@ -27,7 +27,11 @@ export default function CompanyAdminPage() {
 
   useEffect(() => {
     if (error) {
-      toast.error(typeof error === "string" ? error : t("genericError", "An error occurred."));
+      toast.error(
+        typeof error === "string"
+          ? error
+          : t("genericError", "An error occurred.")
+      );
       dispatch(resetMessages());
     }
     if (successMessage) {
@@ -87,13 +91,13 @@ export default function CompanyAdminPage() {
 }
 
 const Container = styled.div`
-  padding: ${({ theme }) => theme.spacing.lg};
+  padding: ${({ theme }) => theme.spacings.lg};
   background: ${({ theme }) => theme.colors.sectionBackground};
   min-height: 100vh;
 `;
 
 const Title = styled.h2`
-  margin-bottom: ${({ theme }) => theme.spacing.lg};
+  margin-bottom: ${({ theme }) => theme.spacings.lg};
   font-size: ${({ theme }) => theme.fontSizes.lg};
   color: ${({ theme }) => theme.colors.primary};
   font-weight: ${({ theme }) => theme.fontWeights.bold};

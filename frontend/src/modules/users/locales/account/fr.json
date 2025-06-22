@@ -1,0 +1,94 @@
+{
+  "page": {
+    "title": "Paramètres du Compte",
+    "profileImage": "Image de Profil",
+    "personalInfo": "Informations Personnelles",
+    "address": "Informations sur l'Adresse",
+    "notifications": "Paramètres des Notifications",
+    "social": "Liens des Réseaux Sociaux",
+    "password": "Changer le Mot de Passe",
+    "deleteAccount": "Supprimer le Compte",
+    "loading": "Chargement..."
+  },
+  "form": {
+    "title": "Mettre à Jour Mes Informations",
+    "name": "Nom Complet",
+    "email": "E-mail",
+    "phone": "Téléphone",
+    "save": "Sauvegarder",
+    "saving": "Sauvegarde en cours...",
+    "success": "Les informations ont été mises à jour avec succès.",
+    "error": "Une erreur est survenue lors de la mise à jour.",
+    "errors": {
+      "name": "Entrez votre nom.",
+      "email": "Entrez votre adresse e-mail.",
+      "emailInvalid": "Entrez une adresse e-mail valide."
+    },
+    "imageSuccess": "Image de profil mise à jour.",
+    "imageError": "Échec du téléchargement de l'image.",
+    "loading": "Chargement...",
+    "upload": "Télécharger l'image"
+  },
+  "address": {
+    "title": "Informations sur l'Adresse",
+    "street": "Rue",
+    "houseNumber": "Numéro de Maison",
+    "city": "Ville",
+    "zipCode": "Code Postal",
+    "phone": "Téléphone",
+    "add": "Ajouter",
+    "saving": "Sauvegarde en cours...",
+    "update": "Mettre à Jour",
+    "remove": "Supprimer",
+    "success": "Adresse enregistrée.",
+    "deleted": "Adresse supprimée.",
+    "error": "Erreur lors du traitement de l'adresse.",
+    "errors": {
+      "street": "Le nom de la rue est requis.",
+      "houseNumber": "Le numéro de la maison est requis.",
+      "city": "La ville est requise.",
+      "zipCode": "Le code postal est requis."
+    }
+  },
+  "notifications": {
+    "email": "Notification par E-mail",
+    "sms": "Notification par SMS",
+    "save": "Sauvegarder",
+    "saving": "Sauvegarde en cours...",
+    "success": "Paramètres de notification mis à jour.",
+    "error": "Échec de la mise à jour des paramètres de notification.",
+    "emailRequired": "La notification par e-mail est requise.",
+    "smsRequired": "La notification par SMS est requise."
+  },
+  "social": {
+    "title": "Liens des Réseaux Sociaux",
+    "instagram": "Instagram",
+    "facebook": "Facebook",
+    "twitter": "Twitter",
+    "instagramPlaceholder": "Entrez votre lien de profil Instagram",
+    "facebookPlaceholder": "Entrez votre lien de profil Facebook",
+    "twitterPlaceholder": "Entrez votre lien de profil Twitter",
+    "save": "Sauvegarder",
+    "saving": "Sauvegarde en cours...",
+    "success": "Liens des réseaux sociaux enregistrés.",
+    "error": "Échec de l'enregistrement des liens.",
+    "errors": {
+      "instagramInvalid": "Entrez une adresse Instagram valide.",
+      "facebookInvalid": "Entrez une adresse Facebook valide.",
+      "twitterInvalid": "Entrez une adresse Twitter valide."
+    }
+  },
+  "delete": {
+    "title": "Supprimer le Compte",
+    "warning": "Cette action est irréversible ! Pour supprimer votre compte, entrez votre mot de passe et tapez 'delete'.",
+    "loggedInAs": "Connecté en tant que :",
+    "confirmation": "Tapez 'delete' pour confirmer la suppression",
+    "confirmationError": "Veuillez taper 'delete' pour confirmer la suppression.",
+    "password": "Votre mot de passe",
+    "passwordError": "Entrez votre mot de passe.",
+    "button": "Supprimer définitivement le compte",
+    "success": "Votre compte a été supprimé.",
+    "error": "Échec de la suppression du compte.",
+    "loading": "Traitement en cours..."
+  }
+}

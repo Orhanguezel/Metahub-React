@@ -15,17 +15,28 @@ const AvatarMenu = () => {
   const role = profile?.role;
 
   const [showDropdown, setShowDropdown] = useState(false);
-  const dropdownRef = useRef(null);
+  const wrapperRef = useRef(null); // En dış wrapper!
 
+  // --- Tıklama ile dışarıyı kontrol et
   useEffect(() => {
     if (!showDropdown) return;
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
         setShowDropdown(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showDropdown]);
+
+  // ESC ile dropdown kapama (isteğe bağlı)
+  useEffect(() => {
+    if (!showDropdown) return;
+    const handleEsc = (event) => {
+      if (event.key === "Escape") setShowDropdown(false);
+    };
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
   }, [showDropdown]);
 
   const handleLogout = async () => {
@@ -51,7 +62,7 @@ const AvatarMenu = () => {
   }
 
   return (
-    <AvatarWrapper>
+    <AvatarWrapper ref={wrapperRef}>
       <AvatarImg
         src={profileImage}
         alt="profile"
@@ -59,14 +70,18 @@ const AvatarMenu = () => {
         tabIndex={0}
         aria-haspopup="true"
         aria-expanded={showDropdown}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ")
+            setShowDropdown((prev) => !prev);
+        }}
       />
       {showDropdown && (
-        <AvatarDropdown ref={dropdownRef} tabIndex={-1}>
-          {role === "admin" && (
+        <AvatarDropdown tabIndex={-1}>
+          {role === "admin" || role === "superadmin" ? (
             <DropdownItem as="a" href="/admin">
               {t("adminDashboard", "Admin Panel")}
             </DropdownItem>
-          )}
+          ) : null}
           <DropdownItem as="a" href="/account">
             {t("account", "Account")}
           </DropdownItem>
@@ -80,13 +95,11 @@ const AvatarMenu = () => {
 };
 
 export default AvatarMenu;
-
-// Styled Components (aynı kalabilir)
 const AvatarWrapper = styled.div`
   position: relative;
   display: flex;
   align-items: center;
-  margin-left: 1.2em;
+  margin-left: ${({ theme }) => theme.spacings.md};
 `;
 
 const AvatarImg = styled.img`
@@ -95,14 +108,15 @@ const AvatarImg = styled.img`
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid ${({ theme }) => theme.colors.primary};
-  background: ${({ theme }) => theme.colors.cardBackground};
+  background: ${({ theme }) => theme.colors.secondary};
   cursor: pointer;
   transition: border 0.18s, box-shadow 0.17s;
-  box-shadow: 0 1px 12px ${({ theme }) => theme.colors.primaryTransparent};
+  box-shadow: 0 2px 14px ${({ theme }) => theme.colors.grey}22;
+
   &:hover,
   &:focus {
     border-color: ${({ theme }) => theme.colors.accent};
-    box-shadow: 0 2px 18px ${({ theme }) => theme.colors.primaryTransparent};
+    box-shadow: 0 4px 22px ${({ theme }) => theme.colors.primary}33;
     outline: none;
   }
 `;
@@ -111,11 +125,11 @@ const AvatarDropdown = styled.div`
   position: absolute;
   top: 120%;
   right: 0;
-  background: ${({ theme }) => theme.colors.cardBackground};
-  border: ${({ theme }) => `${theme.borders.thin} ${theme.colors.accent}`};
-  border-radius: ${({ theme }) => theme.radii.md};
-  box-shadow: ${({ theme }) => theme.shadows.md};
-  padding: ${({ theme }) => theme.spacing.sm} 0;
+  background: ${({ theme }) => theme.colors.secondary};
+  border: 1px solid ${({ theme }) => theme.colors.accent};
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  padding: ${({ theme }) => theme.spacings.sm} 0;
   z-index: ${({ theme }) => theme.zIndex.dropdown};
   min-width: 170px;
 `;
@@ -123,24 +137,27 @@ const AvatarDropdown = styled.div`
 const DropdownItem = styled.a`
   display: block;
   width: 100%;
-  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  padding: ${({ theme }) => theme.spacings.sm}
+    ${({ theme }) => theme.spacings.md};
   font-size: ${({ theme }) => theme.fontSizes.sm};
   color: ${({ theme }) => theme.colors.text};
+  font-family: ${({ theme }) => theme.fonts.main};
   background: none;
   border: none;
   text-align: left;
   cursor: pointer;
-  transition: ${({ theme }) => theme.transition.fast};
+  transition: background 0.18s, color 0.18s;
   text-decoration: none;
+
   &:hover {
-    background: ${({ theme }) => theme.colors.hoverBackground};
+    background: ${({ theme }) => theme.colors.darkGrey}33;
     color: ${({ theme }) => theme.colors.primary};
   }
 `;
 
 const AvatarAuthLinks = styled.div`
   display: flex;
-  gap: 0.7em;
+  gap: ${({ theme }) => theme.spacings.xs};
   align-items: center;
 `;
 
@@ -148,6 +165,7 @@ const AvatarLink = styled.a`
   color: ${({ theme }) => theme.colors.text};
   font-weight: 500;
   font-size: ${({ theme }) => theme.fontSizes.sm};
+  font-family: ${({ theme }) => theme.fonts.main};
   text-decoration: none;
   transition: color 0.17s;
   &:hover {

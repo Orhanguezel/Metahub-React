@@ -1,0 +1,34 @@
+{
+  "allBikes": {
+    "title": "Kategorie rowerów",
+    "all": "Wszystkie",
+    "loading": "Ładowanie...",
+    "error": "Wystąpił błąd: {{error}}",
+    "noBikes": "Nie znaleziono rowerów w tej kategorii."
+  },
+  "bikeCard": {
+    "defaultTitle": "Rower",
+    "defaultDesc": "Więcej informacji wkrótce...",
+    "discover": "Odkryj"
+  },
+  "loading": "Ładowanie...",
+  "allCategories": "Wszystkie kategorie",
+  "noBikesInCategory": "Nie znaleziono rowerów w kategorii \"{{category}}\".",
+  "selectSize": "Wybierz rozmiar:",
+  "selectSizeAlert": "Wybierz rozmiar przed dodaniem do koszyka.",
+  "addToCart": "Dodaj do koszyka",
+  "keyFeatures": "Główne cechy",
+  "fullSpecs": "Pełna specyfikacja",
+  "bikeNotFoundTitle": "Nie znaleziono roweru",
+  "bikeNotFoundDesc": "Przepraszamy, nie znaleziono roweru o ID: {{id}}.",
+  "backToCategories": "Powrót do wszystkich kategorii rowerów",
+  "galleryImageAlt": "Obraz z galerii {{index}}",
+  "category": {
+    "noName": "Kategoria bez nazwy"
+  },
+  "categoryPage": {
+    "loading": "Ładowanie...",
+    "noBikes": "Nie znaleziono rowerów w tej kategorii.",
+    "pageTitle": "Kategoria rowerów: {{category}}"
+  }
+}

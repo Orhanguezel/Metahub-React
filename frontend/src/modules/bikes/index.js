@@ -1,15 +1,17 @@
 export { default as bikeReducer } from "./slices/bikeSlice";
+export { default as bikeCategoryReducer } from "./slices/bikeCategorySlice";
 
 // Public Pages
-export { default as BikeListPage } from "./public/pages/BikeListPage";
 
 // Public Components
-export { default as BikeDetailPage } from "./public/components/BikeDetailPage";
-export { default as BikeCard } from "./public/components/BikeCard";
-export { default as AllBikesView } from "./public/components/AllBikesView";
+export { default as BikeDetailPage } from "./public/BikeDetailPage";
+export { default as BikeCard } from "./public/BikeCard";
+export { default as BikeCategoryPage } from "./public/BikeCategory";
+export { default as CategoryCard } from "./public/CategoryCard";
+export { default as AllBikesPage } from "./public/AllBikesPage";
 
 // Admin Pages
-export { default as BikeAdminPage } from "./admin/pages/BikeAdminPage";
+export { default as BikeAdminPage } from "./admin/pages/AdminBikePage";
 
 // Admin Components
 export { default as BikeFormModal } from "./admin/components/BikeFormModal";

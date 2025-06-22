@@ -1,0 +1,34 @@
+{
+  "allBikes": {
+    "title": "Catégories de vélos",
+    "all": "Tous",
+    "loading": "Chargement...",
+    "error": "Une erreur est survenue : {{error}}",
+    "noBikes": "Aucun vélo trouvé dans cette catégorie."
+  },
+  "bikeCard": {
+    "defaultTitle": "Vélo",
+    "defaultDesc": "Plus de détails bientôt disponibles...",
+    "discover": "Découvrir"
+  },
+  "loading": "Chargement...",
+  "allCategories": "Toutes les catégories",
+  "noBikesInCategory": "Aucun vélo trouvé dans la catégorie « {{category}} ».",
+  "selectSize": "Sélectionnez la taille :",
+  "selectSizeAlert": "Veuillez sélectionner une taille avant d'ajouter au panier.",
+  "addToCart": "Ajouter au panier",
+  "keyFeatures": "Caractéristiques principales",
+  "fullSpecs": "Spécifications complètes",
+  "bikeNotFoundTitle": "Vélo introuvable",
+  "bikeNotFoundDesc": "Désolé, aucun vélo trouvé avec l'ID : {{id}}.",
+  "backToCategories": "Retour à toutes les catégories de vélos",
+  "galleryImageAlt": "Image de la galerie {{index}}",
+  "category": {
+    "noName": "Catégorie sans nom"
+  },
+  "categoryPage": {
+    "loading": "Chargement...",
+    "noBikes": "Aucun vélo trouvé dans cette catégorie.",
+    "pageTitle": "Catégorie de vélo : {{category}}"
+  }
+}

@@ -1,19 +1,34 @@
 {
-  "title": "All Our Bike Models",
-  "details": "See all bike details",
-  "buy": "Buy Now",
-  "category": "Category",
-  "discover_more": "Discover more",
-  "coming_soon": "More details coming soon...",
-  "go_back": "← Back",
+  "allBikes": {
+    "title": "Bike Categories",
+    "all": "All",
+    "loading": "Loading...",
+    "error": "An error occurred: {{error}}",
+    "noBikes": "No bikes found in this category."
+  },
+  "bikeCard": {
+    "defaultTitle": "Bike",
+    "defaultDesc": "More details coming soon...",
+    "discover": "Discover"
+  },
   "loading": "Loading...",
-  "error": "An error occurred: {{error}}",
-  "price": "Price",
-  "stock": "Stock",
-  "tags": "Tags",
-  "brand": "Brand",
-  "description": "Description",
-  "not_found": "Bike not found.",
-  "more_images": "More Images"
+  "allCategories": "All Categories",
+  "noBikesInCategory": "No bikes found in the \"{{category}}\" category.",
+  "selectSize": "Select Size:",
+  "selectSizeAlert": "Please select a size before adding to cart.",
+  "addToCart": "Add to Cart",
+  "keyFeatures": "Key Features",
+  "fullSpecs": "Full Specifications",
+  "bikeNotFoundTitle": "Bike Not Found",
+  "bikeNotFoundDesc": "Sorry, no bike found with ID: {{id}}.",
+  "backToCategories": "Back to All Bike Categories",
+  "galleryImageAlt": "Gallery image {{index}}",
+  "category": {
+    "noName": "Unnamed Category"
+  },
+  "categoryPage": {
+    "loading": "Loading...",
+    "noBikes": "No bikes found in this category.",
+    "pageTitle": "Bike Category: {{category}}"
+  }
 }
-

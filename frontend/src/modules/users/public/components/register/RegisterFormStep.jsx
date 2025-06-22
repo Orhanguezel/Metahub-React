@@ -4,29 +4,24 @@ import { registerUser } from "@/modules/users/slice/authSlice";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import zxcvbn from "zxcvbn";
-import { useRecaptcha } from "@/hooks/useRecaptcha";
-import {
-  Form,
-  FormGroup,
-  InputWrapper,
-  Input,
-  SubmitButton,
-  TogglePassword,
-  InputIcon,
-  Label,
-  ErrorMessage,
-  Terms,
-  
-  TooltipText,
-} from "@/modules/users/public/styles/AuthFormStyles";
 import { FaEnvelope, FaLock, FaUser, FaEye, FaEyeSlash } from "react-icons/fa";
-import { Link } from "react-router-dom";
-import { PwStrengthBar, RegisterInfoTooltip } from "@/modules/users";
+import styled from "styled-components";
+
+// Sade PwStrengthBar (isteğe bağlı)
+function PwStrengthBar({ score = 0 }) {
+  const colors = ["#e57373", "#ffb74d", "#fff176", "#64b5f6", "#81c784"];
+  return (
+    <PwBar>
+      {[0, 1, 2, 3, 4].map((i) => (
+        <Bar key={i} $active={i <= score} $color={colors[i]} />
+      ))}
+    </PwBar>
+  );
+}
 
 export default function RegisterFormStep({ onNext }) {
   const { t } = useTranslation("register");
   const dispatch = useDispatch();
-  const recaptcha = useRecaptcha();
 
   const [form, setForm] = useState({
     username: "",
@@ -39,7 +34,6 @@ export default function RegisterFormStep({ onNext }) {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  // Validation
   const validate = () => {
     const errs = {};
     if (!form.username.trim()) errs.username = t("errors.username");
@@ -70,23 +64,13 @@ export default function RegisterFormStep({ onNext }) {
     }
     setLoading(true);
     try {
-      const recaptchaToken = await recaptcha("register");
-      if (!recaptchaToken) {
-        toast.error(
-          t("errors.recaptchaFailed", "reCAPTCHA validation failed.")
-        );
-        setLoading(false);
-        return;
-      }
       await dispatch(
         registerUser({
           name: form.username,
           email: form.email,
           password: form.password,
-          recaptchaToken,
         })
       ).unwrap();
-      // Progress to next step (e.g. email verification)
       onNext({ step: "verifyEmail", payload: { email: form.email } });
       setForm({ username: "", email: "", password: "", confirmPassword: "" });
     } catch (err) {
@@ -96,22 +80,12 @@ export default function RegisterFormStep({ onNext }) {
     }
   };
 
-  const pwScore = zxcvbn(form.password).score;
+  const pwScore = form.password ? zxcvbn(form.password).score : 0;
 
   return (
     <Form onSubmit={handleSubmit} autoComplete="off">
-      {/* Username */}
       <FormGroup>
         <Label htmlFor="username">{t("username")}</Label>
-        <RegisterInfoTooltip
-          text={
-            <>
-              <TooltipText>
-                {t("info.usernameInfo", "Enter your real name or nickname.")}
-              </TooltipText>
-            </>
-          }
-        />
         <InputWrapper $hasError={!!errors.username}>
           <InputIcon>
             <FaUser />
@@ -128,13 +102,8 @@ export default function RegisterFormStep({ onNext }) {
         </InputWrapper>
         {errors.username && <ErrorMessage>{errors.username}</ErrorMessage>}
       </FormGroup>
-
-      {/* Email */}
       <FormGroup>
         <Label htmlFor="email">{t("email")}</Label>
-        <RegisterInfoTooltip
-          text={t("info.emailInfo", "Enter a valid email address.")}
-        />
         <InputWrapper $hasError={!!errors.email}>
           <InputIcon>
             <FaEnvelope />
@@ -152,8 +121,6 @@ export default function RegisterFormStep({ onNext }) {
         </InputWrapper>
         {errors.email && <ErrorMessage>{errors.email}</ErrorMessage>}
       </FormGroup>
-
-      {/* Password */}
       <FormGroup>
         <Label htmlFor="password">{t("password")}</Label>
         <InputWrapper $hasError={!!errors.password}>
@@ -182,8 +149,6 @@ export default function RegisterFormStep({ onNext }) {
         <PwStrengthBar score={pwScore} />
         {errors.password && <ErrorMessage>{errors.password}</ErrorMessage>}
       </FormGroup>
-
-      {/* Confirm Password */}
       <FormGroup>
         <Label htmlFor="confirmPassword">{t("confirmPassword")}</Label>
         <InputWrapper $hasError={!!errors.confirmPassword}>
@@ -213,17 +178,143 @@ export default function RegisterFormStep({ onNext }) {
           <ErrorMessage>{errors.confirmPassword}</ErrorMessage>
         )}
       </FormGroup>
-
-      {/* Terms */}
       <Terms>
-        {t("agree")} <Link to="/terms">{t("terms")}</Link> {t("and")}{" "}
-        <Link to="/privacy">{t("privacy")}</Link>.
+        {t("agree")} <a href="/terms">{t("terms")}</a> {t("and")}{" "}
+        <a href="/privacy">{t("privacy")}</a>.
       </Terms>
-
-      {/* Submit */}
       <SubmitButton type="submit" disabled={loading}>
         {loading ? t("loading") : t("submit")}
       </SubmitButton>
     </Form>
   );
 }
+
+// ---- STILLER ----
+
+const Form = styled.form`
+  width: 100%;
+  max-width: 800px;
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  @media (max-width: 900px) {
+    padding: 16px;
+  }
+`;
+
+const FormGroup = styled.div`
+  width: 100%;
+  margin-bottom: 16px;
+  position: relative;
+`;
+
+const Label = styled.label`
+  font-weight: 500;
+  font-size: 20px;
+  color: ${({ theme }) => theme?.colors?.primary || "#0a0a0a"};
+  margin-bottom: 3px;
+  display: block;
+`;
+
+const InputWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.58em 1em;
+  border: 2px solid ${({ $hasError }) => ($hasError ? "#e57373" : "#666")};
+  background: #282828;
+  border-radius: 7px;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 18px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #333;
+  background-color: #f9f9f9;
+  &:focus {
+    border-color: #00fff7;
+    outline: none;
+  }
+`;
+
+const InputIcon = styled.div`
+  color: #aaa;
+  font-size: 1.1em;
+  display: flex;
+  align-items: center;
+`;
+
+const TogglePassword = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #bbb;
+  font-size: 1.13em;
+  display: flex;
+  align-items: center;
+  padding: 0 0.3em;
+`;
+const ErrorMessage = styled.div`
+  color: #e57373;
+  font-size: 13px;
+  margin-top: 3px;
+`;
+const PwBar = styled.div`
+  display: flex;
+  gap: 4px;
+  margin: 5px 0 0 0;
+`;
+const Bar = styled.div`
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: ${({ $active, $color }) => ($active ? $color : "#393939")};
+  transition: background 0.23s;
+`;
+const Terms = styled.div`
+  font-size: 13px;
+  color: #bbb;
+  text-align: center;
+  margin: 2px 0 11px 0;
+  a {
+    color: #81c784;
+    text-decoration: underline;
+  }
+`;
+const SubmitButton = styled.button`
+  width: 100%;
+  padding: 11px 0;
+  background: linear-gradient(90deg, #0a0a0a, #303030);
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  margin-top: 7px;
+  transition: background 0.15s, color 0.12s;
+  &:hover:not(:disabled),
+  &:focus {
+    background: linear-gradient(90deg, #303030, #0a0a0a);
+    color: #fff;
+    transform: translateY(-2px) scale(1.012);
+  }
+  &:active {
+    transform: scale(0.98);
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;

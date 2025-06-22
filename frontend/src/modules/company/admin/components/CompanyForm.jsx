@@ -18,7 +18,9 @@ export default function CompanyForm({ initialValues, onSubmit }) {
   // Local UI states
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [removedImages, setRemovedImages] = useState([]);
-  const [existingImages, setExistingImages] = useState(getUrlArray(initialValues.logos));
+  const [existingImages, setExistingImages] = useState(
+    getUrlArray(initialValues.logos)
+  );
 
   useEffect(() => {
     setExistingImages(getUrlArray(initialValues.logos));
@@ -29,7 +31,10 @@ export default function CompanyForm({ initialValues, onSubmit }) {
   // Validation schema
   const schema = yup.object().shape({
     companyName: yup.string().required(t("required", "Bu alan zorunludur")),
-    email: yup.string().email(t("invalidEmail", "Geçersiz e-posta")).required(t("required", "Bu alan zorunludur")),
+    email: yup
+      .string()
+      .email(t("invalidEmail", "Geçersiz e-posta"))
+      .required(t("required", "Bu alan zorunludur")),
     phone: yup.string().required(t("required", "Bu alan zorunludur")),
     taxNumber: yup.string().required(t("required", "Bu alan zorunludur")),
     address: yup.object().shape({
@@ -89,7 +94,9 @@ export default function CompanyForm({ initialValues, onSubmit }) {
         autoComplete="organization"
         $hasError={!!formik.errors.companyName && !!formik.touched.companyName}
       />
-      <FieldError>{formik.touched.companyName && formik.errors.companyName}</FieldError>
+      <FieldError>
+        {formik.touched.companyName && formik.errors.companyName}
+      </FieldError>
 
       <Label htmlFor="email">{t("email", "E-Mail")}</Label>
       <Input
@@ -122,9 +129,13 @@ export default function CompanyForm({ initialValues, onSubmit }) {
         onChange={formik.handleChange}
         $hasError={!!formik.errors.taxNumber && !!formik.touched.taxNumber}
       />
-      <FieldError>{formik.touched.taxNumber && formik.errors.taxNumber}</FieldError>
+      <FieldError>
+        {formik.touched.taxNumber && formik.errors.taxNumber}
+      </FieldError>
 
-      <Label htmlFor="handelsregisterNumber">{t("handelsregisterNumber", "Handelsregister Number")}</Label>
+      <Label htmlFor="handelsregisterNumber">
+        {t("handelsregisterNumber", "Handelsregister Number")}
+      </Label>
       <Input
         id="handelsregisterNumber"
         name="handelsregisterNumber"
@@ -140,9 +151,13 @@ export default function CompanyForm({ initialValues, onSubmit }) {
         value={formik.values.address.street}
         onChange={formik.handleChange}
         autoComplete="address-line1"
-        $hasError={!!formik.errors.address?.street && !!formik.touched.address?.street}
+        $hasError={
+          !!formik.errors.address?.street && !!formik.touched.address?.street
+        }
       />
-      <FieldError>{formik.touched.address?.street && formik.errors.address?.street}</FieldError>
+      <FieldError>
+        {formik.touched.address?.street && formik.errors.address?.street}
+      </FieldError>
 
       <Label htmlFor="address.city">{t("city", "City")}</Label>
       <Input
@@ -151,20 +166,32 @@ export default function CompanyForm({ initialValues, onSubmit }) {
         value={formik.values.address.city}
         onChange={formik.handleChange}
         autoComplete="address-level2"
-        $hasError={!!formik.errors.address?.city && !!formik.touched.address?.city}
+        $hasError={
+          !!formik.errors.address?.city && !!formik.touched.address?.city
+        }
       />
-      <FieldError>{formik.touched.address?.city && formik.errors.address?.city}</FieldError>
+      <FieldError>
+        {formik.touched.address?.city && formik.errors.address?.city}
+      </FieldError>
 
-      <Label htmlFor="address.postalCode">{t("postalCode", "Postal Code")}</Label>
+      <Label htmlFor="address.postalCode">
+        {t("postalCode", "Postal Code")}
+      </Label>
       <Input
         id="address.postalCode"
         name="address.postalCode"
         value={formik.values.address.postalCode}
         onChange={formik.handleChange}
         autoComplete="postal-code"
-        $hasError={!!formik.errors.address?.postalCode && !!formik.touched.address?.postalCode}
+        $hasError={
+          !!formik.errors.address?.postalCode &&
+          !!formik.touched.address?.postalCode
+        }
       />
-      <FieldError>{formik.touched.address?.postalCode && formik.errors.address?.postalCode}</FieldError>
+      <FieldError>
+        {formik.touched.address?.postalCode &&
+          formik.errors.address?.postalCode}
+      </FieldError>
 
       <Label htmlFor="address.country">{t("country", "Country")}</Label>
       <Input
@@ -173,9 +200,13 @@ export default function CompanyForm({ initialValues, onSubmit }) {
         value={formik.values.address.country}
         onChange={formik.handleChange}
         autoComplete="country"
-        $hasError={!!formik.errors.address?.country && !!formik.touched.address?.country}
+        $hasError={
+          !!formik.errors.address?.country && !!formik.touched.address?.country
+        }
       />
-      <FieldError>{formik.touched.address?.country && formik.errors.address?.country}</FieldError>
+      <FieldError>
+        {formik.touched.address?.country && formik.errors.address?.country}
+      </FieldError>
 
       <SectionTitle>{t("bankDetails", "Bank Details")}</SectionTitle>
       <Label htmlFor="bankDetails.bankName">{t("bankName", "Bank Name")}</Label>
@@ -184,9 +215,15 @@ export default function CompanyForm({ initialValues, onSubmit }) {
         name="bankDetails.bankName"
         value={formik.values.bankDetails.bankName}
         onChange={formik.handleChange}
-        $hasError={!!formik.errors.bankDetails?.bankName && !!formik.touched.bankDetails?.bankName}
+        $hasError={
+          !!formik.errors.bankDetails?.bankName &&
+          !!formik.touched.bankDetails?.bankName
+        }
       />
-      <FieldError>{formik.touched.bankDetails?.bankName && formik.errors.bankDetails?.bankName}</FieldError>
+      <FieldError>
+        {formik.touched.bankDetails?.bankName &&
+          formik.errors.bankDetails?.bankName}
+      </FieldError>
 
       <Label htmlFor="bankDetails.iban">{t("iban", "IBAN")}</Label>
       <Input
@@ -194,19 +231,32 @@ export default function CompanyForm({ initialValues, onSubmit }) {
         name="bankDetails.iban"
         value={formik.values.bankDetails.iban}
         onChange={formik.handleChange}
-        $hasError={!!formik.errors.bankDetails?.iban && !!formik.touched.bankDetails?.iban}
+        $hasError={
+          !!formik.errors.bankDetails?.iban &&
+          !!formik.touched.bankDetails?.iban
+        }
       />
-      <FieldError>{formik.touched.bankDetails?.iban && formik.errors.bankDetails?.iban}</FieldError>
+      <FieldError>
+        {formik.touched.bankDetails?.iban && formik.errors.bankDetails?.iban}
+      </FieldError>
 
-      <Label htmlFor="bankDetails.swiftCode">{t("swiftCode", "SWIFT Code")}</Label>
+      <Label htmlFor="bankDetails.swiftCode">
+        {t("swiftCode", "SWIFT Code")}
+      </Label>
       <Input
         id="bankDetails.swiftCode"
         name="bankDetails.swiftCode"
         value={formik.values.bankDetails.swiftCode}
         onChange={formik.handleChange}
-        $hasError={!!formik.errors.bankDetails?.swiftCode && !!formik.touched.bankDetails?.swiftCode}
+        $hasError={
+          !!formik.errors.bankDetails?.swiftCode &&
+          !!formik.touched.bankDetails?.swiftCode
+        }
       />
-      <FieldError>{formik.touched.bankDetails?.swiftCode && formik.errors.bankDetails?.swiftCode}</FieldError>
+      <FieldError>
+        {formik.touched.bankDetails?.swiftCode &&
+          formik.errors.bankDetails?.swiftCode}
+      </FieldError>
 
       <SectionTitle>{t("socialMedia", "Social Media Accounts")}</SectionTitle>
       <Label htmlFor="socialLinks.facebook">Facebook</Label>
@@ -253,7 +303,11 @@ export default function CompanyForm({ initialValues, onSubmit }) {
         folder="company"
       />
 
-      <Button type="submit" aria-label={t("save", "Save Company")} disabled={formik.isSubmitting}>
+      <Button
+        type="submit"
+        aria-label={t("save", "Save Company")}
+        disabled={formik.isSubmitting}
+      >
         {t("save", "Save Company")}
       </Button>
     </FormStyled>
@@ -264,22 +318,22 @@ const FormStyled = styled.form`
   max-width: 600px;
   margin: 0 auto;
   background: ${({ theme }) => theme.colors.cardBackground};
-  padding: ${({ theme }) => theme.spacing.lg};
+  padding: ${({ theme }) => theme.spacings.lg};
   border-radius: ${({ theme }) => theme.radii.md};
   box-shadow: ${({ theme }) => theme.shadows.sm};
 `;
 
 const Label = styled.label`
   display: block;
-  margin-top: ${({ theme }) => theme.spacing.md};
-  margin-bottom: ${({ theme }) => theme.spacing.xs};
+  margin-top: ${({ theme }) => theme.spacings.md};
+  margin-bottom: ${({ theme }) => theme.spacings.xs};
   font-weight: ${({ theme }) => theme.fontWeights.medium};
   color: ${({ theme }) => theme.colors.textPrimary};
 `;
 
 const Input = styled.input`
-  padding: ${({ theme }) => theme.spacing.sm};
-  margin-bottom: ${({ theme }) => theme.spacing.xs};
+  padding: ${({ theme }) => theme.spacings.sm};
+  margin-bottom: ${({ theme }) => theme.spacings.xs};
   width: 100%;
   border-radius: ${({ theme }) => theme.radii.sm};
   border: 1px solid ${({ theme }) => theme.colors.border};
@@ -294,16 +348,17 @@ const Input = styled.input`
 `;
 
 const SectionTitle = styled.h4`
-  margin-top: ${({ theme }) => theme.spacing.lg};
-  margin-bottom: ${({ theme }) => theme.spacing.md};
+  margin-top: ${({ theme }) => theme.spacings.lg};
+  margin-bottom: ${({ theme }) => theme.spacings.md};
   color: ${({ theme }) => theme.colors.primary};
   font-weight: ${({ theme }) => theme.fontWeights.bold};
   font-size: ${({ theme }) => theme.fontSizes.md};
 `;
 
 const Button = styled.button`
-  margin-top: ${({ theme }) => theme.spacing.lg};
-  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.lg};
+  margin-top: ${({ theme }) => theme.spacings.lg};
+  padding: ${({ theme }) => theme.spacings.sm}
+    ${({ theme }) => theme.spacings.lg};
   background: ${({ theme }) => theme.colors.primary};
   color: ${({ theme }) => theme.colors.buttonText};
   border: none;
@@ -326,6 +381,6 @@ const Button = styled.button`
 const FieldError = styled.div`
   color: ${({ theme }) => theme.colors.danger};
   font-size: ${({ theme }) => theme.fontSizes.xs};
-  margin-bottom: ${({ theme }) => theme.spacing.xs};
+  margin-bottom: ${({ theme }) => theme.spacings.xs};
   min-height: 18px;
 `;

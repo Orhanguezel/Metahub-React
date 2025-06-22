@@ -6,25 +6,22 @@ import {
 } from "@/modules/users/slice/authSlice";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { useRecaptcha } from "@/hooks/useRecaptcha";
 import zxcvbn from "zxcvbn";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaUser } from "react-icons/fa";
-import { PwStrengthBar } from "@/modules/users";
-import {
-  Form,
-  FormGroup,
-  InputWrapper,
-  Input,
-  InputIcon,
-  ErrorMessage,
-  Terms,
-  SubmitButton,
-  AltAction,
-  TogglePassword,
-  Label,
-} from "@/modules/users/public/styles/AuthFormStyles";
+import styled from "styled-components";
 
-// All props are optional and typed via JS convention
+// Sade PwStrengthBar componenti (isteğe bağlı)
+function PwStrengthBar({ score = 0 }) {
+  const colors = ["#e57373", "#ffb74d", "#fff176", "#64b5f6", "#81c784"];
+  return (
+    <PwBar>
+      {[0, 1, 2, 3, 4].map((i) => (
+        <Bar key={i} $active={i <= score} $color={colors[i]} />
+      ))}
+    </PwBar>
+  );
+}
+
 export default function RegisterForm({ onSwitch, onAuthSuccess }) {
   const dispatch = useDispatch();
   const { t } = useTranslation("register");
@@ -40,7 +37,6 @@ export default function RegisterForm({ onSwitch, onAuthSuccess }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState({});
-  const recaptcha = useRecaptcha();
 
   // Password strength score (0-4)
   const pwScore = form.password ? zxcvbn(form.password).score : 0;
@@ -54,17 +50,16 @@ export default function RegisterForm({ onSwitch, onAuthSuccess }) {
       } else if (onAuthSuccess) {
         onAuthSuccess();
       }
-      // else: If you want, implement a classic redirect here (window.location)
     }
   }, [successMessage, dispatch, onAuthSuccess, onSwitch, form.email]);
 
   useEffect(() => {
     if (error) {
-      const errorMsg =
+      toast.error(
         typeof error === "string"
           ? error
-          : error?.message || JSON.stringify(error) || t("errors.error");
-      toast.error(errorMsg);
+          : error?.message || JSON.stringify(error) || t("errors.error")
+      );
       dispatch(clearAuthMessages());
     }
   }, [error, dispatch, t]);
@@ -98,21 +93,13 @@ export default function RegisterForm({ onSwitch, onAuthSuccess }) {
       return;
     }
     try {
-      const recaptchaToken = await recaptcha("register");
-      if (!recaptchaToken) {
-        toast.error(
-          t("errors.recaptchaFailed", "reCAPTCHA validation failed.")
-        );
-        return;
-      }
+      // recaptcha varsa ekleyebilirsin, sade hali için kaldırıldı
       const payload = {
         name: form.username,
         email: form.email,
         password: form.password,
-        recaptchaToken,
       };
       await dispatch(registerUser(payload)).unwrap();
-      // Geri kalan süreç useEffect'te yönetiliyor.
     } catch (err) {
       toast.error(
         err?.response?.data?.message ||
@@ -123,7 +110,7 @@ export default function RegisterForm({ onSwitch, onAuthSuccess }) {
     }
   };
 
-  // Manual link navigation (for classic React)
+  // Klasik navigationlar (isteğe bağlı sade tutuldu)
   const goToLogin = (e) => {
     e.preventDefault();
     if (onSwitch) onSwitch({ step: "login" });
@@ -142,10 +129,7 @@ export default function RegisterForm({ onSwitch, onAuthSuccess }) {
     <Form onSubmit={handleSubmit} autoComplete="off">
       {/* Username */}
       <FormGroup>
-        <Label htmlFor="username">
-          <InfoDot />
-          {t("username")}
-        </Label>
+        <Label htmlFor="username">{t("username")}</Label>
         <InputWrapper $hasError={!!errors.username}>
           <InputIcon>
             <FaUser />
@@ -241,9 +225,7 @@ export default function RegisterForm({ onSwitch, onAuthSuccess }) {
             {showConfirm ? <FaEyeSlash /> : <FaEye />}
           </TogglePassword>
         </InputWrapper>
-        {errors.confirmPassword && (
-          <ErrorMessage>{errors.confirmPassword}</ErrorMessage>
-        )}
+        {errors.confirmPassword && <Error>{errors.confirmPassword}</Error>}
       </FormGroup>
 
       {/* Terms */}
@@ -276,3 +258,146 @@ export default function RegisterForm({ onSwitch, onAuthSuccess }) {
     </Form>
   );
 }
+
+// --- Stiller burada sade tutuldu ---
+
+const Form = styled.form`
+  width: 100%;
+  max-width: 800px;
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  @media (max-width: 900px) {
+    padding: 16px;
+  }
+`;
+
+const FormGroup = styled.div`
+  width: 100%;
+  margin-bottom: 16px;
+  position: relative;
+`;
+
+const Label = styled.label`
+  font-weight: 500;
+  font-size: 15px;
+  color: #e0e0e0;
+  margin-bottom: 3px;
+  display: block;
+`;
+
+const InputWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.58em 1em;
+  border: 2px solid ${({ $hasError }) => ($hasError ? "#e57373" : "#666")};
+  background: #282828;
+  border-radius: 7px;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 18px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #333;
+  background-color: #f9f9f9;
+  &:focus {
+    border-color: #00fff7;
+    outline: none;
+  }
+`;
+
+const InputIcon = styled.div`
+  color: #aaa;
+  font-size: 1.1em;
+  display: flex;
+  align-items: center;
+`;
+const TogglePassword = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #bbb;
+  font-size: 1.15em;
+  display: flex;
+  align-items: center;
+  padding: 0 0.3em;
+`;
+const Error = styled.div`
+  color: #d24343;
+  font-size: 0.96em;
+  margin: 2px 0 2px 0;
+`;
+const PwBar = styled.div`
+  display: flex;
+  gap: 4px;
+  margin: 6px 0 0 0;
+`;
+const Bar = styled.div`
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: ${({ $active, $color }) => ($active ? $color : "#393939")};
+  transition: background 0.23s;
+`;
+const Terms = styled.div`
+  text-align: center;
+  margin-top: 18px;
+  font-size: 1rem;
+  color: ${({ theme }) => theme?.colors?.primary || "#0a0a0a"};
+  a {
+    color: ${({ theme }) => theme?.colors?.link || "#00FFF7"};
+    font-weight: 600;
+    text-decoration: underline;
+    margin-left: 2px;
+  }
+`;
+const SubmitButton = styled.button`
+  background-color: ${({ theme }) => theme.colors.primary || "#0a0a0a"};
+  color: ${({ theme }) => theme.colors.white || "#fff"};
+  border: none;
+  padding: 1.9em 1.8em;
+  font-size: 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  align-self: center;
+  width: auto;
+
+  &:hover:not(:disabled) {
+    background-color: ${({ theme }) => theme.colors.secondary || "#303030"};
+    transform: translateY(-2px);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 600px) {
+    width: 100%;
+    padding: 0.8em 1.6em;
+  }
+`;
+
+const AltAction = styled.div`
+  text-align: center;
+  margin-top: 22px;
+  font-size: 14px;
+  color: #aaa;
+`;

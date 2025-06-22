@@ -1,22 +1,10 @@
-// src/modules/users/public/components/login/LoginFormStep.js
-
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { loginUser } from "@/modules/users/slice/authSlice";
 import { useTranslation } from "react-i18next";
-import {
-  Form,
-  FormGroup,
-  InputWrapper,
-  Input,
-  SubmitButton,
-  TogglePassword,
-  InputIcon,
-  Label,
-  ErrorMessage,
-} from "@/modules/users/public/styles/AuthFormStyles";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast } from "react-toastify";
+import styled from "styled-components";
 
 export default function LoginFormStep({ onNext }) {
   const dispatch = useDispatch();
@@ -27,7 +15,7 @@ export default function LoginFormStep({ onNext }) {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  // --- Validation ---
+  // Validation
   const validate = () => {
     const errs = {};
     if (!form.email.trim()) errs.email = t("errors.email");
@@ -39,7 +27,6 @@ export default function LoginFormStep({ onNext }) {
     return errs;
   };
 
-  // --- Handlers ---
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setErrors((prev) => ({ ...prev, [e.target.name]: undefined }));
@@ -68,8 +55,7 @@ export default function LoginFormStep({ onNext }) {
   };
 
   return (
-    <Form onSubmit={handleSubmit} autoComplete="off">
-      {/* Email */}
+    <StyledForm onSubmit={handleSubmit} autoComplete="off">
       <FormGroup>
         <Label htmlFor="email">{t("email")}</Label>
         <InputWrapper $hasError={!!errors.email}>
@@ -89,8 +75,6 @@ export default function LoginFormStep({ onNext }) {
         </InputWrapper>
         {errors.email && <ErrorMessage>{errors.email}</ErrorMessage>}
       </FormGroup>
-
-      {/* Password */}
       <FormGroup>
         <Label htmlFor="password">{t("password")}</Label>
         <InputWrapper $hasError={!!errors.password}>
@@ -118,11 +102,123 @@ export default function LoginFormStep({ onNext }) {
         </InputWrapper>
         {errors.password && <ErrorMessage>{errors.password}</ErrorMessage>}
       </FormGroup>
-
-      {/* Submit */}
       <SubmitButton type="submit" disabled={loading}>
         {loading ? t("loading") : t("submit")}
       </SubmitButton>
-    </Form>
+    </StyledForm>
   );
 }
+
+// --- Styles (hepsi tek dosyada, sade ve responsive) ---
+const StyledForm = styled.form`
+  width: 100%;
+  max-width: 800px;
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  @media (max-width: 900px) {
+    padding: 16px;
+  }
+`;
+
+const FormGroup = styled.div`
+  width: 100%;
+  margin-bottom: 16px;
+  position: relative;
+`;
+
+const Label = styled.label`
+  font-weight: 500;
+  font-size: 15px;
+  color: #e0e0e0;
+  margin-bottom: 3px;
+  display: block;
+`;
+
+const InputWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.58em 1em;
+  border: 2px solid ${({ $hasError }) => ($hasError ? "#e57373" : "#666")};
+  background: #282828;
+  border-radius: 7px;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 18px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #333;
+  background-color: #f9f9f9;
+  &:focus {
+    border-color: #00fff7;
+    outline: none;
+  }
+`;
+
+const SubmitButton = styled.button`
+  background-color: ${({ theme }) => theme.colors.primary || "#0a0a0a"};
+  color: ${({ theme }) => theme.colors.white || "#fff"};
+  border: none;
+  padding: 0.9em 1.8em;
+  font-size: 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  align-self: center;
+  width: auto;
+
+  &:hover:not(:disabled) {
+    background-color: ${({ theme }) => theme.colors.secondary || "#303030"};
+    transform: translateY(-2px);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 600px) {
+    width: 100%;
+    padding: 0.8em 1.6em;
+  }
+`;
+
+const TogglePassword = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #bbb;
+  font-size: 1.15em;
+  display: flex;
+  align-items: center;
+  padding: 0 0.3em;
+`;
+
+const InputIcon = styled.div`
+  color: #aaa;
+  font-size: 1.1em;
+  display: flex;
+  align-items: center;
+`;
+
+const ErrorMessage = styled.div`
+  color: #e57373;
+  font-size: 13px;
+  margin-top: 4px;
+`;

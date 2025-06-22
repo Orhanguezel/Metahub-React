@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import apiCall from "@/api/apiCall";
+import { SUPPORTED_LOCALES } from "@/i18n";
 
-// --- Initial state ---
 const initialState = {
   settings: [],
   loading: false,
@@ -9,8 +9,6 @@ const initialState = {
   successMessage: null,
   fetchedSettings: false,
 };
-
-// --- Async Thunks ---
 
 export const fetchSettings = createAsyncThunk(
   "setting/fetchSettings",
@@ -29,18 +27,20 @@ export const upsertSetting = createAsyncThunk(
   async (data, thunkAPI) => {
     try {
       let normalizedValue = data.value;
-      // If value is a plain string and key is not a special logo/theme key, convert to multilanguage object
+      // Eğer string gönderildiyse ve multilanguage alan ise: (frontend validasyonu için)
       if (
         typeof data.value === "string" &&
         !["site_template", "available_themes", "navbar_logos", "footer_logos"].includes(data.key)
       ) {
-        normalizedValue = { tr: data.value, en: data.value, de: data.value };
+        normalizedValue = SUPPORTED_LOCALES.reduce(
+          (acc, lng) => ({ ...acc, [lng]: data.value }),
+          {}
+        );
       }
-
       const response = await apiCall(
         "post",
         "/setting",
-        { key: data.key, value: normalizedValue },
+        { key: data.key, value: normalizedValue, isActive: data.isActive },
         thunkAPI.rejectWithValue
       );
       return response.data;
@@ -108,12 +108,29 @@ export const updateSettingImage = createAsyncThunk(
   }
 );
 
-// --- Slice ---
+// --- Helper function ---
+function updateOrInsert(state, payload) {
+  const updated = payload.data || payload;
+  if (!updated || !updated.key) return;
+  const index = state.settings.findIndex((s) => s.key === updated.key);
+  if (index !== -1) {
+    state.settings[index] = updated;
+  } else {
+    state.settings.push(updated);
+  }
+}
+
 const settingSlice = createSlice({
   name: "setting",
   initialState,
   reducers: {
     clearSettingMessages: (state) => {
+      state.error = null;
+      state.successMessage = null;
+    },
+    clearSettings: (state) => {
+      state.settings = [];
+      state.fetchedSettings = false;
       state.error = null;
       state.successMessage = null;
     },
@@ -126,7 +143,7 @@ const settingSlice = createSlice({
       })
       .addCase(fetchSettings.fulfilled, (state, action) => {
         state.loading = false;
-        state.settings = action.payload;
+        state.settings = action.payload.data || action.payload;
         state.fetchedSettings = true;
       })
       .addCase(fetchSettings.rejected, (state, action) => {
@@ -158,7 +175,6 @@ const settingSlice = createSlice({
         state.settings = state.settings.filter((s) => s.key !== action.payload);
       })
 
-      // Error matcher for all rejected actions
       .addMatcher(
         (action) => action.type.endsWith("/rejected"),
         (state, action) => {
@@ -176,15 +192,5 @@ const settingSlice = createSlice({
   },
 });
 
-// --- Helper function ---
-function updateOrInsert(state, updated) {
-  const index = state.settings.findIndex((s) => s.key === updated.key);
-  if (index !== -1) {
-    state.settings[index] = updated;
-  } else {
-    state.settings.push(updated);
-  }
-}
-
-export const { clearSettingMessages } = settingSlice.actions;
+export const { clearSettingMessages, clearSettings } = settingSlice.actions;
 export default settingSlice.reducer;

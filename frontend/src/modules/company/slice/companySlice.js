@@ -94,6 +94,14 @@ const companySlice = createSlice({
       state.error = null;
       state.successMessage = null;
     },
+    clearCompany(state) {
+      state.company = null;
+      state.status = "idle";
+      state.updateStatus = "idle";
+      state.createStatus = "idle";
+      state.error = null;
+      state.successMessage = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -146,5 +154,5 @@ const companySlice = createSlice({
   },
 });
 
-export const { resetMessages } = companySlice.actions;
+export const { resetMessages, clearCompany } = companySlice.actions;
 export default companySlice.reducer;

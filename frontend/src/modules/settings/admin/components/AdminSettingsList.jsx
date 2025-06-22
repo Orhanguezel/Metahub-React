@@ -35,7 +35,9 @@ export default function AdminSettingsList({ settings, onEdit }) {
   const handleThemeChange = async (e) => {
     const newTheme = e.target.value;
     try {
-      await dispatch(upsertSetting({ key: "site_template", value: newTheme })).unwrap();
+      await dispatch(
+        upsertSetting({ key: "site_template", value: newTheme })
+      ).unwrap();
       toast.success(t("themeChanged"));
     } catch (error) {
       toast.error(error?.message || t("updateError"));
@@ -95,9 +97,7 @@ export default function AdminSettingsList({ settings, onEdit }) {
     if (val && typeof val === "object") {
       if ("tr" in val || "en" in val || "de" in val) {
         return (
-          <div>
-            {`${val.tr || "-"} / ${val.en || "-"} / ${val.de || "-"}`}
-          </div>
+          <div>{`${val.tr || "-"} / ${val.en || "-"} / ${val.de || "-"}`}</div>
         );
       }
 
@@ -187,14 +187,15 @@ const TableHeader = styled.th`
   background: ${({ theme }) => theme.colors.sectionBackground};
   color: ${({ theme }) => theme.colors.text};
   font-weight: ${({ theme }) => theme.fontWeights.bold};
-  padding: ${({ theme }) => theme.spacing.md};
+  padding: ${({ theme }) => theme.spacings.md};
   text-align: left;
   font-size: ${({ theme }) => theme.fontSizes.sm};
 `;
 
 const TableCell = styled.td`
-  padding: ${({ theme }) => theme.spacing.md};
-  border-bottom: ${({ theme }) => theme.borders.thin} ${({ theme }) => theme.colors.border};
+  padding: ${({ theme }) => theme.spacings.md};
+  border-bottom: ${({ theme }) => theme.borders.thin}
+    ${({ theme }) => theme.colors.border};
   color: ${({ theme }) => theme.colors.textSecondary};
   font-size: ${({ theme }) => theme.fontSizes.sm};
   vertical-align: top;
@@ -215,7 +216,7 @@ const Select = styled.select`
 `;
 
 const ActionButton = styled.button`
-  margin-right: ${({ theme }) => theme.spacing.xs};
+  margin-right: ${({ theme }) => theme.spacings.xs};
   padding: 0.4rem 0.8rem;
   background: ${({ theme }) => theme.buttons.secondary.background};
   color: ${({ theme }) => theme.buttons.secondary.text};
@@ -242,13 +243,13 @@ const ActionButtonDelete = styled(ActionButton)`
 const EmptyMessage = styled.div`
   text-align: center;
   color: ${({ theme }) => theme.colors.warning};
-  padding: ${({ theme }) => theme.spacing.lg};
+  padding: ${({ theme }) => theme.spacings.lg};
   font-size: ${({ theme }) => theme.fontSizes.lg};
 `;
 
 const NestedList = styled.ul`
   list-style: disc;
-  padding-left: ${({ theme }) => theme.spacing.md};
+  padding-left: ${({ theme }) => theme.spacings.md};
 `;
 
 const NestedItem = styled.li`
@@ -259,7 +260,7 @@ const NestedItem = styled.li`
 
 const LogoGroup = styled.div`
   display: flex;
-  gap: ${({ theme }) => theme.spacing.sm};
+  gap: ${({ theme }) => theme.spacings.sm};
   flex-wrap: wrap;
   align-items: center;
 `;
@@ -274,12 +275,12 @@ const LogoPreview = styled.div`
     height: auto;
     border-radius: ${({ theme }) => theme.radii.sm};
     box-shadow: ${({ theme }) => theme.shadows.sm};
-    margin-top: ${({ theme }) => theme.spacing.xs};
+    margin-top: ${({ theme }) => theme.spacings.xs};
   }
 
   span {
     font-size: ${({ theme }) => theme.fontSizes.xs};
-    margin-top: ${({ theme }) => theme.spacing.xs};
+    margin-top: ${({ theme }) => theme.spacings.xs};
     color: ${({ theme }) => theme.colors.textSecondary};
   }
 `;

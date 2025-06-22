@@ -113,20 +113,20 @@ export default AdminGalleryPage;
 // Styled Components
 
 const Container = styled.div`
-  padding: ${({ theme }) => theme.spacing.lg};
+  padding: ${({ theme }) => theme.spacings.lg};
   background: ${({ theme }) => theme.colors.background};
   color: ${({ theme }) => theme.colors.text};
 `;
 
 const Title = styled.h1`
   font-size: ${({ theme }) => theme.fontSizes.xl};
-  margin-bottom: ${({ theme }) => theme.spacing.lg};
+  margin-bottom: ${({ theme }) => theme.spacings.lg};
 `;
 
 const TabButtons = styled.div`
   display: flex;
-  gap: ${({ theme }) => theme.spacing.sm};
-  margin-bottom: ${({ theme }) => theme.spacing.md};
+  gap: ${({ theme }) => theme.spacings.sm};
+  margin-bottom: ${({ theme }) => theme.spacings.md};
 `;
 
 const TabButton = styled.button<{ $active: boolean }>`
@@ -148,7 +148,7 @@ const TabButton = styled.button<{ $active: boolean }>`
 const EmptyMessage = styled.p`
   font-size: ${({ theme }) => theme.fontSizes.md};
   color: ${({ theme }) => theme.colors.textAlt};
-  margin-top: ${({ theme }) => theme.spacing.md};
+  margin-top: ${({ theme }) => theme.spacings.md};
   text-align: center;
 `;
 

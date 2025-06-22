@@ -1,39 +1,35 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { XCircle, Pencil } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { EditModuleModal } from "@/modules/adminmodules";
 import { toast } from "react-toastify";
-import {EditModuleModal} from "@/modules/adminmodules"; 
+import { getCurrentLocale } from "@/utils/getCurrentLocale";
 
-const ModuleDetailModal = ({ module, onClose, onEditSuccess }) => {
-  const { t, i18n } = useTranslation("adminModules");
+export default function ModuleDetailModal({ module, onClose }) {
+  const { t } = useTranslation("adminModules");
   const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const lang = getCurrentLocale();
 
-  const currentLang = i18n.language || "en";
-  const moduleLabel = module?.label?.[currentLang] ?? module?.name ?? "";
+  const moduleLabel =
+    module?.label?.[lang]?.trim() ||
+    module?.label?.en?.trim() ||
+    module?.name ||
+    module?.module;
 
+  // SADECE SON 5 history'yi göster
+  const shownHistory = Array.isArray(module.history)
+    ? module.history.slice(-5)
+    : [];
+  const hasMoreHistory =
+    Array.isArray(module.history) && module.history.length > 5;
+
+  // Edit işlemi sonrası frontend güncellemesi için
   const handleEditSuccess = () => {
     toast.success(t("updateSuccess", "Module updated successfully!"));
     setEditModalOpen(false);
-    if (onEditSuccess) onEditSuccess();
-    onClose();
+    onClose?.();
   };
-
-  useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
-  }, [onClose]);
-
-  const createdAt = module?.createdAt
-    ? new Date(module.createdAt).toLocaleString()
-    : "-";
-
-  const updatedAt = module?.updatedAt
-    ? new Date(module.updatedAt).toLocaleString()
-    : "-";
 
   return (
     <>
@@ -41,13 +37,21 @@ const ModuleDetailModal = ({ module, onClose, onEditSuccess }) => {
         <Modal>
           <Header>
             <Title>
-              {moduleLabel} <ModuleName>({module?.name ?? "-"})</ModuleName>
+              {moduleLabel} <ModuleName>({module.name})</ModuleName>
             </Title>
             <ButtonGroup>
-              <EditButton onClick={() => setEditModalOpen(true)} aria-label={t("edit", "Edit Module")}>
+              <EditButton
+                type="button"
+                onClick={() => setEditModalOpen(true)}
+                aria-label={t("edit", "Edit")}
+              >
                 <Pencil size={18} />
               </EditButton>
-              <CloseButton onClick={onClose} aria-label={t("close", "Close")}>
+              <CloseButton
+                type="button"
+                onClick={onClose}
+                aria-label={t("close", "Close")}
+              >
                 <XCircle size={18} />
               </CloseButton>
             </ButtonGroup>
@@ -55,28 +59,35 @@ const ModuleDetailModal = ({ module, onClose, onEditSuccess }) => {
 
           <Content>
             <DetailItem>
-              <strong>{t("createdAt", "Created At")}:</strong> {createdAt}
+              <strong>{t("createdAt", "Created At")}:</strong>{" "}
+              {module?.createdAt
+                ? new Date(module.createdAt).toLocaleString(lang)
+                : "-"}
             </DetailItem>
-
             <DetailItem>
-              <strong>{t("updatedAt", "Updated At")}:</strong> {updatedAt}
+              <strong>{t("updatedAt", "Updated At")}:</strong>{" "}
+              {module?.updatedAt
+                ? new Date(module.updatedAt).toLocaleString(lang)
+                : "-"}
             </DetailItem>
 
-            {module?.history?.length > 0 && (
+            {shownHistory.length > 0 && (
               <>
                 <SectionTitle>{t("history", "Version History")}</SectionTitle>
                 <HistoryList>
-                  {module.history.map((h, i) => (
+                  {shownHistory.map((h, i) => (
                     <HistoryItem key={i}>
                       <VersionLine>
                         <Version>
                           <strong>{h.version}</strong>
                         </Version>
-                        <Author>{h.by}</Author>
+                        <Author>
+                          {h.by || h.gitUser || h.createdBy || "-"}
+                        </Author>
                         <HistoryDate>
                           (
                           {h.date
-                            ? new Date(h.date).toLocaleDateString()
+                            ? new Date(h.date).toLocaleDateString(lang)
                             : "-"}
                           )
                         </HistoryDate>
@@ -84,6 +95,13 @@ const ModuleDetailModal = ({ module, onClose, onEditSuccess }) => {
                       {h.note && <NoteText>{h.note}</NoteText>}
                     </HistoryItem>
                   ))}
+                  {hasMoreHistory && (
+                    <HistoryItem>
+                      <em style={{ opacity: 0.7 }}>
+                        ...{t("andMore", "and more")}
+                      </em>
+                    </HistoryItem>
+                  )}
                 </HistoryList>
               </>
             )}
@@ -96,12 +114,9 @@ const ModuleDetailModal = ({ module, onClose, onEditSuccess }) => {
       )}
     </>
   );
-};
-
-export default ModuleDetailModal;
+}
 
 // --- Styled Components ---
-
 const Overlay = styled.div`
   position: fixed;
   inset: 0;
@@ -115,15 +130,18 @@ const Overlay = styled.div`
 
 const Modal = styled.div`
   background: ${({ theme }) => theme.colors.background};
-  padding: ${({ theme }) => theme.spacing.lg};
+  padding: ${({ theme }) => theme.spacings.lg};
   max-width: 600px;
   width: 95%;
   border-radius: ${({ theme }) => theme.radii.md};
   box-shadow: ${({ theme }) => theme.shadows.lg};
+  @media (max-width: 480px) {
+    padding: ${({ theme }) => theme.spacings.md};
+  }
 `;
 
 const Header = styled.div`
-  margin-bottom: ${({ theme }) => theme.spacing.lg};
+  margin-bottom: ${({ theme }) => theme.spacings.lg};
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -141,7 +159,7 @@ const ModuleName = styled.span`
 
 const ButtonGroup = styled.div`
   display: flex;
-  gap: ${({ theme }) => theme.spacing.xs};
+  gap: ${({ theme }) => theme.spacings.xs};
 `;
 
 const EditButton = styled.button`
@@ -175,7 +193,7 @@ const CloseButton = styled.button`
 const Content = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.sm};
+  gap: ${({ theme }) => theme.spacings.sm};
 `;
 
 const DetailItem = styled.p`
@@ -184,30 +202,31 @@ const DetailItem = styled.p`
 `;
 
 const SectionTitle = styled.h4`
-  margin-top: ${({ theme }) => theme.spacing.lg};
-  margin-bottom: ${({ theme }) => theme.spacing.md};
+  margin-top: ${({ theme }) => theme.spacings.lg};
+  margin-bottom: ${({ theme }) => theme.spacings.md};
   font-size: ${({ theme }) => theme.fontSizes.md};
-  border-bottom: ${({ theme }) => theme.borders.thin} ${({ theme }) => theme.colors.border};
-  padding-bottom: ${({ theme }) => theme.spacing.xs};
+  border-bottom: ${({ theme }) => theme.borders.thin}
+    ${({ theme }) => theme.colors.border};
+  padding-bottom: ${({ theme }) => theme.spacings.xs};
 `;
 
 const HistoryList = styled.ul`
-  padding-left: ${({ theme }) => theme.spacing.md};
+  padding-left: ${({ theme }) => theme.spacings.md};
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.md};
+  gap: ${({ theme }) => theme.spacings.md};
 `;
 
 const HistoryItem = styled.li`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs};
+  gap: ${({ theme }) => theme.spacings.xs};
 `;
 
 const VersionLine = styled.div`
   display: flex;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.xs};
+  gap: ${({ theme }) => theme.spacings.xs};
   font-size: ${({ theme }) => theme.fontSizes.sm};
 `;
 
@@ -222,8 +241,9 @@ const Author = styled.span`
 const NoteText = styled.div`
   font-size: ${({ theme }) => theme.fontSizes.sm};
   opacity: 0.85;
-  padding-left: ${({ theme }) => theme.spacing.md};
-  border-left: ${({ theme }) => theme.borders.thick} ${({ theme }) => theme.colors.primary};
+  padding-left: ${({ theme }) => theme.spacings.md};
+  border-left: ${({ theme }) => theme.borders.thick}
+    ${({ theme }) => theme.colors.primary};
 `;
 
 const HistoryDate = styled.span`

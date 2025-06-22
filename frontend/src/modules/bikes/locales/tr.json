@@ -1,18 +1,34 @@
 {
-  "title": "Tüm Bisiklet Modellerimiz",
-  "details": "Tüm bisiklet detaylarını gör",
-  "buy": "Şimdi Satın Al",
-  "category": "Kategori",
-  "discover_more": "Daha fazla keşfet",
-  "coming_soon": "Daha fazla detay yakında...",
-  "go_back": "← Geri Dön",
+  "allBikes": {
+    "title": "Bisiklet Kategorileri",
+    "all": "Tümü",
+    "loading": "Yükleniyor...",
+    "error": "Bir hata oluştu: {{error}}",
+    "noBikes": "Bu kategoride bisiklet bulunamadı."
+  },
+  "bikeCard": {
+    "defaultTitle": "Bisiklet",
+    "defaultDesc": "Daha fazla detay yakında...",
+    "discover": "Keşfet"
+  },
   "loading": "Yükleniyor...",
-  "error": "Bir hata oluştu: {{error}}",
-  "price": "Fiyat",
-  "stock": "Stok",
-  "tags": "Etiketler",
-  "brand": "Marka",
-  "description": "Açıklama",
-  "not_found": "Bisiklet bulunamadı.",
-  "more_images": "Diğer Görseller"
+  "allCategories": "Tüm Kategoriler",
+  "noBikesInCategory": "\"{{category}}\" kategorisinde bisiklet bulunamadı.",
+  "selectSize": "Beden Seç:",
+  "selectSizeAlert": "Lütfen sepete eklemeden önce bir beden seçin.",
+  "addToCart": "Sepete Ekle",
+  "keyFeatures": "Öne Çıkan Özellikler",
+  "fullSpecs": "Tüm Teknik Özellikler",
+  "bikeNotFoundTitle": "Bisiklet Bulunamadı",
+  "bikeNotFoundDesc": "Üzgünüz, {{id}} ID'sine sahip bir bisiklet bulunamadı.",
+  "backToCategories": "Tüm Bisiklet Kategorilerine Dön",
+  "galleryImageAlt": "Galeri görseli {{index}}",
+  "category": {
+    "noName": "İsimsiz Kategori"
+  },
+  "categoryPage": {
+    "loading": "Yükleniyor...",
+    "noBikes": "Bu kategoride bisiklet bulunamadı.",
+    "pageTitle": "Bisiklet Kategorisi: {{category}}"
+  }
 }

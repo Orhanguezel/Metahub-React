@@ -1,16 +1,18 @@
 import React, { useRef, useEffect } from "react";
 import styled from "styled-components";
+
 import { useTranslation } from "react-i18next";
-import { 
-  AvatarMenu, 
-  SearchBar, 
-  LanguageSelector, 
-  Logo 
+
+import {
+  AvatarMenu,
+  SearchBar,
+  LanguageSelector,
+  Logo,
 } from "@/modules/shared";
-import { useGsap } from "@/contexts/GsapContext"; 
+import { useGsap } from "@/contexts/GsapContext";
 
 const Navbar = ({ animate }) => {
-  const gsap = useGsap(); 
+  const gsap = useGsap();
   const navRef = useRef(null);
   const { t } = useTranslation("navbar");
 
@@ -47,16 +49,16 @@ const Navbar = ({ animate }) => {
         <Logo width={120} height={120} themeMode="dark" />
       </LogoContainer>
       <NavLinks className="nav-links">
-        <a href="about">{t("about", "About")}</a>
-        <a href="bikes">{t("bikes", "Bikes")}</a>
-        <a href="home">{t("home", "Home")}</a>
-        <a href="stories">{t("stories", "Stories")}</a>
+        <a href="/about">{t("about", "About")}</a>
+        <a href="/bikes">{t("bikes", "Bikes")}</a>
+        <a href="/home">{t("home", "Home")}</a>
+        <a href="/stories">{t("stories", "Stories")}</a>
       </NavLinks>
       <NavActions className="nav-actions">
         <LanguageSelector />
         <SearchBar />
         <CartButton>
-          <a href="cart" aria-label={t("cart", "Shopping Cart")}>
+          <a href="/cart" aria-label={t("cart", "Shopping Cart")}>
             <i className="fas fa-shopping-cart"></i>
           </a>
         </CartButton>
@@ -73,7 +75,8 @@ const NavStyled = styled.nav`
   top: 0;
   left: 0;
   width: 100%;
-  padding: ${({ theme }) => theme.spacing.md} ${({ theme }) => theme.spacing.lg};
+  padding: ${({ theme }) => theme.spacings.md}
+    ${({ theme }) => theme.spacings.lg};
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -113,7 +116,7 @@ const NavLinks = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.xl};
+  gap: ${({ theme }) => theme.spacings.xl};
   font-family: ${({ theme }) => theme.fonts.main};
   font-weight: ${({ theme }) => theme.fontWeights.medium};
 
@@ -136,7 +139,7 @@ const NavLinks = styled.div`
 const NavActions = styled.div`
   display: flex;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.md};
+  gap: ${({ theme }) => theme.spacings.md};
 `;
 
 const CartButton = styled.div`

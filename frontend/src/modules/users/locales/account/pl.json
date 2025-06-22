@@ -1,0 +1,94 @@
+{
+  "page": {
+    "title": "Ustawienia Konta",
+    "profileImage": "Zdjęcie Profilowe",
+    "personalInfo": "Informacje Osobiste",
+    "address": "Informacje o Adresie",
+    "notifications": "Ustawienia Powiadomień",
+    "social": "Linki do Mediów Społecznościowych",
+    "password": "Zmień Hasło",
+    "deleteAccount": "Usuń Konto",
+    "loading": "Ładowanie..."
+  },
+  "form": {
+    "title": "Zaktualizuj Moje Informacje",
+    "name": "Pełne Imię i Nazwisko",
+    "email": "E-mail",
+    "phone": "Telefon",
+    "save": "Zapisz",
+    "saving": "Zapisywanie...",
+    "success": "Informacje zostały pomyślnie zaktualizowane.",
+    "error": "Wystąpił błąd podczas aktualizacji.",
+    "errors": {
+      "name": "Wprowadź swoje imię.",
+      "email": "Wprowadź swój adres e-mail.",
+      "emailInvalid": "Wprowadź prawidłowy adres e-mail."
+    },
+    "imageSuccess": "Zdjęcie profilowe zostało zaktualizowane.",
+    "imageError": "Nie udało się przesłać zdjęcia.",
+    "loading": "Ładowanie...",
+    "upload": "Prześlij Zdjęcie"
+  },
+  "address": {
+    "title": "Informacje o Adresie",
+    "street": "Ulica",
+    "houseNumber": "Numer Domu",
+    "city": "Miasto",
+    "zipCode": "Kod Pocztowy",
+    "phone": "Telefon",
+    "add": "Dodaj",
+    "saving": "Zapisywanie...",
+    "update": "Aktualizuj",
+    "remove": "Usuń",
+    "success": "Adres zapisany.",
+    "deleted": "Adres usunięty.",
+    "error": "Wystąpił błąd podczas operacji z adresem.",
+    "errors": {
+      "street": "Nazwa ulicy jest wymagana.",
+      "houseNumber": "Numer domu jest wymagany.",
+      "city": "Miasto jest wymagane.",
+      "zipCode": "Kod pocztowy jest wymagany."
+    }
+  },
+  "notifications": {
+    "email": "Powiadomienie E-mail",
+    "sms": "Powiadomienie SMS",
+    "save": "Zapisz",
+    "saving": "Zapisywanie...",
+    "success": "Ustawienia powiadomień zostały zaktualizowane.",
+    "error": "Nie udało się zaktualizować ustawień powiadomień.",
+    "emailRequired": "Powiadomienie e-mail jest wymagane.",
+    "smsRequired": "Powiadomienie SMS jest wymagane."
+  },
+  "social": {
+    "title": "Linki do Mediów Społecznościowych",
+    "instagram": "Instagram",
+    "facebook": "Facebook",
+    "twitter": "Twitter",
+    "instagramPlaceholder": "Wprowadź link do swojego profilu na Instagramie",
+    "facebookPlaceholder": "Wprowadź link do swojego profilu na Facebooku",
+    "twitterPlaceholder": "Wprowadź link do swojego profilu na Twitterze",
+    "save": "Zapisz",
+    "saving": "Zapisywanie...",
+    "success": "Linki do mediów społecznościowych zostały zapisane.",
+    "error": "Nie udało się zapisać linków.",
+    "errors": {
+      "instagramInvalid": "Wprowadź prawidłowy adres Instagram.",
+      "facebookInvalid": "Wprowadź prawidłowy adres Facebook.",
+      "twitterInvalid": "Wprowadź prawidłowy adres Twitter."
+    }
+  },
+  "delete": {
+    "title": "Usuń Konto",
+    "warning": "Ta akcja jest nieodwracalna! Aby usunąć konto, wpisz swoje hasło i napisz 'delete'.",
+    "loggedInAs": "Zalogowano jako:",
+    "confirmation": "Wpisz 'delete', aby potwierdzić usunięcie",
+    "confirmationError": "Wpisz 'delete', aby potwierdzić usunięcie.",
+    "password": "Twoje hasło",
+    "passwordError": "Wprowadź swoje hasło.",
+    "button": "Trwale Usuń Konto",
+    "success": "Twoje konto zostało usunięte.",
+    "error": "Nie udało się usunąć konta.",
+    "loading": "Przetwarzanie..."
+  }
+}

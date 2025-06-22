@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from "react";
 import { ThemeProvider } from "styled-components";
 import { useAppSelector } from "@/store/hooks";
-import { themes } from "@/styles/themes/index"; // Temalar burada objede
+import { themes } from "@/styles/themes/index";
 import { useThemeMode } from "@/hooks/useThemeMode";
 
 const ThemeContext = createContext({
@@ -38,21 +38,15 @@ export function ThemeProviderWrapper({ children }) {
       sectionBackground: isDark
         ? "#2c2c2c"
         : baseTheme.colors.sectionBackground,
-      inputBackground: isDark
-        ? "#2c2c2c"
-        : baseTheme.colors.inputBackground,
+      inputBackground: isDark ? "#2c2c2c" : baseTheme.colors.inputBackground,
       textAlt: isDark ? "#bbbbbb" : baseTheme.colors.textAlt,
       textSecondary: isDark ? "#cccccc" : baseTheme.colors.textSecondary,
       textPrimary: isDark ? "#ffffff" : baseTheme.colors.textPrimary,
       border: isDark ? "#333333" : baseTheme.colors.border,
       cardBackground: isDark ? "#1e1e1e" : baseTheme.colors.cardBackground,
-      buttonBackground: isDark
-        ? "#333333"
-        : baseTheme.colors.buttonBackground,
+      buttonBackground: isDark ? "#333333" : baseTheme.colors.buttonBackground,
       buttonText: isDark ? "#ffffff" : baseTheme.colors.buttonText,
-      hoverBackground: isDark
-        ? "#2c2c2c"
-        : baseTheme.colors.hoverBackground,
+      hoverBackground: isDark ? "#2c2c2c" : baseTheme.colors.hoverBackground,
       // Diğer renkler olduğu gibi kalır
       primary: baseTheme.colors.primary,
       primaryLight: baseTheme.colors.primaryLight,

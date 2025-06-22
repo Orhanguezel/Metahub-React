@@ -2,14 +2,14 @@ import React, { useMemo, useRef } from "react";
 import styled from "styled-components";
 import { useAppSelector } from "@/store/hooks";
 import { useTranslation } from "react-i18next";
-import { 
-  FooterLogo, 
-  FooterSocialLinks, 
-  FooterCopyright, 
-  FooterLinks, 
-  FooterCompanyInfo 
+import {
+  FooterLogo,
+  FooterSocialLinks,
+  FooterCopyright,
+  FooterLinks,
+  FooterCompanyInfo,
 } from "@/modules/shared";
-import Loading from "@/shared/Loading"; 
+import Loading from "@/shared/Loading";
 
 function getLocalizedValue(value, currentLang) {
   if (value && typeof value === "object" && !Array.isArray(value)) {
@@ -29,7 +29,11 @@ function extractLinks(raw, currentLang) {
   }));
 }
 
-export default function FooterPublic({ showCounter = false, currentSlide = 0, totalSlides = 0 }) {
+export default function FooterPublic({
+  showCounter = false,
+  currentSlide = 0,
+  totalSlides = 0,
+}) {
   const rawSettings = useAppSelector((state) => state.setting.settings);
   const settings = useMemo(() => rawSettings ?? [], [rawSettings]);
   const { i18n, t } = useTranslation("footer");
@@ -43,7 +47,10 @@ export default function FooterPublic({ showCounter = false, currentSlide = 0, to
   }, [settings]);
 
   const aboutLinks = extractLinks(settingMap.footer_about_links, currentLang);
-  const servicesLinks = extractLinks(settingMap.footer_services_links, currentLang);
+  const servicesLinks = extractLinks(
+    settingMap.footer_services_links,
+    currentLang
+  );
 
   const socialLinksRaw = settingMap.footer_social_links;
   const socialLinks = socialLinksRaw
@@ -57,13 +64,12 @@ export default function FooterPublic({ showCounter = false, currentSlide = 0, to
   const rightsText = getLocalizedValue(settingMap.footer_rights, currentLang);
 
   if (!Array.isArray(settings) || settings.length === 0) {
-  return (
-    <FooterWrapper ref={footerRef}>
-      <Loading />
-    </FooterWrapper>
-  );
-}
-
+    return (
+      <FooterWrapper ref={footerRef}>
+        <Loading />
+      </FooterWrapper>
+    );
+  }
 
   return (
     <FooterWrapper ref={footerRef}>
@@ -79,7 +85,9 @@ export default function FooterPublic({ showCounter = false, currentSlide = 0, to
           <FooterLinks title={t("ourServices")} links={servicesLinks} />
         </InfoBlock>
       </FooterGrid>
-      {socialLinks && Object.keys(socialLinks).length > 0 && <FooterSocialLinks links={socialLinks} />}
+      {socialLinks && Object.keys(socialLinks).length > 0 && (
+        <FooterSocialLinks links={socialLinks} />
+      )}
       <FooterCopyright rightsText={rightsText} />
       {showCounter && currentSlide > 0 && totalSlides > 0 && (
         <SliderCounter>
@@ -94,10 +102,13 @@ export default function FooterPublic({ showCounter = false, currentSlide = 0, to
 
 // Styled Components
 const FooterWrapper = styled.footer`
-  padding: ${({ theme }) => theme.spacing.xl} ${({ theme }) => theme.spacing.md};
-  background-color: ${({ theme }) => theme.colors.footerBackground || theme.colors.backgroundAlt};
+  padding: ${({ theme }) => theme.spacings.xl}
+    ${({ theme }) => theme.spacings.md};
+  background-color: ${({ theme }) =>
+    theme.colors.footerBackground || theme.colors.backgroundAlt};
   color: ${({ theme }) => theme.colors.text};
-  border-top: ${({ theme }) => theme.borders.thin} solid ${({ theme }) => theme.colors.border || theme.colors.textMuted};
+  border-top: ${({ theme }) => theme.borders.thin} solid
+    ${({ theme }) => theme.colors.border || theme.colors.textMuted};
   text-align: center;
   width: 100%;
   opacity: 1;
@@ -108,15 +119,15 @@ const FooterWrapper = styled.footer`
 const FooterGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: ${({ theme }) => theme.spacing.xl};
+  gap: ${({ theme }) => theme.spacings.xl};
   max-width: ${({ theme }) => theme.layout.containerWidth};
-  margin: ${({ theme }) => theme.spacing.lg} auto 0 auto;
+  margin: ${({ theme }) => theme.spacings.lg} auto 0 auto;
   align-items: flex-start;
 
   ${({ theme }) => theme.media.small} {
     grid-template-columns: 1fr;
-    gap: ${({ theme }) => theme.spacing.md};
-    margin-top: ${({ theme }) => theme.spacing.md};
+    gap: ${({ theme }) => theme.spacings.md};
+    margin-top: ${({ theme }) => theme.spacings.md};
   }
 `;
 
@@ -125,11 +136,11 @@ const InfoBlock = styled.div`
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin: 0 ${({ theme }) => theme.spacing.md};
+  margin: 0 ${({ theme }) => theme.spacings.md};
 `;
 
 const SliderCounter = styled.div`
-  margin-top: ${({ theme }) => theme.spacing.md};
+  margin-top: ${({ theme }) => theme.spacings.md};
   font-size: ${({ theme }) => theme.fontSizes.small || "14px"};
   color: ${({ theme }) => theme.colors.textSecondary || theme.colors.textMuted};
   display: flex;

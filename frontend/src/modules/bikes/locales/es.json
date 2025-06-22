@@ -1,0 +1,34 @@
+{
+  "allBikes": {
+    "title": "Categorías de bicicletas",
+    "all": "Todas",
+    "loading": "Cargando...",
+    "error": "Ocurrió un error: {{error}}",
+    "noBikes": "No se encontraron bicicletas en esta categoría."
+  },
+  "bikeCard": {
+    "defaultTitle": "Bicicleta",
+    "defaultDesc": "Más detalles próximamente...",
+    "discover": "Descubrir"
+  },
+  "loading": "Cargando...",
+  "allCategories": "Todas las categorías",
+  "noBikesInCategory": "No se encontraron bicicletas en la categoría \"{{category}}\".",
+  "selectSize": "Seleccionar talla:",
+  "selectSizeAlert": "Por favor, selecciona una talla antes de añadir al carrito.",
+  "addToCart": "Añadir al carrito",
+  "keyFeatures": "Características clave",
+  "fullSpecs": "Todas las especificaciones",
+  "bikeNotFoundTitle": "Bicicleta no encontrada",
+  "bikeNotFoundDesc": "Lo sentimos, no se encontró ninguna bicicleta con el ID: {{id}}.",
+  "backToCategories": "Volver a todas las categorías de bicicletas",
+  "galleryImageAlt": "Imagen de la galería {{index}}",
+  "category": {
+    "noName": "Categoría sin nombre"
+  },
+  "categoryPage": {
+    "loading": "Cargando...",
+    "noBikes": "No se encontraron bicicletas en esta categoría.",
+    "pageTitle": "Categoría de bicicleta: {{category}}"
+  }
+}

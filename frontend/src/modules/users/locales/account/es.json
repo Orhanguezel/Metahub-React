@@ -1,0 +1,94 @@
+{
+  "page": {
+    "title": "Configuración de la Cuenta",
+    "profileImage": "Imagen de Perfil",
+    "personalInfo": "Información Personal",
+    "address": "Información de la Dirección",
+    "notifications": "Configuración de Notificaciones",
+    "social": "Enlaces de Redes Sociales",
+    "password": "Cambiar Contraseña",
+    "deleteAccount": "Eliminar Cuenta",
+    "loading": "Cargando..."
+  },
+  "form": {
+    "title": "Actualizar Mi Información",
+    "name": "Nombre Completo",
+    "email": "Correo Electrónico",
+    "phone": "Teléfono",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "success": "Información actualizada correctamente.",
+    "error": "Ocurrió un error al actualizar.",
+    "errors": {
+      "name": "Introduce tu nombre.",
+      "email": "Introduce tu correo electrónico.",
+      "emailInvalid": "Introduce una dirección de correo electrónico válida."
+    },
+    "imageSuccess": "Foto de perfil actualizada.",
+    "imageError": "No se pudo cargar la foto.",
+    "loading": "Cargando...",
+    "upload": "Subir Foto"
+  },
+  "address": {
+    "title": "Información de la Dirección",
+    "street": "Calle",
+    "houseNumber": "Número de Casa",
+    "city": "Ciudad",
+    "zipCode": "Código Postal",
+    "phone": "Teléfono",
+    "add": "Agregar",
+    "saving": "Guardando...",
+    "update": "Actualizar",
+    "remove": "Eliminar",
+    "success": "Dirección guardada.",
+    "deleted": "Dirección eliminada.",
+    "error": "Ocurrió un error con la dirección.",
+    "errors": {
+      "street": "El nombre de la calle es obligatorio.",
+      "houseNumber": "El número de casa es obligatorio.",
+      "city": "La ciudad es obligatoria.",
+      "zipCode": "El código postal es obligatorio."
+    }
+  },
+  "notifications": {
+    "email": "Notificación por Correo Electrónico",
+    "sms": "Notificación por SMS",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "success": "Configuración de notificaciones actualizada.",
+    "error": "No se pudo actualizar la configuración de notificaciones.",
+    "emailRequired": "La notificación por correo electrónico es obligatoria.",
+    "smsRequired": "La notificación por SMS es obligatoria."
+  },
+  "social": {
+    "title": "Enlaces de Redes Sociales",
+    "instagram": "Instagram",
+    "facebook": "Facebook",
+    "twitter": "Twitter",
+    "instagramPlaceholder": "Introduce el enlace de tu perfil de Instagram",
+    "facebookPlaceholder": "Introduce el enlace de tu perfil de Facebook",
+    "twitterPlaceholder": "Introduce el enlace de tu perfil de Twitter",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "success": "Enlaces de redes sociales guardados.",
+    "error": "No se pudieron guardar los enlaces.",
+    "errors": {
+      "instagramInvalid": "Introduce una dirección de Instagram válida.",
+      "facebookInvalid": "Introduce una dirección de Facebook válida.",
+      "twitterInvalid": "Introduce una dirección de Twitter válida."
+    }
+  },
+  "delete": {
+    "title": "Eliminar Cuenta",
+    "warning": "¡Esta acción es irreversible! Para eliminar tu cuenta, introduce tu contraseña y escribe 'delete'.",
+    "loggedInAs": "Conectado como:",
+    "confirmation": "Escribe 'delete' para confirmar la eliminación",
+    "confirmationError": "Escribe 'delete' para confirmar la eliminación.",
+    "password": "Tu contraseña",
+    "passwordError": "Introduce tu contraseña.",
+    "button": "Eliminar Cuenta Permanentemente",
+    "success": "Tu cuenta ha sido eliminada.",
+    "error": "No se pudo eliminar la cuenta.",
+    "loading": "Procesando..."
+  }
+}

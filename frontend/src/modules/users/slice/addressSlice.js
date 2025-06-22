@@ -61,6 +61,13 @@ const addressSlice = createSlice({
     resetCurrentAddress: (state) => {
       state.currentAddress = null;
     },
+    clearAddresses: (state) => {
+      state.addresses = [];
+      state.currentAddress = null;
+      state.error = null;
+      state.successMessage = null;
+      state.loading = false;
+    },
   },
   extraReducers: (builder) => {
     const setLoading = (state) => {
@@ -133,5 +140,5 @@ const addressSlice = createSlice({
   },
 });
 
-export const { clearAddressMessages, resetCurrentAddress } = addressSlice.actions;
+export const { clearAddressMessages, resetCurrentAddress, clearAddresses } = addressSlice.actions;
 export default addressSlice.reducer;

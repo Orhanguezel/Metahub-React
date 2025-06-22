@@ -1,7 +1,6 @@
 // src/components/home/Slide.jsx
-import React, { forwardRef, useRef, useImperativeHandle } from 'react';
-import styled from 'styled-components';
-
+import React, { forwardRef, useRef, useImperativeHandle } from "react";
+import styled from "styled-components";
 
 const Slide = forwardRef(({ slideData, isActive }, ref) => {
   const bgImageWrapperRef = useRef(null);
@@ -18,9 +17,10 @@ const Slide = forwardRef(({ slideData, isActive }, ref) => {
 
   if (!slideData) return null;
 
-  const titleText = slideData.title || 'Default Title';
-  const descriptionText = slideData.description || 'Default description.';
-  const altText = slideData.altText || `Image for ${titleText || 'slide ' + slideData.id}`;
+  const titleText = slideData.title || "Default Title";
+  const descriptionText = slideData.description || "Default description.";
+  const altText =
+    slideData.altText || `Image for ${titleText || "slide " + slideData.id}`;
 
   return (
     <SlideWrapper data-active={isActive} id={`slide-${slideData.id}`}>
@@ -35,7 +35,9 @@ const Slide = forwardRef(({ slideData, isActive }, ref) => {
           <SlideTitle ref={titleRef}>{titleText}</SlideTitle>
         </SlideTitleWrapper>
         <SlideDescriptionWrapper>
-          <SlideDescription ref={descriptionRef}>{descriptionText}</SlideDescription>
+          <SlideDescription ref={descriptionRef}>
+            {descriptionText}
+          </SlideDescription>
         </SlideDescriptionWrapper>
       </SlideCopy>
     </SlideWrapper>
@@ -43,7 +45,6 @@ const Slide = forwardRef(({ slideData, isActive }, ref) => {
 });
 
 export default Slide;
-
 
 // Styled Components (jak w odpowiedzi nr 58)
 const SlideWrapper = styled.div`
@@ -126,7 +127,7 @@ const SlideCopy = styled.div`
 
 const SlideTitleWrapper = styled.div`
   position: relative;
-  margin-bottom: ${({ theme }) => theme.spacing.sm};
+  margin-bottom: ${({ theme }) => theme.spacings.sm};
   overflow: hidden;
 `;
 

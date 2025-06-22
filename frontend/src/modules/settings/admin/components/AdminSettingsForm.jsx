@@ -9,10 +9,40 @@ import {
 } from "@/modules/settings/slice/settingSlice";
 import { toast } from "react-toastify";
 import { KeyInputSection, ValueInputSection } from "../..";
+import { SUPPORTED_LOCALES } from "@/i18n";
 
-const LANGS = ["tr", "en", "de"];
+// --- Eksik locale'leri recursive tamamlayan helper
+function completeLocales(obj, fallback = "") {
+  if (Array.isArray(obj)) return obj.map((o) => completeLocales(o, fallback));
+  if (typeof obj === "object" && obj !== null) {
+    const localeKeys = SUPPORTED_LOCALES;
+    const keys = Object.keys(obj).filter((k) => obj[k]);
+    const primary = keys.includes("en") ? "en" : keys[0] || null;
+    // Eğer TranslatedLabel ise
+    if (
+      localeKeys.some((lng) => Object.prototype.hasOwnProperty.call(obj, lng))
+    ) {
+      return localeKeys.reduce((acc, lang) => {
+        acc[lang] =
+          obj[lang] !== undefined && obj[lang] !== null
+            ? obj[lang]
+            : primary
+            ? obj[primary]
+            : fallback;
+        return acc;
+      }, {});
+    }
+    // Nested object ise recursive
+    const newObj = {};
+    for (const [k, v] of Object.entries(obj)) {
+      newObj[k] = completeLocales(v, fallback);
+    }
+    return newObj;
+  }
+  return obj;
+}
 
-// Helper to extract logo URL if exists
+// --- Logo URL helper (hem string hem objeyi destekler)
 const extractLogoUrl = (logoObj) =>
   typeof logoObj === "string"
     ? logoObj
@@ -25,12 +55,13 @@ export default function AdminSettingsForm({
   availableThemes,
   onSave,
   onAvailableThemesUpdate,
+  supportedLocales = SUPPORTED_LOCALES,
 }) {
   const dispatch = useAppDispatch();
   const { t } = useTranslation("settings");
 
   const [key, setKey] = useState("");
-  const [value, setValue] = useState(editingSetting?.value ?? "");
+  const [value, setValue] = useState("");
   const [isNestedObject, setIsNestedObject] = useState(false);
   const [isMultiLang, setIsMultiLang] = useState(false);
   const [isImage, setIsImage] = useState(false);
@@ -40,56 +71,82 @@ export default function AdminSettingsForm({
   const [lightFile, setLightFile] = useState(null);
   const [darkFile, setDarkFile] = useState(null);
 
+  // --- State initialization & value normalization ---
   useEffect(() => {
     if (editingSetting) {
       setKey(editingSetting.key || "");
-      setValue(editingSetting.value ?? "");
+      // Eksik locale'ler editte otomatik tamamlanıyor (özellikle nested)
+      setValue(completeLocales(editingSetting.value ?? ""));
+      // Field türlerini value'dan algıla (multiLang, nested, image)
+      const val = editingSetting.value;
+      const isObj = val && typeof val === "object" && !Array.isArray(val);
 
-      const v = editingSetting.value;
-      const isObj = v && typeof v === "object" && !Array.isArray(v);
+      // Dinamik dil kontrolü
+      const isReallyMultiLang =
+        isObj && supportedLocales.every((lng) => lng in val);
 
+      // Nested: Tüm fieldlar birer multiLang objesi ise
       const isReallyNested =
         isObj &&
-        Object.values(v).length > 0 &&
-        Object.values(v).every(
+        Object.values(val).length > 0 &&
+        Object.values(val).every(
           (sub) =>
             typeof sub === "object" &&
             sub !== null &&
-            LANGS.every((lng) => lng in sub)
+            supportedLocales.every((lng) => lng in sub)
         );
 
-      const isReallyMultiLang = isObj && !isReallyNested && LANGS.every((lng) => lng in v);
-
+      setIsMultiLang(
+        isReallyMultiLang &&
+          !["available_themes", "site_template"].includes(editingSetting.key)
+      );
       setIsNestedObject(isReallyNested);
-      setIsMultiLang(isReallyMultiLang);
-      setIsImage(false);
-      setFile(null);
-      setLightFile(null);
-      setDarkFile(null);
+      setIsImage(
+        editingSetting.key === "navbar_logos" ||
+          editingSetting.key === "footer_logos"
+      );
     } else {
       setKey("");
       setValue("");
       setIsMultiLang(false);
       setIsNestedObject(false);
       setIsImage(false);
-      setFile(null);
-      setLightFile(null);
-      setDarkFile(null);
     }
-  }, [editingSetting]);
+    setFile(null);
+    setLightFile(null);
+    setDarkFile(null);
+  }, [editingSetting, supportedLocales]);
 
+  // Key değiştiğinde type'ları sıfırla (ama eski value'yu koru!)
+  useEffect(() => {
+    setIsImage(key === "navbar_logos" || key === "footer_logos");
+    setFile(null);
+    setLightFile(null);
+    setDarkFile(null);
+    // Eğer yeni key özel bir şeyse, value'yu da sıfırla
+    if (!editingSetting || key !== editingSetting.key) setValue("");
+  }, [key, editingSetting]);
+
+  // Logo/Resim tipi key
   const isLogoUpload = key === "navbar_logos" || key === "footer_logos";
-
   const lightLogoUrl = extractLogoUrl(value?.light);
   const darkLogoUrl = extractLogoUrl(value?.dark);
+
+  // MultiLang normalizasyon fonksiyonu
+  const getEmptyMultiLangValue = () => {
+    return supportedLocales.reduce((obj, lng) => ({ ...obj, [lng]: "" }), {});
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
+      // --- LOGO UPLOAD ---
       if (isLogoUpload) {
         if (!lightFile && !darkFile) {
-          toast.error(t("pleaseSelectFile", "Please select at least one logo file."));
+          toast.error(
+            t("pleaseSelectFile", "Please select at least one logo file.")
+          );
           return;
         }
         await dispatch(
@@ -104,7 +161,8 @@ export default function AdminSettingsForm({
         return;
       }
 
-      if (isImage) {
+      // --- TEKİL RESİM UPLOAD ---
+      if (isImage && !isLogoUpload) {
         if (!file) {
           toast.error(t("pleaseSelectFile", "Please select an image file."));
           return;
@@ -122,6 +180,7 @@ export default function AdminSettingsForm({
         return;
       }
 
+      // --- KEY ve VALUE KONTROL ---
       if (!key.trim()) {
         toast.error(t("keyRequired", "Key is required."));
         return;
@@ -129,32 +188,64 @@ export default function AdminSettingsForm({
 
       let normalizedValue = value;
 
-      if (isNestedObject && (!value || Object.keys(value).length === 0)) {
-        toast.error(t("noFields", "Please add at least one field."));
-        return;
+      // NESTED obje ise recursive olarak completeLocales ile tamamla
+      if (isNestedObject && typeof value === "object") {
+        normalizedValue = completeLocales(value);
       }
 
-      if (!isMultiLang && typeof value === "string" && !["site_template", "available_themes"].includes(key)) {
-        normalizedValue = { tr: value, en: value, de: value };
+      // MULTILANG ise tek tek alanları tamamla (temalar hariç!)
+      if (
+        isMultiLang &&
+        typeof value === "object" &&
+        !["site_template", "available_themes"].includes(key)
+      ) {
+        normalizedValue = completeLocales(value);
       }
 
-      if (key === "available_themes" && typeof value === "string") {
-        normalizedValue = value
-          .split(",")
-          .map((v) => v.trim())
-          .filter(Boolean);
+      // MULTILANG ve value string ise (örn ilk eklemede, tüm dillere ata)
+      if (
+        isMultiLang &&
+        typeof value === "string" &&
+        !["site_template", "available_themes"].includes(key)
+      ) {
+        normalizedValue = getEmptyMultiLangValue();
+        for (const lng of supportedLocales) {
+          normalizedValue[lng] = value;
+        }
       }
 
-      if (key === "site_template" && typeof value === "string" && !availableThemes.includes(value)) {
+      // --- THEME LISTESİ NORMALİZASYONU ---
+      if (key === "available_themes") {
+        if (typeof value === "string") {
+          normalizedValue = value
+            .split(",")
+            .map((v) => v.trim())
+            .filter(Boolean);
+        }
+        if (!Array.isArray(normalizedValue)) {
+          normalizedValue = [];
+        }
+      }
+
+      // --- THEME SEÇİMİ KONTROLÜ ---
+      if (
+        key === "site_template" &&
+        typeof value === "string" &&
+        availableThemes &&
+        !availableThemes.includes(value)
+      ) {
         toast.error(t("invalidTheme", "Invalid theme selected."));
         return;
       }
 
+      // --- SETTING SAVE ---
       await dispatch(upsertSetting({ key, value: normalizedValue })).unwrap();
       toast.success(t("settingSaved", "Setting saved successfully."));
       onSave();
     } catch (error) {
-      toast.error(error?.message || t("saveError", "An error occurred while saving."));
+      toast.error(
+        error?.message || t("saveError", "An error occurred while saving.")
+      );
     }
   };
 
@@ -170,6 +261,7 @@ export default function AdminSettingsForm({
         isNestedObject={isNestedObject}
         setIsNestedObject={setIsNestedObject}
         isEditing={!!editingSetting}
+        supportedLocales={supportedLocales}
       />
 
       {isLogoUpload ? (
@@ -179,18 +271,26 @@ export default function AdminSettingsForm({
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => setLightFile(e.target.files ? e.target.files[0] : null)}
+              onChange={(e) =>
+                setLightFile(e.target.files ? e.target.files[0] : null)
+              }
             />
-            {lightLogoUrl && <LogoPreviewImg src={lightLogoUrl} alt="Light Logo" />}
+            {lightLogoUrl && (
+              <LogoPreviewImg src={lightLogoUrl} alt="Light Logo" />
+            )}
           </div>
           <div>
             <Label>{t("darkLogo", "Dark Logo")}</Label>
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => setDarkFile(e.target.files ? e.target.files[0] : null)}
+              onChange={(e) =>
+                setDarkFile(e.target.files ? e.target.files[0] : null)
+              }
             />
-            {darkLogoUrl && <LogoPreviewImg src={darkLogoUrl} alt="Dark Logo" />}
+            {darkLogoUrl && (
+              <LogoPreviewImg src={darkLogoUrl} alt="Dark Logo" />
+            )}
           </div>
         </LogoInputGroup>
       ) : (
@@ -206,6 +306,7 @@ export default function AdminSettingsForm({
           isImage={isImage}
           file={file}
           setFile={setFile}
+          supportedLocales={supportedLocales}
         />
       )}
 
@@ -215,19 +316,18 @@ export default function AdminSettingsForm({
 }
 
 // --- Styled Components ---
-
 const FormWrapper = styled.form`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.md};
+  gap: ${({ theme }) => theme.spacings.md};
   width: 100%;
   max-width: ${({ theme }) => theme.layout.containerWidth};
   margin: 0 auto;
 `;
 
 const SaveButton = styled.button`
-  margin-top: ${({ theme }) => theme.spacing.md};
-  padding: ${({ theme }) => theme.spacing.md};
+  margin-top: ${({ theme }) => theme.spacings.md};
+  padding: ${({ theme }) => theme.spacings.md};
   background: ${({ theme }) => theme.buttons.primary.background};
   color: ${({ theme }) => theme.buttons.primary.text};
   border: none;
@@ -236,7 +336,6 @@ const SaveButton = styled.button`
   font-size: ${({ theme }) => theme.fontSizes.md};
   cursor: pointer;
   transition: background ${({ theme }) => theme.transition.normal};
-
   &:hover {
     background: ${({ theme }) => theme.buttons.primary.backgroundHover};
   }
@@ -245,7 +344,7 @@ const SaveButton = styled.button`
 const LogoInputGroup = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing.md};
+  gap: ${({ theme }) => theme.spacings.md};
   > div {
     flex: 1 1 200px;
   }
@@ -258,11 +357,11 @@ const Label = styled.label`
   display: block;
   font-size: ${({ theme }) => theme.fontSizes.sm};
   font-weight: ${({ theme }) => theme.fontWeights.medium};
-  margin-bottom: ${({ theme }) => theme.spacing.xs};
+  margin-bottom: ${({ theme }) => theme.spacings.xs};
 `;
 
 const LogoPreviewImg = styled.img`
-  margin-top: ${({ theme }) => theme.spacing.xs};
+  margin-top: ${({ theme }) => theme.spacings.xs};
   max-width: 120px;
   max-height: 80px;
   border-radius: ${({ theme }) => theme.radii.sm};

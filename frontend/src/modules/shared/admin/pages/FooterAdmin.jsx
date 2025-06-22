@@ -1,8 +1,9 @@
 import React from "react";
 import styled from "styled-components";
+import { useAppSelector } from "@/store/hooks"; // Kendi store hook'unu kullan!
 import { useTranslation } from "react-i18next";
 
-const DEFAULT_LOGO = "/default-company-logo.png"; // public/ 
+const DEFAULT_LOGO = "/default-company-logo.png"; // public/
 
 function resolveLogoUrl(logo) {
   if (!logo) return DEFAULT_LOGO;
@@ -19,7 +20,8 @@ function resolveLogoUrl(logo) {
   return url;
 }
 
-export default function FooterAdmin({ company }) {
+export default function FooterAdmin() {
+  const company = useAppSelector((state) => state.company.company);
   const { t } = useTranslation("footer");
 
   if (!company) return null;
@@ -39,16 +41,22 @@ export default function FooterAdmin({ company }) {
               />
             ))
           ) : (
-            <Logo src={DEFAULT_LOGO} alt={t("defaultLogoAlt", "Default Logo")} />
+            <Logo
+              src={DEFAULT_LOGO}
+              alt={t("defaultLogoAlt", "Default Logo")}
+            />
           )}
         </LogoSection>
         <InfoSection>
           <CompanyName>{company.companyName}</CompanyName>
-          <CompanyText>{company.email}</CompanyText>
-          <CompanyText>{company.phone}</CompanyText>
-          <CompanyText>
-            {company.address?.street}, {company.address?.city}
-          </CompanyText>
+          {company.email && <CompanyText>{company.email}</CompanyText>}
+          {company.phone && <CompanyText>{company.phone}</CompanyText>}
+          {(company.address?.street || company.address?.city) && (
+            <CompanyText>
+              {company.address?.street || ""}
+              {company.address?.city ? `, ${company.address.city}` : ""}
+            </CompanyText>
+          )}
         </InfoSection>
       </FooterContent>
       <CopyRight>
@@ -63,20 +71,20 @@ export default function FooterAdmin({ company }) {
 const FooterContainer = styled.footer`
   background-color: ${({ theme }) => theme.colors.background};
   color: ${({ theme }) => theme.colors.text};
-  padding: ${({ theme }) => theme.spacing.lg} ${({ theme }) => theme.spacing.md};
+  padding: ${({ theme }) => theme.spacings.large}
+    ${({ theme }) => theme.spacings.medium};
   text-align: center;
-  transition: background-color ${({ theme }) => theme.transition.normal},
-    color ${({ theme }) => theme.transition.normal};
+  transition: background-color 0.23s, color 0.18s;
 `;
 
 const FooterContent = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: ${({ theme }) => theme.layout.containerWidth};
+  max-width: 1100px;
   margin: 0 auto;
 
-  ${({ theme }) => theme.media.small} {
+  @media (min-width: 768px) {
     flex-direction: row;
     justify-content: space-between;
     align-items: flex-start;
@@ -84,58 +92,58 @@ const FooterContent = styled.div`
 `;
 
 const LogoSection = styled.div`
-  margin-bottom: ${({ theme }) => theme.spacing.md};
+  margin-bottom: ${({ theme }) => theme.spacings.medium};
   display: flex;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
+  align-items: center;
 
-  ${({ theme }) => theme.media.small} {
+  @media (min-width: 768px) {
     margin-bottom: 0;
   }
 `;
 
 const Logo = styled.img`
-  width: 140px;
-  height: 140px;
-  border-radius: ${({ theme }) => theme.radii.md};
-  transition: transform ${({ theme }) => theme.transition.normal};
+  width: 120px;
+  height: 120px;
+  border-radius: 18px;
   object-fit: contain;
-  background: ${({ theme }) => theme.colors.backgroundAlt};
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0);
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  padding: 12px;
-
+  background: ${({ theme }) => theme.colors.backgroundAlt || "#222"};
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid ${({ theme }) => theme.colors.border || "#eee"};
+  padding: 10px;
+  transition: transform 0.18s;
   &:hover {
     transform: scale(1.08);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
   }
 `;
 
 const InfoSection = styled.div`
   text-align: center;
-
-  ${({ theme }) => theme.media.small} {
+  @media (min-width: 768px) {
     text-align: left;
+    margin-left: 32px;
   }
 `;
 
 const CompanyName = styled.h4`
-  margin: 0 0 ${({ theme }) => theme.spacing.xs};
-  font-size: ${({ theme }) => theme.fontSizes.md};
-  font-weight: ${({ theme }) => theme.fontWeights.bold};
-  color: ${({ theme }) => theme.colors.textPrimary};
+  margin: 0 0 8px 0;
+  font-size: ${({ theme }) => theme.fontSizes.large || "19px"};
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.text};
 `;
 
 const CompanyText = styled.p`
-  margin: ${({ theme }) => theme.spacing.xs} 0;
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-  color: ${({ theme }) => theme.colors.textSecondary};
-  line-height: ${({ theme }) => theme.lineHeights.normal};
+  margin: 4px 0;
+  font-size: ${({ theme }) => theme.fontSizes.small || "14px"};
+  color: ${({ theme }) => theme.colors.grey || "#A0A0A0"};
+  line-height: 1.6;
 `;
 
 const CopyRight = styled.div`
-  margin-top: ${({ theme }) => theme.spacing.md};
-  font-size: ${({ theme }) => theme.fontSizes.xs};
-  color: ${({ theme }) => theme.colors.textSecondary};
-  opacity: ${({ theme }) => theme.opacity.disabled};
+  margin-top: ${({ theme }) => theme.spacings.medium};
+  font-size: ${({ theme }) => theme.fontSizes.xsmall || "12px"};
+  color: ${({ theme }) => theme.colors.grey || "#A0A0A0"};
+  opacity: 0.66;
 `;

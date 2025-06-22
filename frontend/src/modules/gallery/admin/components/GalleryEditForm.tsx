@@ -268,12 +268,12 @@ const fadeIn = keyframes`
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.md};
+  gap: ${({ theme }) => theme.spacings.md};
 `;
 
 const TabList = styled.div`
   display: flex;
-  gap: ${({ theme }) => theme.spacing.xs};
+  gap: ${({ theme }) => theme.spacings.xs};
 `;
 
 const Tab = styled.button<{ $isActive: boolean }>`
@@ -299,8 +299,8 @@ const TabContent = styled.div`
 const Section = styled.div<{ $animate?: boolean }>`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.sm};
-  margin-top: ${({ theme }) => theme.spacing.sm};
+  gap: ${({ theme }) => theme.spacings.sm};
+  margin-top: ${({ theme }) => theme.spacings.sm};
   animation: ${({ $animate }) => ($animate ? fadeIn : "none")} 0.3s ease-out;
 `;
 

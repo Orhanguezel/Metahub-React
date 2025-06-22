@@ -144,8 +144,8 @@ export default GalleryList;
 const CategoryButtons = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing.xs};
-  margin-bottom: ${({ theme }) => theme.spacing.md};
+  gap: ${({ theme }) => theme.spacings.xs};
+  margin-bottom: ${({ theme }) => theme.spacings.md};
 `;
 
 const CategoryButton = styled.button<{ active: boolean }>`
@@ -167,13 +167,13 @@ const CategoryButton = styled.button<{ active: boolean }>`
 const GridWrapper = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: ${({ theme }) => theme.spacing.sm};
+  gap: ${({ theme }) => theme.spacings.sm};
 `;
 
 const SmallCard = styled.div`
   background: ${({ theme }) => theme.colors.cardBackground};
   color: ${({ theme }) => theme.colors.text};
-  padding: ${({ theme }) => theme.spacing.sm};
+  padding: ${({ theme }) => theme.spacings.sm};
   border-radius: ${({ theme }) => theme.radii.md};
   box-shadow: ${({ theme }) => theme.shadows.sm};
   display: flex;
@@ -182,12 +182,12 @@ const SmallCard = styled.div`
 `;
 
 const Info = styled.div`
-  margin-bottom: ${({ theme }) => theme.spacing.xs};
+  margin-bottom: ${({ theme }) => theme.spacings.xs};
 `;
 
 const CategoryText = styled.p`
   font-weight: ${({ theme }) => theme.fontWeights.bold};
-  margin: 0 0 ${({ theme }) => theme.spacing.xs} 0;
+  margin: 0 0 ${({ theme }) => theme.spacings.xs} 0;
   font-size: 0.8rem;
 `;
 
@@ -199,8 +199,8 @@ const Type = styled.p`
 
 const ButtonGroup = styled.div`
   display: flex;
-  gap: ${({ theme }) => theme.spacing.xs};
-  margin-top: ${({ theme }) => theme.spacing.xs};
+  gap: ${({ theme }) => theme.spacings.xs};
+  margin-top: ${({ theme }) => theme.spacings.xs};
 `;
 
 const ActionButton = styled.button`
@@ -228,7 +228,7 @@ const DeleteButton = styled(ActionButton)`
 const EmptyMessage = styled.p`
   color: ${({ theme }) => theme.colors.textSecondary};
   text-align: center;
-  margin-top: ${({ theme }) => theme.spacing.lg};
+  margin-top: ${({ theme }) => theme.spacings.lg};
 `;
 
 const ImagePreview = styled.img`

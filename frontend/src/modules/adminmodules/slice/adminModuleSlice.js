@@ -1,17 +1,94 @@
-// src/modules/adminmodules/slice/adminModuleSlice.js
-
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import apiCall from "@/api/apiCall";
 import { toast } from "react-toastify";
 
+const initialState = {
+  modules: [],
+  selectedModule: null,
+  moduleSettings: [],
+  analyticsModules: [],
+  distinctModuleNames: [],
+  loading: false,
+  error: null,
+  successMessage: null,
+  selectedTenant: "",
+};
 
-// 1. Tüm projeleri getir
-export const fetchAvailableProjects = createAsyncThunk(
-  "admin/fetchAvailableProjects",
+//// --- THUNKS --- ////
+
+// 1. Aktif tenant'ın tüm modüllerini getir (Sidebar + enabled)
+export const fetchEnabledModules = createAsyncThunk(
+  "admin/fetchEnabledModules",
+  async (params = {}, thunkAPI) => {
+    const query = Object.entries(params)
+      .map(([k, v]) => `${k}=${v}`)
+      .join("&");
+    const res = await apiCall(
+      "get",
+      `/admin/enabled-modules${query ? `?${query}` : ""}`,
+      null,
+      thunkAPI.rejectWithValue,
+      { withCredentials: true }
+    );
+    return res.data || [];
+  }
+);
+
+// 2. Aktif tenant'ın analytics modülleri (isteğe bağlı visibleInSidebar filtresi)
+export const fetchAnalyticsModules = createAsyncThunk(
+  "admin/fetchAnalyticsModules",
+  async (params = {}, thunkAPI) => {
+    const query = Object.entries(params)
+      .map(([k, v]) => `${k}=${v}`)
+      .join("&");
+    const res = await apiCall(
+      "get",
+      `/admin/analytics-modules${query ? `?${query}` : ""}`,
+      null,
+      thunkAPI.rejectWithValue,
+      { withCredentials: true }
+    );
+    return res.data || [];
+  }
+);
+
+// 3. Tenant'ın modül ayarlarını (tüm settings) getir
+export const fetchTenantModules = createAsyncThunk(
+  "admin/fetchTenantModules",
+  async (tenant, thunkAPI) => {
+    const res = await apiCall(
+      "get",
+      `/admin/tenant-modules${tenant ? `?tenant=${tenant}` : ""}`,
+      null,
+      thunkAPI.rejectWithValue,
+      { withCredentials: true }
+    );
+    return res.data || [];
+  }
+);
+
+// 4. Tenant'a ait benzersiz modül isimleri
+export const fetchDistinctTenantModules = createAsyncThunk(
+  "admin/fetchDistinctTenantModules",
+  async (tenant, thunkAPI) => {
+    const res = await apiCall(
+      "get",
+      `/admin/tenant-distinct-modules${tenant ? `?tenant=${tenant}` : ""}`,
+      null,
+      thunkAPI.rejectWithValue,
+      { withCredentials: true }
+    );
+    return res.data || [];
+  }
+);
+
+// 5. Tüm modül meta'larını getir (admin)
+export const fetchAdminModules = createAsyncThunk(
+  "admin/fetchAdminModules",
   async (_, thunkAPI) => {
     const res = await apiCall(
       "get",
-      "/admin/projects",
+      "/admin/modules",
       null,
       thunkAPI.rejectWithValue,
       { withCredentials: true }
@@ -20,28 +97,13 @@ export const fetchAvailableProjects = createAsyncThunk(
   }
 );
 
-// 2. Seçili projeye ait modülleri getir
-export const fetchAdminModules = createAsyncThunk(
-  "admin/fetchAdminModules",
-  async (project, thunkAPI) => {
-    const res = await apiCall(
-      "get",
-      `/admin/modules?project=${project}`,
-      null,
-      thunkAPI.rejectWithValue,
-      { withCredentials: true }
-    );
-    return res.data ?? [];
-  }
-);
-
-// 3. Tek modül detayı
+// 6. Tek modül detayı getir (admin)
 export const fetchModuleDetail = createAsyncThunk(
   "admin/fetchModuleDetail",
-  async ({ name, project }, thunkAPI) => {
+  async (name, thunkAPI) => {
     const res = await apiCall(
       "get",
-      `/admin/module/${name}?project=${project}`,
+      `/admin/module/${name}`,
       null,
       thunkAPI.rejectWithValue,
       { withCredentials: true }
@@ -50,7 +112,7 @@ export const fetchModuleDetail = createAsyncThunk(
   }
 );
 
-// 4. Modül oluştur
+// 7. Modül oluştur (admin)
 export const createAdminModule = createAsyncThunk(
   "admin/createAdminModule",
   async (payload, thunkAPI) => {
@@ -61,11 +123,11 @@ export const createAdminModule = createAsyncThunk(
       thunkAPI.rejectWithValue,
       { withCredentials: true }
     );
-    return res.data;
+    return res.data || {};
   }
 );
 
-// 5. Modül güncelle
+// 8. Modül güncelle (admin)
 export const updateAdminModule = createAsyncThunk(
   "admin/updateAdminModule",
   async ({ name, updates }, thunkAPI) => {
@@ -76,14 +138,14 @@ export const updateAdminModule = createAsyncThunk(
       thunkAPI.rejectWithValue,
       { withCredentials: true }
     );
-    return res.data;
+    return res.data || {};
   }
 );
 
-// 6. Modül sil
+// 9. Modül sil (admin)
 export const deleteAdminModule = createAsyncThunk(
   "admin/deleteAdminModule",
-  async ({ name }, thunkAPI) => {
+  async (name, thunkAPI) => {
     await apiCall(
       "delete",
       `/admin/module/${name}`,
@@ -95,19 +157,22 @@ export const deleteAdminModule = createAsyncThunk(
   }
 );
 
-// --- Slice ---
+// 10. Analytics toggle (tenant + module bazlı)
+export const toggleModuleAnalytics = createAsyncThunk(
+  "admin/toggleModuleAnalytics",
+  async ({ module, value }, thunkAPI) => {
+    const res = await apiCall(
+      "patch",
+      `/admin/modules/toggle-analytics`,
+      { module, value },
+      thunkAPI.rejectWithValue,
+      { withCredentials: true }
+    );
+    return res.data || {};
+  }
+);
 
-const initialState = {
-  modules: [],
-  selectedModule: null,
-  moduleAnalytics: [],
-  loading: false,
-  error: null,
-  successMessage: null,
-  selectedProject: "",
-  availableProjects: [],
-  fetchedAvailableProjects: false,
-};
+//// --- SLICE --- ////
 
 const adminModuleSlice = createSlice({
   name: "adminModule",
@@ -117,8 +182,8 @@ const adminModuleSlice = createSlice({
       state.error = null;
       state.successMessage = null;
     },
-    setSelectedProject: (state, action) => {
-      state.selectedProject = action.payload;
+    setSelectedTenant: (state, action) => {
+      state.selectedTenant = action.payload;
     },
     clearSelectedModule: (state) => {
       state.selectedModule = null;
@@ -126,28 +191,62 @@ const adminModuleSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch available projects
-      .addCase(fetchAvailableProjects.pending, (state) => {
+      // Enabled modules
+      .addCase(fetchEnabledModules.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
-      .addCase(fetchAvailableProjects.fulfilled, (state, action) => {
-        state.availableProjects = action.payload;
-        state.fetchedAvailableProjects = true;
+      .addCase(fetchEnabledModules.fulfilled, (state, action) => {
+        // mapping: name fallback ve label fallback
+        state.moduleSettings = (action.payload || []).map((mod) => ({
+          ...mod,
+          visibleInSidebar: !!mod.visibleInSidebar,
+          enabled: !!mod.enabled,
+          useAnalytics: !!mod.useAnalytics,
+          showInDashboard: !!mod.showInDashboard, // fallback false
+          label: mod.label || { en: mod.name || mod.module },
+          name: mod.name || mod.module,
+        }));
         state.loading = false;
       })
-      .addCase(fetchAvailableProjects.rejected, (state, action) => {
+      .addCase(fetchEnabledModules.rejected, (state, action) => {
         state.loading = false;
-        state.error =
-          typeof action.payload === "string"
-            ? action.payload
-            : action.payload?.message || "Failed to fetch projects";
+        state.error = action.payload?.message || "Beklenmeyen hata!";
       })
 
-      // Fetch admin modules
+      // Analytics modules
+      .addCase(fetchAnalyticsModules.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchAnalyticsModules.fulfilled, (state, action) => {
+        state.analyticsModules = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchAnalyticsModules.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || "Beklenmeyen hata!";
+      })
+
+      // Tenant module settings (all)
+      .addCase(fetchTenantModules.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchTenantModules.fulfilled, (state, action) => {
+        state.moduleSettings = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchTenantModules.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message;
+      })
+
+      // Distinct module names
+      .addCase(fetchDistinctTenantModules.fulfilled, (state, action) => {
+        state.distinctModuleNames = action.payload;
+      })
+
+      // Admin (meta) modules
       .addCase(fetchAdminModules.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
       .addCase(fetchAdminModules.fulfilled, (state, action) => {
         state.modules = action.payload;
@@ -155,96 +254,49 @@ const adminModuleSlice = createSlice({
       })
       .addCase(fetchAdminModules.rejected, (state, action) => {
         state.loading = false;
-        state.error =
-          typeof action.payload === "string"
-            ? action.payload
-            : action.payload?.message || "Failed to fetch modules";
+        state.error = action.payload?.message || "Modüller yüklenemedi!";
       })
 
-      // Fetch module detail
-      .addCase(fetchModuleDetail.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
+      // Module detail
       .addCase(fetchModuleDetail.fulfilled, (state, action) => {
         state.selectedModule = action.payload;
-        state.loading = false;
-      })
-      .addCase(fetchModuleDetail.rejected, (state, action) => {
-        state.loading = false;
-        state.error =
-          typeof action.payload === "string"
-            ? action.payload
-            : action.payload?.message || "Failed to fetch module detail";
       })
 
-      // Create admin module
-      .addCase(createAdminModule.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-        state.successMessage = null;
-      })
+
+      // Create module
       .addCase(createAdminModule.fulfilled, (state, action) => {
         state.modules.push(action.payload);
-        state.successMessage = `Module "${action.payload.name}" created successfully.`;
-        state.loading = false;
-        if (state.successMessage) toast.success(state.successMessage);
-      })
-      .addCase(createAdminModule.rejected, (state, action) => {
-        state.loading = false;
-        state.error =
-          typeof action.payload === "string"
-            ? action.payload
-            : action.payload?.message || "Failed to create module";
+        state.successMessage = `Module "${action.payload.name}" created.`;
+        toast.success(state.successMessage);
       })
 
-      // Update admin module
-      .addCase(updateAdminModule.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-        state.successMessage = null;
-      })
+      // Update module
       .addCase(updateAdminModule.fulfilled, (state, action) => {
-        const updated = action.payload;
-        const idx = state.modules.findIndex((m) => m.name === updated.name);
-        if (idx !== -1) state.modules[idx] = updated;
-        state.selectedModule = updated;
-        state.successMessage = `Module "${updated.name}" updated successfully.`;
-        state.loading = false;
-        if (state.successMessage) toast.success(state.successMessage);
-      })
-      .addCase(updateAdminModule.rejected, (state, action) => {
-        state.loading = false;
-        state.error =
-          typeof action.payload === "string"
-            ? action.payload
-            : action.payload?.message || "Failed to update module";
+        const idx = state.modules.findIndex((m) => m.name === action.payload.name);
+        if (idx !== -1) state.modules[idx] = action.payload;
+        state.selectedModule = action.payload;
+        state.successMessage = `Module "${action.payload.name}" updated.`;
+        toast.success(state.successMessage);
       })
 
-      // Delete admin module
-      .addCase(deleteAdminModule.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-        state.successMessage = null;
-      })
+      // Delete module
       .addCase(deleteAdminModule.fulfilled, (state, action) => {
         state.modules = state.modules.filter((m) => m.name !== action.payload);
-        if (state.selectedModule?.name === action.payload)
-          state.selectedModule = null;
-        state.successMessage = `Module "${action.payload}" deleted successfully.`;
-        state.loading = false;
-        if (state.successMessage) toast.success(state.successMessage);
+        state.successMessage = `Module "${action.payload}" deleted.`;
+        toast.success(state.successMessage);
       })
-      .addCase(deleteAdminModule.rejected, (state, action) => {
-        state.loading = false;
-        state.error =
-          typeof action.payload === "string"
-            ? action.payload
-            : action.payload?.message || "Failed to delete module";
+
+      // Toggle analytics
+      .addCase(toggleModuleAnalytics.fulfilled, (state, action) => {
+        const idx = state.modules.findIndex((m) => m.name === action.payload.name);
+        if (idx !== -1) state.modules[idx] = action.payload;
+        state.selectedModule = action.payload;
+        state.successMessage = `Analytics toggled for "${action.payload.name}".`;
+        toast.success(state.successMessage);
       });
   },
 });
 
-export const { clearAdminMessages, setSelectedProject, clearSelectedModule } =
+export const { clearAdminMessages, setSelectedTenant, clearSelectedModule } =
   adminModuleSlice.actions;
 export default adminModuleSlice.reducer;

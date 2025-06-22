@@ -25,12 +25,18 @@
   "label": {
     "tr": "Etiket (Türkçe)",
     "en": "Etiket (İngilizce)",
-    "de": "Etiket (Almanca)"
+    "de": "Etiket (Almanca)",
+    "fr": "Etiket (Fransızca)",
+    "es": "Etiket (İspanyolca)",
+    "pl": "Etiket (Lehçe)"
   },
   "labelPlaceholder": {
     "tr": "Etiket gir (Türkçe)",
     "en": "Etiket gir (İngilizce)",
-    "de": "Etiket gir (Almanca)"
+    "de": "Etiket gir (Almanca)",
+    "fr": "Etiket gir (Fransızca)",
+    "es": "Etiket gir (İspanyolca)",
+    "pl": "Etiket gir (Lehçe)"
   },
   "iconPlaceholder": "İkon adı girin",
   "roles": "Roller (virgülle ayır)",
@@ -49,5 +55,7 @@
   "noProjects": "Proje bulunamadı",
   "search": "Modül ara...",
   "loading": "Yükleniyor...",
-  "noModulesFound": "Hiç modül bulunamadı."
+  "noModulesFound": "Hiç modül bulunamadı.",
+  "toggleActive": "Aktif",
+  "toggleInactive": "Pasif"
 }

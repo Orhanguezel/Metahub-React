@@ -1,0 +1,94 @@
+{
+  "page": {
+    "title": "Kontoeinstellungen",
+    "profileImage": "Profilbild",
+    "personalInfo": "Persönliche Informationen",
+    "address": "Adresse",
+    "notifications": "Benachrichtigungseinstellungen",
+    "social": "Soziale Medien Links",
+    "password": "Passwort ändern",
+    "deleteAccount": "Konto löschen",
+    "loading": "Wird geladen..."
+  },
+  "form": {
+    "title": "Meine Informationen aktualisieren",
+    "name": "Vollständiger Name",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "save": "Speichern",
+    "saving": "Wird gespeichert...",
+    "success": "Informationen wurden erfolgreich aktualisiert.",
+    "error": "Bei der Aktualisierung ist ein Fehler aufgetreten.",
+    "errors": {
+      "name": "Geben Sie Ihren Namen ein.",
+      "email": "Geben Sie Ihre E-Mail-Adresse ein.",
+      "emailInvalid": "Geben Sie eine gültige E-Mail-Adresse ein."
+    },
+    "imageSuccess": "Profilbild aktualisiert.",
+    "imageError": "Fehler beim Hochladen des Bildes.",
+    "loading": "Wird geladen...",
+    "upload": "Foto hochladen"
+  },
+  "address": {
+    "title": "Adresse",
+    "street": "Straße",
+    "houseNumber": "Hausnummer",
+    "city": "Stadt",
+    "zipCode": "Postleitzahl",
+    "phone": "Telefon",
+    "add": "Hinzufügen",
+    "saving": "Wird gespeichert...",
+    "update": "Aktualisieren",
+    "remove": "Entfernen",
+    "success": "Adresse gespeichert.",
+    "deleted": "Adresse gelöscht.",
+    "error": "Fehler beim Adressvorgang.",
+    "errors": {
+      "street": "Straßenname ist erforderlich.",
+      "houseNumber": "Hausnummer ist erforderlich.",
+      "city": "Stadt ist erforderlich.",
+      "zipCode": "Postleitzahl ist erforderlich."
+    }
+  },
+  "notifications": {
+    "email": "E-Mail-Benachrichtigung",
+    "sms": "SMS-Benachrichtigung",
+    "save": "Speichern",
+    "saving": "Wird gespeichert...",
+    "success": "Benachrichtigungseinstellungen wurden aktualisiert.",
+    "error": "Fehler beim Aktualisieren der Benachrichtigungseinstellungen.",
+    "emailRequired": "E-Mail-Benachrichtigung ist erforderlich.",
+    "smsRequired": "SMS-Benachrichtigung ist erforderlich."
+  },
+  "social": {
+    "title": "Soziale Medien Links",
+    "instagram": "Instagram",
+    "facebook": "Facebook",
+    "twitter": "Twitter",
+    "instagramPlaceholder": "Geben Sie Ihren Instagram-Profillink ein",
+    "facebookPlaceholder": "Geben Sie Ihren Facebook-Profillink ein",
+    "twitterPlaceholder": "Geben Sie Ihren Twitter-Profillink ein",
+    "save": "Speichern",
+    "saving": "Wird gespeichert...",
+    "success": "Soziale Medien Links gespeichert.",
+    "error": "Fehler beim Speichern der Links.",
+    "errors": {
+      "instagramInvalid": "Geben Sie eine gültige Instagram-Adresse ein.",
+      "facebookInvalid": "Geben Sie eine gültige Facebook-Adresse ein.",
+      "twitterInvalid": "Geben Sie eine gültige Twitter-Adresse ein."
+    }
+  },
+  "delete": {
+    "title": "Konto löschen",
+    "warning": "Dieser Vorgang kann nicht rückgängig gemacht werden! Geben Sie Ihr Passwort ein und schreiben Sie 'delete', um Ihr Konto zu löschen.",
+    "loggedInAs": "Eingeloggt als:",
+    "confirmation": "Geben Sie 'delete' ein, um das Löschen zu bestätigen.",
+    "confirmationError": "Bitte geben Sie 'delete' ein, um das Löschen zu bestätigen.",
+    "password": "Ihr Passwort",
+    "passwordError": "Geben Sie Ihr Passwort ein.",
+    "button": "Konto dauerhaft löschen",
+    "success": "Ihr Konto wurde gelöscht.",
+    "error": "Konto konnte nicht gelöscht werden.",
+    "loading": "Verarbeitung läuft..."
+  }
+}

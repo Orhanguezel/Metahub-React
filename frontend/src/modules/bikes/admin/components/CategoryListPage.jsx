@@ -1,148 +1,133 @@
-import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import {
-  createCategory,
-  updateCategory,
-  clearCategoryMessages,
-} from "../../slices/bikeSlice";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
+import {
+  fetchBikeCategories,
+  deleteBikeCategory,
+} from "@/modules/bikes/slices/bikeCategorySlice";
+import { SUPPORTED_LOCALES } from "@/i18n";
 
-export default function CategoryForm({ onClose, editingItem }) {
+export default function ProductCategoryListPage({ onAdd, onEdit }) {
+  const { t, i18n } = useTranslation("bike");
   const dispatch = useAppDispatch();
-  const { t } = useTranslation("admin");
-  const { loading, error, successMessage } = useAppSelector(
-    (state) => state.bikes
+  const { categories, loading, error } = useAppSelector(
+    (state) => state.bikeCategory
   );
 
-  const [name, setName] = useState({ tr: "", en: "", de: "" });
-  const [description, setDescription] = useState("");
+  // Aktif dili çek
+  const lang = SUPPORTED_LOCALES.includes(i18n.language) ? i18n.language : "en";
 
   useEffect(() => {
-    if (editingItem) {
-      setName(editingItem.name || { tr: "", en: "", de: "" });
-      setDescription(editingItem.description || "");
-    } else {
-      setName({ tr: "", en: "", de: "" });
-      setDescription("");
-    }
-  }, [editingItem]);
+    dispatch(fetchBikeCategories());
+  }, [dispatch]);
 
-  useEffect(() => {
-    if (successMessage || error) {
-      const timer = setTimeout(() => {
-        dispatch(clearCategoryMessages());
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [successMessage, error, dispatch]);
-
-  const handleChange = (lang, value) => {
-    setName((prev) => ({ ...prev, [lang]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      if (editingItem && editingItem._id) {
-        await dispatch(
-          updateCategory({ id: editingItem._id, data: { name, description } })
-        ).unwrap();
-      } else {
-        await dispatch(createCategory({ name, description })).unwrap();
-      }
-      onClose();
-    } catch (err) {
-      console.error("❌ Category operation failed:", err);
+  const handleDelete = (id) => {
+    const confirmMessage = t(
+      "admin.confirm.delete",
+      "Are you sure you want to delete this category?"
+    );
+    if (window.confirm(confirmMessage)) {
+      dispatch(deleteBikeCategory(id));
     }
   };
 
   return (
-    <Form onSubmit={handleSubmit}>
-      <h3>
-        {editingItem
-          ? t("editCategory", "Edit Category")
-          : t("newCategory", "New Category")}
-      </h3>
+    <Wrapper>
+      <Header>
+        <h2>{t("admin.categories.title", "Product Categories")}</h2>
+        <AddButton onClick={onAdd}>
+          {t("admin.categories.add", "Add Category")}
+        </AddButton>
+      </Header>
 
-      {["tr", "en", "de"].map((lng) => (
-        <div key={lng}>
-          <label htmlFor={`name-${lng}`}>{lng.toUpperCase()}:</label>
-          <input
-            id={`name-${lng}`}
-            type="text"
-            value={name[lng]}
-            onChange={(e) => handleChange(lng, e.target.value)}
-            placeholder={`Category name (${lng.toUpperCase()})`}
-            required
-          />
-        </div>
-      ))}
+      {loading ? (
+        <StatusMessage>{t("admin.loading", "Loading...")}</StatusMessage>
+      ) : error ? (
+        <ErrorMessage>❌ {error}</ErrorMessage>
+      ) : !categories || categories.length === 0 ? (
+        <StatusMessage>
+          {t("admin.categories.empty", "No categories found.")}
+        </StatusMessage>
+      ) : (
+        <Table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>{t("admin.categories.name", "Category Name")}</th>
+              <th>{t("admin.slug", "Slug")}</th>
+              <th>{t("admin.categories.image", "Image")}</th>
+              <th>{t("admin.actions", "Actions")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {categories.map((cat, i) => {
+              const imageSrc =
+                cat.images && cat.images.length > 0
+                  ? cat.images[0]?.thumbnail || cat.images[0]?.url || ""
+                  : "";
 
-      <label htmlFor="desc">
-        {t("optional_description", "Optional description")}
-      </label>
-      <textarea
-        id="desc"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        placeholder={t("category_info", "What is this category about?")}
-      />
-
-      {error && <ErrorMessage>❌ {error}</ErrorMessage>}
-      {successMessage && <SuccessMessage>✅ {successMessage}</SuccessMessage>}
-
-      <Button type="submit" disabled={loading}>
-        {loading
-          ? t("saving", "Saving...")
-          : editingItem
-          ? t("update", "Update")
-          : t("save", "Save")}
-      </Button>
-    </Form>
+              return (
+                <tr key={cat._id || i}>
+                  <td>{i + 1}</td>
+                  <td>{cat.name && cat.name[lang] ? cat.name[lang] : "—"}</td>
+                  <td>{cat.slug}</td>
+                  <td>
+                    {imageSrc ? (
+                      <img
+                        src={imageSrc}
+                        alt="category image"
+                        width={60}
+                        height={60}
+                        style={{ borderRadius: 4, objectFit: "cover" }}
+                      />
+                    ) : (
+                      <span style={{ color: "#999" }}>
+                        {t("admin.bike.no_images", "No images")}
+                      </span>
+                    )}
+                  </td>
+                  <td>
+                    <ActionButton onClick={() => onEdit(cat)}>
+                      {t("admin.edit", "Edit")}
+                    </ActionButton>
+                    <DeleteButton onClick={() => handleDelete(cat._id)}>
+                      {t("admin.delete", "Delete")}
+                    </DeleteButton>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </Table>
+      )}
+    </Wrapper>
   );
 }
 
-const Form = styled.form`
+// Styled Components
+
+const Wrapper = styled.div`
+  margin-top: 1rem;
+`;
+
+const Header = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.sm};
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
 
-  input,
-  textarea {
-    padding: ${({ theme }) => theme.spacing.sm};
-    border: 1px solid ${({ theme }) => theme.colors.border};
-    border-radius: ${({ theme }) => theme.radii.sm};
-    background: ${({ theme }) => theme.colors.inputBackground};
-    color: ${({ theme }) => theme.colors.text};
-    font-size: ${({ theme }) => theme.fontSizes.sm};
-  }
-
-  textarea {
-    min-height: 80px;
-    resize: vertical;
-  }
-
-  h3 {
-    font-size: ${({ theme }) => theme.fontSizes.lg};
-    font-weight: ${({ theme }) => theme.fontWeights.bold};
-    color: ${({ theme }) => theme.colors.textPrimary};
-    margin-bottom: ${({ theme }) => theme.spacing.md};
-  }
-
-  label {
-    font-size: ${({ theme }) => theme.fontSizes.sm};
-    color: ${({ theme }) => theme.colors.textSecondary};
-    margin-top: ${({ theme }) => theme.spacing.sm};
-    margin-bottom: 0.25rem;
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
   }
 `;
 
-const Button = styled.button`
-  align-self: flex-end;
-  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+const AddButton = styled.button`
+  padding: 0.5rem 1rem;
   background: ${({ theme }) => theme.colors.primary};
-  color: ${({ theme }) => theme.colors.white};
+  color: white;
   border: none;
   border-radius: ${({ theme }) => theme.radii.sm};
   cursor: pointer;
@@ -150,19 +135,55 @@ const Button = styled.button`
   &:hover {
     background: ${({ theme }) => theme.colors.primaryHover};
   }
+`;
 
-  &:disabled {
-    background: ${({ theme }) => theme.colors.disabled};
-    cursor: not-allowed;
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 0.75rem;
+    border: 1px solid ${({ theme }) => theme.colors.border};
+    text-align: left;
+    font-size: 0.95rem;
+  }
+
+  th {
+    background: ${({ theme }) => theme.colors.tableHeader};
+    color: ${({ theme }) => theme.colors.text};
   }
 `;
 
-const ErrorMessage = styled.p`
-  color: ${({ theme }) => theme.colors.danger};
-  font-size: ${({ theme }) => theme.fontSizes.xs};
+const StatusMessage = styled.p`
+  text-align: center;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  font-size: 0.95rem;
 `;
 
-const SuccessMessage = styled.p`
-  color: ${({ theme }) => theme.colors.success};
-  font-size: ${({ theme }) => theme.fontSizes.xs};
+const ErrorMessage = styled.p`
+  text-align: center;
+  color: red;
+  font-size: 0.95rem;
+`;
+
+const ActionButton = styled.button`
+  margin-right: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background: ${({ theme }) => theme.colors.warning};
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+`;
+
+const DeleteButton = styled.button`
+  padding: 0.4rem 0.8rem;
+  background: ${({ theme }) => theme.colors.danger};
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
 `;

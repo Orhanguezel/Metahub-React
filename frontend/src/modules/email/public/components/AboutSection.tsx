@@ -55,7 +55,8 @@ export default function AboutSection() {
 // Styled Components
 
 const Section = styled(motion.section)`
-  padding: ${({ theme }) => theme.spacing.xl} ${({ theme }) => theme.spacing.md};
+  padding: ${({ theme }) => theme.spacings.xl}
+    ${({ theme }) => theme.spacings.md};
   background: ${({ theme }) => theme.colors.background};
   color: ${({ theme }) => theme.colors.text};
   border-top: ${({ theme }) => `${theme.borders.thin} ${theme.colors.border}`};
@@ -88,14 +89,14 @@ const Card = styled.div`
 
 const Heading = styled.h2`
   font-size: ${({ theme }) => theme.fontSizes["2xl"]};
-  margin-bottom: ${({ theme }) => theme.spacing.sm};
+  margin-bottom: ${({ theme }) => theme.spacings.sm};
   font-weight: ${({ theme }) => theme.fontWeights.bold};
   color: ${({ theme }) => theme.colors.primary};
 `;
 
 const Paragraph = styled.p`
   font-size: ${({ theme }) => theme.fontSizes.base};
-  margin-bottom: ${({ theme }) => theme.spacing.md};
+  margin-bottom: ${({ theme }) => theme.spacings.md};
   color: ${({ theme }) => theme.colors.textSecondary};
   max-width: 600px;
   margin-left: auto;

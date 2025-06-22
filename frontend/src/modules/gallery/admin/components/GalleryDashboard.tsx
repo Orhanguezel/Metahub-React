@@ -29,8 +29,8 @@ export default GalleryDashboard;
 
 const StatsContainer = styled.div`
   display: flex;
-  gap: ${({ theme }) => theme.spacing.md};
-  margin-bottom: ${({ theme }) => theme.spacing.md};
+  gap: ${({ theme }) => theme.spacings.md};
+  margin-bottom: ${({ theme }) => theme.spacings.md};
   flex-wrap: wrap;
 `;
 
@@ -38,7 +38,7 @@ const Card = styled.div`
   flex: 1;
   min-width: 180px;
   background: ${({ theme }) => theme.colors.cardBackground};
-  padding: ${({ theme }) => theme.spacing.md};
+  padding: ${({ theme }) => theme.spacings.md};
   border-radius: ${({ theme }) => theme.radii.md};
   box-shadow: ${({ theme }) => theme.shadows.sm};
 `;

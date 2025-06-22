@@ -10,7 +10,8 @@ const CtaButton = ({ animate, href = "#", children }) => {
 
   useEffect(() => {
     if (!gsap) {
-      if (animate) console.error("[CtaButton.jsx] GSAP instance not available!");
+      if (animate)
+        console.error("[CtaButton.jsx] GSAP instance not available!");
       return;
     }
 
@@ -27,26 +28,38 @@ const CtaButton = ({ animate, href = "#", children }) => {
 
     if (animate) {
       const tl = gsap.timeline({ delay: 1.0 });
-      tl.to(wrapper, {
-        scale: 1,
-        y: 0,
-        opacity: 1,
-        visibility: "visible",
-        duration: 1,
-        ease: "power2.out",
-      }, 0);
-      tl.to(label, {
-        yPercent: 0,
-        opacity: 1,
-        duration: 0.8,
-        ease: "power3.out",
-      }, "-=0.7");
-      tl.to(icon, {
-        scale: 1,
-        opacity: 1,
-        duration: 0.8,
-        ease: "back.out(1.7)",
-      }, "<0.1");
+      tl.to(
+        wrapper,
+        {
+          scale: 1,
+          y: 0,
+          opacity: 1,
+          visibility: "visible",
+          duration: 1,
+          ease: "power2.out",
+        },
+        0
+      );
+      tl.to(
+        label,
+        {
+          yPercent: 0,
+          opacity: 1,
+          duration: 0.8,
+          ease: "power3.out",
+        },
+        "-=0.7"
+      );
+      tl.to(
+        icon,
+        {
+          scale: 1,
+          opacity: 1,
+          duration: 0.8,
+          ease: "back.out(1.7)",
+        },
+        "<0.1"
+      );
     } else {
       // Set visible state immediately if not animating
       gsap.set(wrapper, { opacity: 1, visibility: "visible", scale: 1, y: 0 });
@@ -90,7 +103,8 @@ const CtaButtonStyled = styled.a`
   min-width: 280px;
   max-width: clamp(280px, 50%, 450px);
   height: 60px;
-  padding: 0 ${({ theme }) => theme.spacing.sm} 0 ${({ theme }) => theme.spacing.lg};
+  padding: 0 ${({ theme }) => theme.spacings.sm} 0
+    ${({ theme }) => theme.spacings.lg};
   background-color: ${({ theme }) => theme.colors.buttonBackground};
   border-radius: ${({ theme }) => theme.radii.pill};
   text-decoration: none;
@@ -108,7 +122,7 @@ const CtaButtonStyled = styled.a`
 const CtaLabel = styled.span`
   flex-grow: 1;
   text-align: center;
-  margin-right: ${({ theme }) => theme.spacing.sm};
+  margin-right: ${({ theme }) => theme.spacings.sm};
   color: ${({ theme }) => theme.buttons.primary.text};
   font-family: ${({ theme }) => theme.fonts.main};
   font-size: ${({ theme }) => theme.fontSizes.md};

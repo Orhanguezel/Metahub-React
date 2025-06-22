@@ -1,31 +1,64 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import styled from "styled-components";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
-  createCategory,
-  updateCategory,
+  createBikeCategory,
+  updateBikeCategory,
   clearCategoryMessages,
-} from "@/modules/bikes/slices/bikeSlice";
+} from "@/modules/bikes/slices/bikeCategorySlice";
 import { useTranslation } from "react-i18next";
+import ImageUploadWithPreview from "@/shared/ImageUploadWithPreview";
 
-export default function CategoryForm({ onClose, editingItem }) {
+// Burada kendi dil listenizi import edin veya doğrudan yazın
+const SUPPORTED_LOCALES = ["tr", "en", "de"];
+
+function initLabel(val = "") {
+  return SUPPORTED_LOCALES.reduce((acc, lng) => ({ ...acc, [lng]: val }), {});
+}
+
+function fillAllLocales(obj = {}, fallback = "") {
+  const first = Object.values(obj).find((v) => v && v.trim && v.trim());
+  return SUPPORTED_LOCALES.reduce(
+    (acc, lng) => ({
+      ...acc,
+      [lng]:
+        obj && obj[lng] && obj[lng].trim && obj[lng].trim()
+          ? obj[lng]
+          : first || fallback,
+    }),
+    {}
+  );
+}
+
+export default function BikeCategoryForm({ onClose, editingItem }) {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation("admin");
+  const { t, i18n } = useTranslation("bike");
   const { loading, error, successMessage } = useAppSelector(
-    (state) => state.bikes
+    (state) => state.bikeCategory
   );
 
-  const [name, setName] = useState({ tr: "", en: "", de: "" });
-  const [description, setDescription] = useState("");
+  const initialExistingImages = useMemo(
+    () =>
+      editingItem && editingItem.images
+        ? editingItem.images.map((img) => img.url)
+        : [],
+    [editingItem]
+  );
+
+  const [name, setName] = useState(initLabel());
+  const [description, setDescription] = useState(initLabel());
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [removedImages, setRemovedImages] = useState([]);
 
   useEffect(() => {
-    if (editingItem) {
-      setName(editingItem.name || { tr: "", en: "", de: "" });
-      setDescription(editingItem.description || "");
-    } else {
-      setName({ tr: "", en: "", de: "" });
-      setDescription("");
-    }
+    setName(editingItem && editingItem.name ? editingItem.name : initLabel());
+    setDescription(
+      editingItem && editingItem.description
+        ? editingItem.description
+        : initLabel()
+    );
+    setSelectedFiles([]);
+    setRemovedImages([]);
   }, [editingItem]);
 
   useEffect(() => {
@@ -37,19 +70,39 @@ export default function CategoryForm({ onClose, editingItem }) {
     }
   }, [successMessage, error, dispatch]);
 
-  const handleChange = (lang, value) => {
-    setName((prev) => ({ ...prev, [lang]: value }));
+  const handleImagesChange = useCallback((files, removed) => {
+    setSelectedFiles(files);
+    setRemovedImages(removed);
+  }, []);
+
+  const handleChange = (field, lang, value) => {
+    if (field === "name") setName((prev) => ({ ...prev, [lang]: value }));
+    else setDescription((prev) => ({ ...prev, [lang]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const filledName = fillAllLocales(name, "New Category");
+    const filledDesc = fillAllLocales(description, "");
+
+    const formData = new FormData();
+    formData.append("name", JSON.stringify(filledName));
+    formData.append("description", JSON.stringify(filledDesc));
+    selectedFiles.forEach((file) => {
+      formData.append("images", file);
+    });
+    if (removedImages.length > 0) {
+      formData.append("removedImages", JSON.stringify(removedImages));
+    }
+
     try {
       if (editingItem && editingItem._id) {
         await dispatch(
-          updateCategory({ id: editingItem._id, data: { name, description } })
+          updateBikeCategory({ id: editingItem._id, data: formData })
         ).unwrap();
       } else {
-        await dispatch(createCategory({ name, description })).unwrap();
+        await dispatch(createBikeCategory(formData)).unwrap();
       }
       onClose();
     } catch (err) {
@@ -61,32 +114,48 @@ export default function CategoryForm({ onClose, editingItem }) {
     <Form onSubmit={handleSubmit}>
       <h3>
         {editingItem
-          ? t("editCategory", "Edit Category")
-          : t("newCategory", "New Category")}
+          ? t("admin.editCategory", "Edit Category")
+          : t("admin.newCategory", "New Category")}
       </h3>
 
-      {["tr", "en", "de"].map((lng) => (
+      {SUPPORTED_LOCALES.map((lng) => (
         <div key={lng}>
-          <label htmlFor={`name-${lng}`}>{lng.toUpperCase()}:</label>
+          <label htmlFor={`name-${lng}`}>
+            {t("admin.categories.name", "Category Name")} ({lng.toUpperCase()})
+          </label>
           <input
             id={`name-${lng}`}
             type="text"
-            value={name[lng]}
-            onChange={(e) => handleChange(lng, e.target.value)}
-            placeholder={`Category name (${lng.toUpperCase()})`}
-            required
+            value={name[lng] || ""}
+            onChange={(e) => handleChange("name", lng, e.target.value)}
+            placeholder={t(
+              "admin.categories.add",
+              `Category name (${lng.toUpperCase()})`
+            )}
+            required={lng === i18n.language || lng === "en"}
+          />
+          <label htmlFor={`desc-${lng}`}>
+            {t("admin.optional_description", "Optional description")} (
+            {lng.toUpperCase()})
+          </label>
+          <textarea
+            id={`desc-${lng}`}
+            value={description[lng] || ""}
+            onChange={(e) => handleChange("description", lng, e.target.value)}
+            placeholder={t(
+              "admin.category_info",
+              "What is this category about?"
+            )}
           />
         </div>
       ))}
 
-      <label htmlFor="desc">
-        {t("optional_description", "Optional description")}
-      </label>
-      <textarea
-        id="desc"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        placeholder={t("category_info", "What is this category about?")}
+      <label>{t("admin.categories.image", "Images")}</label>
+      <ImageUploadWithPreview
+        max={5}
+        defaultImages={initialExistingImages}
+        onChange={handleImagesChange}
+        folder="bikeCategory"
       />
 
       {error && <ErrorMessage>❌ {error}</ErrorMessage>}
@@ -94,28 +163,26 @@ export default function CategoryForm({ onClose, editingItem }) {
 
       <Button type="submit" disabled={loading}>
         {loading
-          ? t("saving", "Saving...")
+          ? t("admin.saving", "Saving...")
           : editingItem
-          ? t("update", "Update")
-          : t("save", "Save")}
+          ? t("admin.update2", "Update")
+          : t("admin.save", "Save")}
       </Button>
     </Form>
   );
 }
 
+// Styled Components
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.sm};
+  gap: 0.75rem;
 
   input,
   textarea {
-    padding: ${({ theme }) => theme.spacing.sm};
+    padding: 0.5rem;
     border: 1px solid ${({ theme }) => theme.colors.border};
-    border-radius: ${({ theme }) => theme.radii.sm};
-    background: ${({ theme }) => theme.colors.inputBackground};
-    color: ${({ theme }) => theme.colors.text};
-    font-size: ${({ theme }) => theme.fontSizes.sm};
+    border-radius: 4px;
   }
 
   textarea {
@@ -126,11 +193,11 @@ const Form = styled.form`
 
 const Button = styled.button`
   align-self: flex-end;
-  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  padding: 0.5rem 1.25rem;
   background: ${({ theme }) => theme.colors.primary};
-  color: ${({ theme }) => theme.colors.white};
+  color: white;
   border: none;
-  border-radius: ${({ theme }) => theme.radii.sm};
+  border-radius: 4px;
   cursor: pointer;
 
   &:hover {
@@ -138,17 +205,17 @@ const Button = styled.button`
   }
 
   &:disabled {
-    background: ${({ theme }) => theme.colors.disabled};
+    background: #ccc;
     cursor: not-allowed;
   }
 `;
 
 const ErrorMessage = styled.p`
-  color: ${({ theme }) => theme.colors.danger};
-  font-size: ${({ theme }) => theme.fontSizes.xs};
+  color: red;
+  font-size: 0.9rem;
 `;
 
 const SuccessMessage = styled.p`
-  color: ${({ theme }) => theme.colors.success};
-  font-size: ${({ theme }) => theme.fontSizes.xs};
+  color: green;
+  font-size: 0.9rem;
 `;

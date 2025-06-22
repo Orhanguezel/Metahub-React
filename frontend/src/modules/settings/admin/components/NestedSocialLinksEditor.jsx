@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
@@ -11,7 +10,7 @@ export default function NestedSocialLinksEditor({ value, setValue }) {
   const handleAddField = () => {
     const trimmed = newField.trim();
     if (!trimmed) return;
-    if (value[trimmed]) {
+    if (value?.[trimmed]) {
       alert(t("fieldExists", "This field already exists."));
       return;
     }
@@ -48,18 +47,28 @@ export default function NestedSocialLinksEditor({ value, setValue }) {
           value={newField}
           placeholder={t("enterSocialName", "Platform name (e.g. facebook)")}
           onChange={(e) => setNewField(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleAddField()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleAddField();
+            }
+          }}
         />
-        <AddFieldButton type="button" onClick={handleAddField}>
+        <AddFieldButton
+          type="button"
+          onClick={handleAddField}
+          disabled={!newField.trim()}
+        >
           ➕ {t("addSocial", "Add Social Link")}
         </AddFieldButton>
       </AddFieldRow>
 
-      {Object.keys(value).length === 0 && (
-        <EmptyMessage>{t("noSocialLinks", "No social links added yet.")}</EmptyMessage>
+      {(!value || Object.keys(value).length === 0) && (
+        <EmptyMessage>
+          {t("noSocialLinks", "No social links added yet.")}
+        </EmptyMessage>
       )}
 
-      {Object.entries(value).map(([fieldKey, { url, icon }]) => (
+      {Object.entries(value || {}).map(([fieldKey, { url, icon }]) => (
         <FieldBlock key={fieldKey}>
           <FieldHeader>
             <FieldTitle>{fieldKey}</FieldTitle>
@@ -77,6 +86,7 @@ export default function NestedSocialLinksEditor({ value, setValue }) {
             <Input
               type="text"
               value={url}
+              autoComplete="off"
               onChange={(e) => handleChange(fieldKey, "url", e.target.value)}
               placeholder={t("urlPlaceholder", "https://...")}
             />
@@ -87,6 +97,7 @@ export default function NestedSocialLinksEditor({ value, setValue }) {
             <Input
               type="text"
               value={icon}
+              autoComplete="off"
               onChange={(e) => handleChange(fieldKey, "icon", e.target.value)}
               placeholder={t("iconPlaceholder", "e.g. facebook, twitter")}
             />
@@ -102,20 +113,21 @@ export default function NestedSocialLinksEditor({ value, setValue }) {
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.md};
+  gap: ${({ theme }) => theme.spacings.md};
 `;
 
 const AddFieldRow = styled.div`
   display: flex;
-  gap: ${({ theme }) => theme.spacing.sm};
+  gap: ${({ theme }) => theme.spacings.sm};
   align-items: center;
-  margin-bottom: ${({ theme }) => theme.spacing.sm};
+  margin-bottom: ${({ theme }) => theme.spacings.sm};
 `;
 
 const NewFieldInput = styled.input`
   flex: 1;
-  padding: ${({ theme }) => theme.spacing.sm};
-  border: ${({ theme }) => theme.borders.thin} ${({ theme }) => theme.colors.border};
+  padding: ${({ theme }) => theme.spacings.sm};
+  border: ${({ theme }) => theme.borders.thin}
+    ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ theme }) => theme.inputs.background};
   color: ${({ theme }) => theme.inputs.text};
@@ -123,7 +135,8 @@ const NewFieldInput = styled.input`
 `;
 
 const AddFieldButton = styled.button`
-  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  padding: ${({ theme }) => theme.spacings.sm}
+    ${({ theme }) => theme.spacings.md};
   background: ${({ theme }) => theme.buttons.primary.background};
   color: ${({ theme }) => theme.buttons.primary.text};
   border: none;
@@ -131,8 +144,10 @@ const AddFieldButton = styled.button`
   font-size: ${({ theme }) => theme.fontSizes.sm};
   cursor: pointer;
   transition: background ${({ theme }) => theme.transition.fast};
+  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
+  pointer-events: ${({ disabled }) => (disabled ? "none" : "auto")};
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: ${({ theme }) => theme.buttons.primary.backgroundHover};
   }
 `;
@@ -144,18 +159,19 @@ const EmptyMessage = styled.div`
 `;
 
 const FieldBlock = styled.div`
-  border: ${({ theme }) => theme.borders.thin} ${({ theme }) => theme.colors.border};
-  padding: ${({ theme }) => theme.spacing.sm};
+  border: ${({ theme }) => theme.borders.thin}
+    ${({ theme }) => theme.colors.border};
+  padding: ${({ theme }) => theme.spacings.sm};
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ theme }) => theme.colors.backgroundAlt};
-  margin-bottom: ${({ theme }) => theme.spacing.xs};
+  margin-bottom: ${({ theme }) => theme.spacings.xs};
 `;
 
 const FieldHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: ${({ theme }) => theme.spacing.sm};
+  margin-bottom: ${({ theme }) => theme.spacings.sm};
 `;
 
 const FieldTitle = styled.strong`
@@ -179,8 +195,8 @@ const RemoveButton = styled.button`
 const InputGroup = styled.div`
   display: flex;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.sm};
-  margin: ${({ theme }) => theme.spacing.xs} 0;
+  gap: ${({ theme }) => theme.spacings.sm};
+  margin: ${({ theme }) => theme.spacings.xs} 0;
 
   @media (max-width: 480px) {
     flex-direction: column;
@@ -196,8 +212,9 @@ const Label = styled.label`
 
 const Input = styled.input`
   flex: 1;
-  padding: ${({ theme }) => theme.spacing.sm};
-  border: ${({ theme }) => theme.borders.thin} ${({ theme }) => theme.colors.border};
+  padding: ${({ theme }) => theme.spacings.sm};
+  border: ${({ theme }) => theme.borders.thin}
+    ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ theme }) => theme.inputs.background};
   color: ${({ theme }) => theme.inputs.text};

@@ -1,177 +1,154 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import apiCall from "@/api/apiCall";
 
+// State
 const initialState = {
   bikes: [],
-  categories: [],
-  selectedProduct: null,
-  selectedCategory: null,
+  selected: null,
   loading: false,
   error: null,
+  successMessage: null,
 };
 
-// 🌐 Public: Get All Products
-export const fetchProducts = createAsyncThunk(
-  "bikes/fetchProducts",
-  async (_, { rejectWithValue }) => {
-    return await apiCall("get", "/radonarprod", null, rejectWithValue);
-  }
-);
-
-// 🌐 Public: Get Product by ID
-export const getProductById = createAsyncThunk(
-  "bikes/getProductById",
-  async (id, { rejectWithValue }) => {
-    return await apiCall("get", `/radonarprod/${id}`, null, rejectWithValue);
-  }
-);
-
-// 🌐 Public: Get Product by Slug
-export const getProductBySlug = createAsyncThunk(
-  "bikes/getProductBySlug",
-  async (slug, { rejectWithValue }) => {
-    return await apiCall(
+// 🌍 Public - Get All
+export const fetchBikes = createAsyncThunk(
+  "bikes/fetchPublic",
+  async (_, thunkAPI) => {
+    const res = await apiCall(
       "get",
-      `/radonarprod/slug/${slug}`,
+      "/bikes",
       null,
-      rejectWithValue
+      thunkAPI.rejectWithValue
     );
+    return res.data;
   }
 );
 
-// 📥 Admin: Get All Products
-export const fetchAdminProducts = createAsyncThunk(
-  "bikes/fetchAdminProducts",
-  async (_, { rejectWithValue }) => {
-    return await apiCall("get", "/radonarprod/admin", null, rejectWithValue);
-  }
-);
-
-// 🔍 Admin: Get Product by ID
-export const getProductByIdAdmin = createAsyncThunk(
-  "bikes/getProductByIdAdmin",
-  async (id, { rejectWithValue }) => {
-    return await apiCall(
+// 🌍 Public - Get By Slug
+export const fetchBikeBySlug = createAsyncThunk(
+  "bikes/fetchBySlug",
+  async (slug, thunkAPI) => {
+    const res = await apiCall(
       "get",
-      `/radonarprod/admin/${id}`,
+      `/bikes/slug/${slug}`,
       null,
-      rejectWithValue
+      thunkAPI.rejectWithValue
     );
+    return res.data;
   }
 );
 
-// ✏️ Admin: Update Product
-export const updateProduct = createAsyncThunk(
-  "bikes/updateProduct",
-  async ({ id, formData }, { rejectWithValue }) => {
-    return await apiCall(
-      "put",
-      `/radonarprod/admin/${id}`,
-      formData,
-      rejectWithValue
+// 🌍 Public - Get By ID
+export const fetchBikeByIdPublic = createAsyncThunk(
+  "bikes/fetchByIdPublic",
+  async (id, thunkAPI) => {
+    const res = await apiCall(
+      "get",
+      `/bikes/${id}`,
+      null,
+      thunkAPI.rejectWithValue
     );
+    return res.data;
   }
 );
 
-// ❌ Delete Product
-export const deleteProduct = createAsyncThunk(
-  "bikes/deleteProduct",
-  async (id, { rejectWithValue }) => {
-    return await apiCall("delete", `/radonarprod/${id}`, null, rejectWithValue);
+// 🛠 Admin - Get All
+export const fetchBikesAdmin = createAsyncThunk(
+  "bikes/fetchAdmin",
+  async (_, thunkAPI) => {
+    const res = await apiCall(
+      "get",
+      "/bikes/admin",
+      null,
+      thunkAPI.rejectWithValue
+    );
+    return res.data;
   }
 );
 
-// ➕ Create Product (Admin)
-export const createProduct = createAsyncThunk(
-  "bikes/createProduct",
-  async (formData, { rejectWithValue }) => {
-    return await apiCall(
+// 🛠 Admin - Get By ID
+export const fetchBikeByIdAdmin = createAsyncThunk(
+  "bikes/fetchByIdAdmin",
+  async (id, thunkAPI) => {
+    const res = await apiCall(
+      "get",
+      `/bikes/admin/${id}`,
+      null,
+      thunkAPI.rejectWithValue
+    );
+    return res.data;
+  }
+);
+
+// ➕ Create (tek dil de, çok dil de gönderebilirsin)
+export const createBike = createAsyncThunk(
+  "bikes/create",
+  async (data, thunkAPI) => {
+    const isFormData =
+      typeof window !== "undefined" && data instanceof FormData;
+    const res = await apiCall(
       "post",
-      "/radonarprod/admin",
-      formData,
-      rejectWithValue
-    );
-  }
-);
-
-// 📄 Get All Categories
-export const fetchCategories = createAsyncThunk(
-  "bikes/fetchCategories",
-  async (_, { rejectWithValue }) => {
-    return await apiCall("get", "/radonarcategory", null, rejectWithValue);
-  }
-);
-
-// 📁 Create Category
-export const createCategory = createAsyncThunk(
-  "bikes/createCategory",
-  async (categoryData, { rejectWithValue }) => {
-    return await apiCall(
-      "post",
-      "/radonarcategory",
-      categoryData,
-      rejectWithValue
-    );
-  }
-);
-
-// 🔍 Get Category by ID
-export const getCategoryById = createAsyncThunk(
-  "bikes/getCategoryById",
-  async (id, { rejectWithValue }) => {
-    return await apiCall(
-      "get",
-      `/radonarcategory/${id}`,
-      null,
-      rejectWithValue
-    );
-  }
-);
-
-// ✏️ Update Category
-export const updateCategory = createAsyncThunk(
-  "bikes/updateCategory",
-  async ({ id, data }, { rejectWithValue }) => {
-    return await apiCall(
-      "put",
-      `/radonarcategory/${id}`,
+      "/bikes/admin",
       data,
-      rejectWithValue
+      thunkAPI.rejectWithValue,
+      isFormData
+        ? { headers: { "Content-Type": "multipart/form-data" } }
+        : undefined
     );
+    return res.data;
   }
 );
 
-// ❌ Delete Category
-export const deleteCategory = createAsyncThunk(
-  "bikes/deleteCategory",
-  async (id, { rejectWithValue }) => {
-    return await apiCall(
+// ✏️ Update
+export const updateBike = createAsyncThunk(
+  "bikes/update",
+  async (params, thunkAPI) => {
+    const { id, data } = params;
+    const isFormData =
+      typeof window !== "undefined" && data instanceof FormData;
+    const res = await apiCall(
+      "put",
+      `/bikes/admin/${id}`,
+      data,
+      thunkAPI.rejectWithValue,
+      isFormData
+        ? { headers: { "Content-Type": "multipart/form-data" } }
+        : undefined
+    );
+    return res.data;
+  }
+);
+
+// ❌ Delete
+export const deleteBike = createAsyncThunk(
+  "bikes/delete",
+  async (id, thunkAPI) => {
+    const res = await apiCall(
       "delete",
-      `/radonarcategory/${id}`,
+      `/bikes/admin/${id}`,
       null,
-      rejectWithValue
+      thunkAPI.rejectWithValue
     );
+    return { id, message: res.message };
   }
 );
 
-// 📢 Admin: Toggle Publish Status
-export const togglePublish = createAsyncThunk(
+// 🔁 Toggle Publish
+export const togglePublishBike = createAsyncThunk(
   "bikes/togglePublish",
-  async ({ id, isPublished }, { rejectWithValue }) => {
-    return await apiCall(
-      "patch",
-      `/radonarprod/admin/${id}/toggle-publish`,
-      { isPublished },
-      rejectWithValue
+  async ({ id, isPublished }, thunkAPI) => {
+    const formData = new FormData();
+    formData.append("isPublished", String(isPublished));
+    const res = await apiCall(
+      "put",
+      `/bikes/admin/${id}`,
+      formData,
+      thunkAPI.rejectWithValue,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
     );
-  }
-);
-
-// 📂 Fetch Radonar Categories
-export const fetchRadonarCategories = createAsyncThunk(
-  "bikes/fetchRadonarCategories",
-  async (_, { rejectWithValue }) => {
-    return await apiCall("get", "/radonarcategory", null, rejectWithValue);
+    return res.data;
   }
 );
 
@@ -179,156 +156,108 @@ const bikeSlice = createSlice({
   name: "bikes",
   initialState,
   reducers: {
-    setBikes(state, action) {
-      state.bikes = action.payload;
-    },
-    setCategories(state, action) {
-      state.categories = action.payload;
-    },
-    clearBikeError(state) {
+    clearBikeMessages: (state) => {
       state.error = null;
+      state.successMessage = null;
     },
-    clearSelected(state) {
-      state.selectedProduct = null;
-      state.selectedCategory = null;
+    clearSelectedBike: (state) => {
+      state.selected = null;
     },
-    clearCategoryMessages(state) {
+    clearBikes: (state) => {
+      state.bikes = [];
+      state.selected = null;
+      state.loading = false;
       state.error = null;
+      state.successMessage = null;
     },
   },
   extraReducers: (builder) => {
-    const handlePending = (state) => {
+    const loading = (state) => {
       state.loading = true;
       state.error = null;
     };
-    const handleRejected = (state, action) => {
+    const failed = (state, action) => {
       state.loading = false;
       state.error = action.payload?.message || "An error occurred.";
     };
 
-    // Category cases
     builder
-      .addCase(fetchCategories.pending, handlePending)
-      .addCase(fetchCategories.fulfilled, (state, action) => {
+      .addCase(fetchBikes.pending, loading)
+      .addCase(fetchBikes.fulfilled, (state, action) => {
         state.loading = false;
-        state.categories = action.payload.data;
+        state.bikes = action.payload;
       })
-      .addCase(fetchCategories.rejected, handleRejected)
+      .addCase(fetchBikes.rejected, failed)
 
-      .addCase(createCategory.pending, handlePending)
-      .addCase(createCategory.fulfilled, (state, action) => {
+      .addCase(fetchBikeBySlug.pending, loading)
+      .addCase(fetchBikeBySlug.fulfilled, (state, action) => {
         state.loading = false;
-        state.categories.push(action.payload);
+        state.selected = action.payload;
       })
-      .addCase(createCategory.rejected, handleRejected)
+      .addCase(fetchBikeBySlug.rejected, failed)
 
-      .addCase(getCategoryById.pending, handlePending)
-      .addCase(getCategoryById.fulfilled, (state, action) => {
+      .addCase(fetchBikeByIdPublic.pending, loading)
+      .addCase(fetchBikeByIdPublic.fulfilled, (state, action) => {
         state.loading = false;
-        state.selectedCategory = action.payload.data;
+        state.selected = action.payload;
       })
-      .addCase(getCategoryById.rejected, handleRejected)
+      .addCase(fetchBikeByIdPublic.rejected, failed)
 
-      .addCase(updateCategory.pending, handlePending)
-      .addCase(updateCategory.fulfilled, (state) => {
+      .addCase(fetchBikesAdmin.pending, loading)
+      .addCase(fetchBikesAdmin.fulfilled, (state, action) => {
         state.loading = false;
-        // Optional: Güncellenen kategoriyle listeyi güncelle
+        state.bikes = action.payload;
       })
-      .addCase(updateCategory.rejected, handleRejected)
+      .addCase(fetchBikesAdmin.rejected, failed)
 
-      .addCase(deleteCategory.pending, handlePending)
-      .addCase(deleteCategory.fulfilled, (state, action) => {
+      .addCase(fetchBikeByIdAdmin.pending, loading)
+      .addCase(fetchBikeByIdAdmin.fulfilled, (state, action) => {
         state.loading = false;
-        state.categories = state.categories.filter(
-          (cat) => cat._id !== action.meta.arg
-        );
+        state.selected = action.payload;
       })
-      .addCase(deleteCategory.rejected, handleRejected);
+      .addCase(fetchBikeByIdAdmin.rejected, failed)
 
-    // Product cases
-    builder
-      .addCase(fetchProducts.pending, handlePending)
-      .addCase(fetchProducts.fulfilled, (state, action) => {
+      .addCase(createBike.pending, loading)
+      .addCase(createBike.fulfilled, (state, action) => {
         state.loading = false;
-        state.bikes = action.payload.data;
+        state.successMessage = "Product created successfully.";
+        state.bikes.unshift(action.payload);
       })
-      .addCase(fetchProducts.rejected, handleRejected)
+      .addCase(createBike.rejected, failed)
 
-      .addCase(fetchAdminProducts.pending, handlePending)
-      .addCase(fetchAdminProducts.fulfilled, (state, action) => {
+      .addCase(updateBike.pending, loading)
+      .addCase(updateBike.fulfilled, (state, action) => {
         state.loading = false;
-        state.bikes = action.payload.data;
+        state.successMessage = "Product updated successfully.";
+        const updated = action.payload;
+        const index = state.bikes.findIndex((p) => p._id === updated._id);
+        if (index !== -1) state.bikes[index] = updated;
+        if (state.selected?._id === updated._id) state.selected = updated;
       })
-      .addCase(fetchAdminProducts.rejected, handleRejected)
+      .addCase(updateBike.rejected, failed)
 
-      .addCase(createProduct.pending, handlePending)
-      .addCase(createProduct.fulfilled, (state, action) => {
+      .addCase(deleteBike.pending, loading)
+      .addCase(deleteBike.fulfilled, (state, action) => {
         state.loading = false;
-        state.bikes.push(action.payload);
+        state.successMessage = "Product deleted successfully.";
+        state.bikes = state.bikes.filter((p) => p._id !== action.payload.id);
       })
-      .addCase(createProduct.rejected, handleRejected)
+      .addCase(deleteBike.rejected, failed)
 
-      .addCase(getProductById.pending, handlePending)
-      .addCase(getProductById.fulfilled, (state, action) => {
-        state.loading = false;
-        state.selectedProduct = action.payload.data;
-      })
-      .addCase(getProductById.rejected, handleRejected)
-
-      .addCase(getProductByIdAdmin.pending, handlePending)
-      .addCase(getProductByIdAdmin.fulfilled, (state, action) => {
-        state.loading = false;
-        state.selectedProduct = action.payload;
-      })
-      .addCase(getProductByIdAdmin.rejected, handleRejected)
-
-      .addCase(getProductBySlug.pending, handlePending)
-      .addCase(getProductBySlug.fulfilled, (state, action) => {
-        state.loading = false;
-        state.selectedProduct = action.payload.data;
-      })
-      .addCase(getProductBySlug.rejected, handleRejected)
-
-      .addCase(updateProduct.pending, handlePending)
-      .addCase(updateProduct.fulfilled, (state) => {
-        state.loading = false;
-        // Optional: Güncellenen ürünü liste içinde güncelle
-      })
-      .addCase(updateProduct.rejected, handleRejected)
-
-      .addCase(deleteProduct.pending, handlePending)
-      .addCase(deleteProduct.fulfilled, (state, action) => {
-        state.loading = false;
-        state.bikes = state.bikes.filter(
-          (bike) => bike._id !== action.meta.arg
-        );
-      })
-      .addCase(deleteProduct.rejected, handleRejected)
-      .addCase(togglePublish.pending, handlePending)
-      .addCase(togglePublish.fulfilled, (state, action) => {
+      .addCase(togglePublishBike.pending, loading)
+      .addCase(togglePublishBike.fulfilled, (state, action) => {
         state.loading = false;
         const updated = action.payload;
-        state.bikes = state.bikes.map((bike) =>
-          bike._id === updated._id ? updated : bike
-        );
+        const index = state.bikes.findIndex((p) => p._id === updated._id);
+        if (index !== -1) state.bikes[index] = updated;
+        if (state.selected?._id === updated._id) state.selected = updated;
+        state.successMessage = updated.isPublished
+          ? "Product published."
+          : "Product unpublished.";
       })
-      .addCase(togglePublish.rejected, handleRejected);
-    builder
-      .addCase(fetchRadonarCategories.pending, handlePending)
-      .addCase(fetchRadonarCategories.fulfilled, (state, action) => {
-        state.loading = false;
-        state.categories = action.payload.data;
-      })
-      .addCase(fetchRadonarCategories.rejected, handleRejected);
+      .addCase(togglePublishBike.rejected, failed);
   },
 });
 
-export const {
-  setBikes,
-  setCategories,
-  clearBikeError,
-  clearSelected,
-  clearCategoryMessages,
-} = bikeSlice.actions;
-
+export const { clearBikeMessages, clearSelectedBike, clearBikes } = bikeSlice.actions;
 export default bikeSlice.reducer;

@@ -1,21 +1,19 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import {
-  AdminSiteTemplateSelector,
   NestedValueEditor,
   NestedSocialLinksEditor,
   MultiLangObjectEditor,
 } from "@/modules/settings";
-import { upsertSetting } from "@/modules/settings/slice/settingSlice";
+import { SUPPORTED_LOCALES } from "@/i18n";
+import { completeLocales } from "@/utils/completeLocales";
 
 export default function ValueInputSection({
   keyValue,
   value,
   setValue,
   availableThemes,
-  onAvailableThemesUpdate,
-  dispatch,
   isMultiLang,
   isNestedObject,
   isImage,
@@ -26,22 +24,97 @@ export default function ValueInputSection({
   darkFile,
   setDarkFile,
   isEditing = false,
+  supportedLocales = SUPPORTED_LOCALES,
 }) {
   const { t } = useTranslation("settings");
-  const isLogoUpload = keyValue === "navbar_logos" || keyValue === "footer_logos";
+  const isLogoUpload =
+    keyValue === "navbar_logos" || keyValue === "footer_logos";
 
-  // Çoklu Dil Object (ör: navbar_logo_text)
+  // --- Root MultiLang normalizasyonu (her zaman hook en üstte!)
+  useEffect(() => {
+    if (
+      isMultiLang &&
+      !isNestedObject &&
+      !isImage &&
+      !isLogoUpload &&
+      typeof value === "object" &&
+      value !== null
+    ) {
+      setValue(completeLocales(value));
+    }
+    // eslint-disable-next-line
+  }, [isMultiLang, isNestedObject, isImage, isLogoUpload, keyValue]);
+
+  // --- Nested MultiLang objectler için normalizasyon (ör: navbar_logo_text, footer_contact vs.)
+  useEffect(() => {
+    if (
+      (keyValue === "navbar_logo_text" ||
+        keyValue === "footer_contact" ||
+        keyValue === "footer_label") &&
+      isMultiLang &&
+      !isNestedObject &&
+      !isImage &&
+      typeof value === "object" &&
+      value !== null
+    ) {
+      const normalizedObj = {};
+      Object.entries(value).forEach(([field, val]) => {
+        normalizedObj[field] = completeLocales(val);
+      });
+      setValue(normalizedObj);
+    }
+    // eslint-disable-next-line
+  }, [keyValue, isMultiLang, isNestedObject, isImage]);
+
+  // --- Render branch'leri (UI koşulları) ---
+
+  // Sadece düz çoklu dil { tr, en, ... }
+  if (isMultiLang && !isNestedObject && !isImage && !isLogoUpload) {
+    const val =
+      typeof value === "object" && value !== null
+        ? completeLocales(value)
+        : supportedLocales.reduce((acc, lng) => ({ ...acc, [lng]: "" }), {});
+    return (
+      <>
+        {supportedLocales.map((lng) => (
+          <div key={lng}>
+            <Label>
+              {t("value", { lng })}{" "}
+              <span style={{ fontSize: 12, color: "#999" }}>
+                ({lng.toUpperCase()})
+              </span>
+            </Label>
+            <Input
+              value={val[lng] || ""}
+              onChange={(e) => setValue({ ...val, [lng]: e.target.value })}
+              disabled={isEditing}
+            />
+          </div>
+        ))}
+      </>
+    );
+  }
+
+  // Nested MultiLang obje (ör: navbar_logo_text, footer_contact, footer_label)
   if (
-    keyValue === "navbar_logo_text" &&
+    (keyValue === "navbar_logo_text" ||
+      keyValue === "footer_contact" ||
+      keyValue === "footer_label") &&
     isMultiLang &&
     !isNestedObject &&
     !isImage
   ) {
     const safeVal = typeof value === "object" && value !== null ? value : {};
-    return <MultiLangObjectEditor value={safeVal} setValue={setValue} />;
+    return (
+      <MultiLangObjectEditor
+        value={safeVal}
+        setValue={setValue}
+        supportedLocales={supportedLocales}
+      />
+    );
   }
 
-  // Logo (Light/Dark) Upload
+  // Logo (light/dark) upload
   if (isLogoUpload && !isMultiLang && !isNestedObject && !isImage) {
     return (
       <LogoUploadWrapper>
@@ -53,7 +126,8 @@ export default function ValueInputSection({
             onChange={
               isEditing
                 ? undefined
-                : (e) => setLightFile && setLightFile(e.target.files?.[0] || null)
+                : (e) =>
+                    setLightFile && setLightFile(e.target.files?.[0] || null)
             }
             disabled={isEditing}
           />
@@ -77,7 +151,7 @@ export default function ValueInputSection({
     );
   }
 
-  // Tekil Image Upload
+  // Tekil image upload
   if (isImage && !isMultiLang && !isNestedObject && !isLogoUpload) {
     return (
       <>
@@ -86,7 +160,9 @@ export default function ValueInputSection({
           type="file"
           accept="image/*"
           onChange={
-            isEditing ? undefined : (e) => setFile && setFile(e.target.files?.[0] || null)
+            isEditing
+              ? undefined
+              : (e) => setFile && setFile(e.target.files?.[0] || null)
           }
           disabled={isEditing}
         />
@@ -95,7 +171,7 @@ export default function ValueInputSection({
     );
   }
 
-  // Tema Listesi
+  // Theme listesi (string/array)
   if (
     keyValue === "available_themes" &&
     !isImage &&
@@ -116,7 +192,7 @@ export default function ValueInputSection({
     );
   }
 
-  // Tema Seçimi
+  // Theme seçici
   if (
     keyValue === "site_template" &&
     !isImage &&
@@ -127,92 +203,50 @@ export default function ValueInputSection({
     return (
       <>
         <Label>{t("selectTheme", "Select Theme")}</Label>
-        <AdminSiteTemplateSelector
-          availableThemes={availableThemes}
-          selectedTheme={value}
-          onChange={isEditing ? () => {} : setValue}
-          onAddTheme={
-            isEditing
-              ? () => {}
-              : (newTheme) => {
-                  const trimmed = newTheme.trim();
-                  if (!trimmed || availableThemes.includes(trimmed)) return;
-                  const updatedThemes = [...availableThemes, trimmed];
-                  onAvailableThemesUpdate(updatedThemes);
-                  dispatch(
-                    upsertSetting({
-                      key: "available_themes",
-                      value: updatedThemes,
-                    })
-                  );
-                  setValue(trimmed);
-                }
-          }
-          onDeleteTheme={
-            isEditing
-              ? () => {}
-              : (themeToDelete) => {
-                  const updatedThemes = availableThemes.filter((t) => t !== themeToDelete);
-                  onAvailableThemesUpdate(updatedThemes);
-                  dispatch(
-                    upsertSetting({
-                      key: "available_themes",
-                      value: updatedThemes,
-                    })
-                  );
-                  if (value === themeToDelete) setValue("");
-                }
-          }
-        />
+        <Select
+          value={value || ""}
+          onChange={(e) => setValue(e.target.value)}
+          disabled={isEditing || !availableThemes?.length}
+        >
+          <option value="" disabled>
+            {t("selectTheme", "Select Theme")}
+          </option>
+          {(availableThemes || []).map((theme) => (
+            <option key={theme} value={theme}>
+              {theme}
+            </option>
+          ))}
+        </Select>
       </>
     );
   }
 
-  // Sosyal Linkler
+  // Sosyal linkler (nested object)
   if (
     keyValue === "footer_social_links" &&
     isNestedObject &&
     !isImage &&
     !isMultiLang
   ) {
-    const socialLinks = typeof value === "object" && !Array.isArray(value) ? value : {};
+    const socialLinks =
+      typeof value === "object" && !Array.isArray(value) ? value : {};
     return <NestedSocialLinksEditor value={socialLinks} setValue={setValue} />;
   }
 
-  // Nested Object (örn: footer_links)
+  // Diğer generic nested object (ör: footer_links)
   if (isNestedObject && !isMultiLang && !isImage && !isLogoUpload) {
-    const nestedValue = typeof value === "object" && value !== null ? value : {};
-    return <NestedValueEditor value={nestedValue} setValue={setValue} />;
-  }
-
-  // Çoklu Dil (tr, en, de)
-  if (isMultiLang && !isNestedObject && !isImage && !isLogoUpload) {
-    const val = typeof value === "object" && value !== null ? value : { tr: "", en: "", de: "" };
+    const nestedValue =
+      typeof value === "object" && value !== null ? value : {};
     return (
-      <>
-        <Label>{t("valueTr", "Value (Turkish)")}</Label>
-        <Input
-          value={val.tr || ""}
-          onChange={(e) => setValue({ ...val, tr: e.target.value })}
-          disabled={isEditing}
-        />
-        <Label>{t("valueEn", "Value (English)")}</Label>
-        <Input
-          value={val.en || ""}
-          onChange={(e) => setValue({ ...val, en: e.target.value })}
-          disabled={isEditing}
-        />
-        <Label>{t("valueDe", "Value (German)")}</Label>
-        <Input
-          value={val.de || ""}
-          onChange={(e) => setValue({ ...val, de: e.target.value })}
-          disabled={isEditing}
-        />
-      </>
+      <NestedValueEditor
+        value={nestedValue}
+        setValue={setValue}
+        supportedLocales={supportedLocales}
+      />
     );
   }
 
-  // Default: Tek Satırlık String Value
+  // Tek satırlık string value
   if (!isImage && !isMultiLang && !isNestedObject && !isLogoUpload) {
     return (
       <>
@@ -227,7 +261,7 @@ export default function ValueInputSection({
     );
   }
 
-  // Eğer input renderlanmayacaksa bilgi göster
+  // Renderlanmayacak durumlar için
   return (
     <ReadOnlyMessage>
       {t("notEditable", "This field type cannot be edited.")}
@@ -235,17 +269,18 @@ export default function ValueInputSection({
   );
 }
 
-// 🎨 Styled Components
+// --- Styled Components ---
 const Label = styled.label`
   font-weight: ${({ theme }) => theme.fontWeights.semiBold};
-  margin-bottom: ${({ theme }) => theme.spacing.xs};
+  margin-bottom: ${({ theme }) => theme.spacings.xs};
   color: ${({ theme }) => theme.colors.text};
   font-size: ${({ theme }) => theme.fontSizes.sm};
 `;
 
 const Input = styled.input`
-  padding: ${({ theme }) => theme.spacing.sm};
-  border: ${({ theme }) => theme.borders.thin} ${({ theme }) => theme.colors.border};
+  padding: ${({ theme }) => theme.spacings.sm};
+  border: ${({ theme }) => theme.borders.thin}
+    ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.sm};
   background: ${({ theme }) => theme.inputs.background};
   color: ${({ theme }) => theme.inputs.text};
@@ -260,14 +295,14 @@ const Input = styled.input`
 `;
 
 const FileInfo = styled.div`
-  margin-top: ${({ theme }) => theme.spacing.sm};
+  margin-top: ${({ theme }) => theme.spacings.sm};
   font-size: ${({ theme }) => theme.fontSizes.xs};
   color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
 const LogoUploadWrapper = styled.div`
   display: flex;
-  gap: ${({ theme }) => theme.spacing.md};
+  gap: ${({ theme }) => theme.spacings.md};
   flex-wrap: wrap;
   > div {
     flex: 1 1 200px;
@@ -277,8 +312,19 @@ const LogoUploadWrapper = styled.div`
 const ReadOnlyMessage = styled.div`
   color: ${({ theme }) => theme.colors.textSecondary};
   background: ${({ theme }) => theme.colors.backgroundAlt};
-  padding: ${({ theme }) => theme.spacing.md};
+  padding: ${({ theme }) => theme.spacings.md};
   border-radius: ${({ theme }) => theme.radii.sm};
   font-size: ${({ theme }) => theme.fontSizes.sm};
   text-align: center;
+`;
+
+const Select = styled.select`
+  padding: ${({ theme }) => theme.spacings.sm};
+  border: ${({ theme }) => theme.borders.thin}
+    ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  background: ${({ theme }) => theme.inputs.background};
+  color: ${({ theme }) => theme.inputs.text};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  width: 100%;
 `;
