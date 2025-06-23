@@ -118,7 +118,7 @@ const Navbar = () => {
         delay: 0.3,
       }
     );
-  }, [gsap]);
+  }, []);
 
   const handleBikesMouseEnter = () => {
     clearTimeout(bikesDropdownTimer.current);
