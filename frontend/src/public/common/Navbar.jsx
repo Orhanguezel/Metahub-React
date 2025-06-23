@@ -27,10 +27,10 @@ const Navbar = () => {
   const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
-    if (!categories || categories.length === 0) {
+    if (categories.length === 0) {
       dispatch(fetchBikeCategories());
     }
-  }, [dispatch, categories]);
+  }, [categories, dispatch]);
 
   // Profil resmi çözümü (değişmedi)
   const resolvedProfileImage = (() => {
