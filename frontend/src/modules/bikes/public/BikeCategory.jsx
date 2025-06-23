@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { fetchBikes } from "@/modules/bikes/slices/bikeSlice";
+import { useAppSelector } from "@/store/hooks";
 import BikeCard from "@/modules/bikes/public/BikeCard";
 import { useTranslation } from "react-i18next";
 
@@ -18,13 +17,8 @@ const BikeCategoryPage = () => {
   const { t, i18n } = useTranslation("bikes");
   const lang = i18n.language;
 
-  const dispatch = useAppDispatch();
   const bikes = useAppSelector((state) => state.bikes.bikes);
   const loading = useAppSelector((state) => state.bikes.loading);
-
-  useEffect(() => {
-    if (!bikes || bikes.length === 0) dispatch(fetchBikes());
-  }, [dispatch, bikes]);
 
   // Kategoriye göre filtrele
   const bikesInCategory = useMemo(() => {

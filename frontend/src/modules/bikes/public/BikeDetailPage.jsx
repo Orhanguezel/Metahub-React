@@ -2,10 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useParams, Link as RouterLink } from "react-router-dom";
 import styled from "styled-components";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import {
-  fetchBikes,
-  fetchBikeByIdPublic,
-} from "@/modules/bikes/slices/bikeSlice";
+import { fetchBikeByIdPublic } from "@/modules/bikes/slices/bikeSlice";
 import { useTranslation } from "react-i18next";
 import AddToCartButton from "@/shared/AddToCartButton";
 
@@ -32,10 +29,10 @@ const BikeDetailPage = () => {
 
   // Fetch on mount
   useEffect(() => {
-    if (!bikes || bikes.length === 0) dispatch(fetchBikes());
-    if (!selected || String(selected._id) !== String(bikeId))
+    if (!selected || String(selected._id) !== String(bikeId)) {
       dispatch(fetchBikeByIdPublic(bikeId));
-  }, [bikeId]);
+    }
+  }, [bikeId, dispatch, selected]);
 
   const images = bike?.images || [];
   const galleryImages = images.map((img) => img.url).filter(Boolean);
@@ -45,7 +42,7 @@ const BikeDetailPage = () => {
 
   useEffect(() => {
     setCurrentMainImage(galleryImages?.[0] || "");
-  }, [bikeId, bike]);
+  }, [bikeId, galleryImages]);
 
   const getLocalized = (obj, fallback = "-") =>
     obj?.[locale] || obj?.en || Object.values(obj || {})[0] || fallback;
@@ -66,7 +63,7 @@ const BikeDetailPage = () => {
     } else {
       setSelectedSize(null);
     }
-  }, [bike, bikeId]);
+  }, [bike, bikeId, selectedSize]);
 
   // Loading / Error
   if (loading) return <NoItemsMessage>{t("loading")}</NoItemsMessage>;
