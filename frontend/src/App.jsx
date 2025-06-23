@@ -1,6 +1,6 @@
 // src/App.jsx
 import React, { useState } from "react";
-//import LoaderOverlay from "@/public/home/LoaderOverlay";
+import LoaderOverlay from "@/public/home/LoaderOverlay";
 import { theme } from "./styles/theme.js";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { setupGsapOnWindow } from "@/utils/gsapSetup";
