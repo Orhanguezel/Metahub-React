@@ -258,16 +258,16 @@ const LoaderOverlay = ({ onLoaded }) => {
     const tl = gsap.timeline({
       delay: 0.3,
       defaults: { ease: "hop" },
+      // LoaderOverlay.jsx içinde
       onComplete: () => {
-        // console.log("[LoaderOverlay] GSAP Timeline COMPLETED.");
+        console.log("🔥 [LoaderOverlay] onLoaded() tetikleniyor!");
         gsap.to(loaderElement, {
           opacity: 0,
           duration: 0.5,
           onComplete: () => {
             if (loaderElement) gsap.set(loaderElement, { display: "none" });
-            // console.log("[LoaderOverlay] Calling onLoaded() and setting sessionStorage.");
-            sessionStorage.setItem("loaderShown", "true");
-            onLoaded();
+            sessionStorage.setItem("loaderAnimationComplete", "true");
+            onLoaded(); // << BURASI
           },
         });
       },
