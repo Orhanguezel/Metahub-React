@@ -52,9 +52,8 @@ import AdminTenantPage from "@/modules/tenants/admin/pages/AdminTenantPage";
 setupGsapOnWindow();
 
 const App = () => {
-  const [isLoaderAnimationComplete, setIsLoaderAnimationComplete] = useState(
-    sessionStorage.getItem("loaderAnimationComplete") === "true"
-  );
+  const [isLoaderAnimationComplete, setIsLoaderAnimationComplete] =
+    useState(true);
 
   const handleLoaderLoaded = () => {
     sessionStorage.setItem("loaderAnimationComplete", "true");
