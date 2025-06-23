@@ -158,6 +158,22 @@ const LoaderOverlay = ({ onLoaded }) => {
     []
   );
 
+  console.log("[LoaderOverlay] allRefsReady:", allRefsReady, "gsap:", !!gsap);
+  console.log("[LoaderOverlay] loaderWrapperRef:", loaderWrapperRef.current);
+  console.log(
+    "[LoaderOverlay] overlayBlockLeftRef:",
+    overlayBlockLeftRef.current
+  );
+  console.log(
+    "[LoaderOverlay] overlayBlockRightRef:",
+    overlayBlockRightRef.current
+  );
+  console.log("[LoaderOverlay] word1H1Ref:", word1H1Ref.current);
+  console.log("[LoaderOverlay] word2H1Ref:", word2H1Ref.current);
+  console.log("[LoaderOverlay] dividerLineRef:", dividerLineRef.current);
+  console.log("[LoaderOverlay] spinnerElementRef:", spinnerElementRef.current);
+  console.log("[LoaderOverlay] countItemRefs:", countItemRefs.current);
+
   useEffect(() => {
     if (
       counterData.length > 0 &&
