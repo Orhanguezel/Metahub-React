@@ -403,6 +403,11 @@ const LoaderOverlay = ({ onLoaded }) => {
     return <div>GSAP not available for Loader.</div>;
   }
 
+  console.log("[LoaderOverlay] RENDER oluyorum!", {
+    allRefsReady,
+    countItemRefs: countItemRefs.current,
+  });
+
   return (
     <LoaderWrapper ref={loaderWrapperRef}>
       <OverlayEffect>
