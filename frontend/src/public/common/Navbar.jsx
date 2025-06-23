@@ -5,6 +5,7 @@ import LanguageSelector from "./LanguageSelector";
 import SearchBar from "./SearchBar";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { fetchBikeCategories } from "@/modules/bikes/slices/bikeCategorySlice";
+import { fetchCurrentUser } from "@/modules/users/slice/accountSlice";
 import { fetchBikes } from "@/modules/bikes/slices/bikeSlice";
 import { useTranslation } from "react-i18next";
 import i18next from "i18next";
@@ -12,6 +13,7 @@ import logoImg from "@/assets/images/logo.png";
 import { getImageSrc } from "@/shared/getImageSrc";
 import { AvatarMenu } from "@/modules/shared";
 
+// --- Sadece 1 kez çağırma için flag state'leri:
 const Navbar = () => {
   const gsap = window.gsap;
   const navRef = useRef(null);
@@ -23,20 +25,53 @@ const Navbar = () => {
 
   const cart = useAppSelector((state) => state.cart.cart);
   const dispatch = useAppDispatch();
-  const { profile: user } = useAppSelector((state) => state.account);
-  const { categories } = useAppSelector((state) => state.bikeCategory);
-  const { bikes } = useAppSelector((state) => state.bikes.bikes);
+  const { bikes, loading: bikesLoading } = useAppSelector(
+    (state) => state.bikes
+  );
+  const { categories, loading: categoriesLoading } = useAppSelector(
+    (state) => state.bikeCategory
+  );
+  const { profile: user, loading: userLoading } = useAppSelector(
+    (state) => state.account
+  );
   const [showDropdown, setShowDropdown] = useState(false);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // --- Fetch Flags
+  const [bikesFetched, setBikesFetched] = useState(false);
+  const [categoriesFetched, setCategoriesFetched] = useState(false);
+  const [userFetched, setUserFetched] = useState(false);
+
+  // Sadece bir defa bikes fetch:
   useEffect(() => {
-    if (!Array.isArray(bikes) || bikes.length === 0) {
+    if (
+      !bikesFetched &&
+      !bikesLoading &&
+      (!Array.isArray(bikes) || bikes.length === 0)
+    ) {
       dispatch(fetchBikes());
+      setBikesFetched(true);
     }
-    if (!Array.isArray(categories) || categories.length === 0) {
+  }, [dispatch, bikes, bikesLoading, bikesFetched]);
+
+  // Sadece bir defa categories fetch:
+  useEffect(() => {
+    if (
+      !categoriesFetched &&
+      !categoriesLoading &&
+      (!Array.isArray(categories) || categories.length === 0)
+    ) {
       dispatch(fetchBikeCategories());
+      setCategoriesFetched(true);
     }
-  }, [dispatch]);
+  }, [dispatch, categories, categoriesLoading, categoriesFetched]);
+
+  // Sadece bir defa current user fetch:
+  useEffect(() => {
+    if (!userFetched && !user && !userLoading) {
+      dispatch(fetchCurrentUser());
+      setUserFetched(true);
+    }
+  }, [dispatch, user, userLoading, userFetched]);
 
   // Profil resmi çözümü (değişmedi)
   const resolvedProfileImage = (() => {
@@ -175,7 +210,6 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
 // ----------------- Styled Components -----------------
 const NavStyled = styled.nav`
   position: absolute;

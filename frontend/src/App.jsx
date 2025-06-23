@@ -1,11 +1,9 @@
 // src/App.jsx
-import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useState } from "react";
 import LoaderOverlay from "@/public/home/LoaderOverlay";
 import { theme } from "./styles/theme.js";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { setupGsapOnWindow } from "@/utils/gsapSetup";
-import { fetchCurrentUser } from "@/modules/users/slice/accountSlice";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -54,12 +52,6 @@ import AdminTenantPage from "@/modules/tenants/admin/pages/AdminTenantPage";
 setupGsapOnWindow();
 
 const App = () => {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(fetchCurrentUser());
-  }, [dispatch]);
-
   const [isLoaderAnimationComplete, setIsLoaderAnimationComplete] = useState(
     sessionStorage.getItem("loaderAnimationComplete") === "true"
   );
