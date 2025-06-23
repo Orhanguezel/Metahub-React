@@ -1,11 +1,7 @@
 import styled from "styled-components";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { useTranslation } from "react-i18next";
-import { useEffect } from "react";
-import {
-  fetchBikeCategories,
-  deleteBikeCategory,
-} from "@/modules/bikes/slices/bikeCategorySlice";
+import { deleteBikeCategory } from "@/modules/bikes/slices/bikeCategorySlice";
 import { SUPPORTED_LOCALES } from "@/i18n";
 
 export default function ProductCategoryListPage({ onAdd, onEdit }) {
@@ -17,10 +13,6 @@ export default function ProductCategoryListPage({ onAdd, onEdit }) {
 
   // Aktif dili çek
   const lang = SUPPORTED_LOCALES.includes(i18n.language) ? i18n.language : "en";
-
-  useEffect(() => {
-    dispatch(fetchBikeCategories());
-  }, [dispatch]);
 
   const handleDelete = (id) => {
     const confirmMessage = t(

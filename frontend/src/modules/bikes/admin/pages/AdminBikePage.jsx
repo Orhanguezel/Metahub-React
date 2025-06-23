@@ -40,13 +40,17 @@ export default function AdminBikePage() {
 
   // Data Fetch
   useEffect(() => {
-    dispatch(fetchBikesAdmin(lang));
-    dispatch(fetchBikeCategories());
+    if (!bikes || bikes.length === 0) {
+      dispatch(fetchBikesAdmin());
+    }
+    if (!categories || categories.length === 0) {
+      dispatch(fetchBikeCategories());
+    }
     return () => {
       dispatch(clearBikeMessages());
       dispatch(clearCategoryMessages());
     };
-  }, [dispatch, lang]);
+  }, [dispatch, lang, bikes, categories]);
 
   // Create/Update
   const handleCreateOrUpdate = async (data, id) => {

@@ -1,7 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { fetchBikes } from "@/modules/bikes/slices/bikeSlice";
+import { useAppSelector } from "@/store/hooks";
 import BikeCard from "@/modules/bikes/public/BikeCard";
 import { useTranslation } from "react-i18next";
 
@@ -22,14 +21,9 @@ const getUniqueCategories = (bikes = []) => {
 const AllBikesPage = () => {
   const { t, i18n } = useTranslation("bikes");
   const lang = i18n.language;
-  const dispatch = useAppDispatch();
   const bikes = useAppSelector((state) => state.bikes.bikes);
   const loading = useAppSelector((state) => state.bikes.loading);
   const error = useAppSelector((state) => state.bikes.error);
-
-  useEffect(() => {
-    if (!bikes || bikes.length === 0) dispatch(fetchBikes());
-  }, [dispatch, bikes]);
 
   const categories = useMemo(() => getUniqueCategories(bikes), [bikes]);
   const [selectedCategory, setSelectedCategory] = useState("all");

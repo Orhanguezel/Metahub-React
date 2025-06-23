@@ -4,7 +4,14 @@ import { Link, useNavigate } from "react-router-dom";
 import LanguageSelector from "./LanguageSelector";
 import SearchBar from "./SearchBar";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { fetchBikeCategories } from "@/modules/bikes/slices/bikeCategorySlice";
+import {
+  fetchBikeCategories,
+  clearCategoryMessages,
+} from "@/modules/bikes/slices/bikeCategorySlice";
+import {
+  fetchBikes,
+  clearBikeMessages,
+} from "@/modules/bikes/slices/bikeSlice";
 import { useTranslation } from "react-i18next";
 import i18next from "i18next";
 import logoImg from "@/assets/images/logo.png";
@@ -24,13 +31,23 @@ const Navbar = () => {
   const dispatch = useAppDispatch();
   const { profile: user } = useAppSelector((state) => state.account);
   const { categories } = useAppSelector((state) => state.bikeCategory);
+  const { bikes } = useAppSelector((state) => state.bikes.bikes);
   const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
-    if (categories.length === 0) {
+    if (!bikes || bikes.length === 0) {
+      dispatch(fetchBikes());
+    }
+
+    if (!categories || categories.length === 0) {
       dispatch(fetchBikeCategories());
     }
-  }, [categories, dispatch]);
+
+    return () => {
+      dispatch(clearBikeMessages());
+      dispatch(clearCategoryMessages());
+    };
+  }, [dispatch, bikes, categories]);
 
   // Profil resmi çözümü (değişmedi)
   const resolvedProfileImage = (() => {

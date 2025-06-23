@@ -1,10 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
-import { useAppDispatch } from "@/store/hooks";
-import {
-  fetchBikeCategories,
-  clearCategoryMessages,
-} from "@/modules/bikes/slices/bikeCategorySlice";
 import { useTranslation } from "react-i18next";
 import ImageUploadWithPreview from "@/shared/ImageUploadWithPreview";
 
@@ -24,8 +19,6 @@ export default function BikeFormModal({
     ? i18n.language
     : "en";
 
-  const dispatch = useAppDispatch();
-
   // Çok dilli state
   const emptyLabel = SUPPORTED_LOCALES.reduce(
     (acc, lang) => ({ ...acc, [lang]: "" }),
@@ -43,14 +36,6 @@ export default function BikeFormModal({
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [removedImages, setRemovedImages] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
-
-  // Kategorileri yükle
-  useEffect(() => {
-    dispatch(fetchBikeCategories());
-    return () => {
-      dispatch(clearCategoryMessages());
-    };
-  }, [dispatch]);
 
   // Düzenleme modunda varsayılan değerler
   useEffect(() => {
