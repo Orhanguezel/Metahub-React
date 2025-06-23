@@ -1,5 +1,6 @@
 // src/App.jsx
 import React, { useState } from "react";
+import { useEffect } from "react";
 import LoaderOverlay from "@/public/home/LoaderOverlay";
 import { theme } from "./styles/theme.js";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -52,8 +53,19 @@ import AdminTenantPage from "@/modules/tenants/admin/pages/AdminTenantPage";
 setupGsapOnWindow();
 
 const App = () => {
-  const [isLoaderAnimationComplete, setIsLoaderAnimationComplete] =
-    useState(true);
+  const [isLoaderAnimationComplete, setIsLoaderAnimationComplete] = useState(
+    sessionStorage.getItem("loaderAnimationComplete") === "true"
+  );
+  // Loader animation state
+  useEffect(() => {
+    if (!isLoaderAnimationComplete) {
+      const timeout = setTimeout(() => {
+        sessionStorage.setItem("loaderAnimationComplete", "true");
+        setIsLoaderAnimationComplete(true);
+      }, 3500); // 3.5 saniye beklesin
+      return () => clearTimeout(timeout);
+    }
+  }, [isLoaderAnimationComplete]);
 
   const handleLoaderLoaded = () => {
     sessionStorage.setItem("loaderAnimationComplete", "true");
