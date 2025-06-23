@@ -14,7 +14,7 @@ export const fetchCurrentUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     const response = await apiCall("get", "/users/account/me", null, rejectWithValue);
     if (response && response.success && response.user) {
-      return response.user;  
+      return response.user;
     }
     return rejectWithValue(response.message || "Failed to fetch user");
   }
@@ -136,11 +136,11 @@ const accountSlice = createSlice({
     builder
       .addCase(fetchCurrentUser.pending, setLoading)
 
-     .addCase(fetchCurrentUser.fulfilled, (state, action) => {
-  state.loading = false;
-  state.profile = action.payload; 
-  state.error = null;
-})
+      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.profile = action.payload;
+        state.error = null;
+      })
 
 
       .addCase(fetchCurrentUser.rejected, (state, action) => {

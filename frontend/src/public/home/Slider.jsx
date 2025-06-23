@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import styled from "styled-components";
 import Slide from "./Slide";
 import { slidesData as defaultSlidesData } from "@/data/sliderData";
+console.log("[Slider] defaultSlidesData:", defaultSlidesData);
 
 const SliderWrapper = styled.section`
   position: relative;
@@ -45,6 +46,7 @@ const SliderCounterDisplay = styled.div`
 `;
 
 const Slider = ({ isActive, slidesData = defaultSlidesData }) => {
+  console.log("[Slider] slidesData (inside component):", slidesData);
   const gsap = window.gsap;
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
