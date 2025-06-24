@@ -1,10 +1,11 @@
 // src/App.jsx
 import React, { useState } from "react";
-import { useEffect } from "react";
+import "@/utils/gsapSetup";
 import LoaderOverlay from "@/public/home/LoaderOverlay";
+import { setupGsapOnWindow } from "@/utils/gsapSetup";
+
 import { theme } from "./styles/theme.js";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { setupGsapOnWindow } from "@/utils/gsapSetup";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -56,16 +57,6 @@ const App = () => {
   const [isLoaderAnimationComplete, setIsLoaderAnimationComplete] = useState(
     sessionStorage.getItem("loaderAnimationComplete") === "true"
   );
-  // Loader animation state
-  useEffect(() => {
-    if (!isLoaderAnimationComplete) {
-      const timeout = setTimeout(() => {
-        sessionStorage.setItem("loaderAnimationComplete", "true");
-        setIsLoaderAnimationComplete(true);
-      }, 3500); // 3.5 saniye beklesin
-      return () => clearTimeout(timeout);
-    }
-  }, [isLoaderAnimationComplete]);
 
   const handleLoaderLoaded = () => {
     sessionStorage.setItem("loaderAnimationComplete", "true");
