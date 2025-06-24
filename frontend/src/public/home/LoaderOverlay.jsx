@@ -408,7 +408,13 @@ const LoaderOverlay = ({ onLoaded }) => {
   }
 
   console.log("[LoaderOverlay] RENDER oluyorum!", {
-    allRefsReady,
+    loaderWrapperRef: loaderWrapperRef.current,
+    overlayBlockLeftRef: overlayBlockLeftRef.current,
+    overlayBlockRightRef: overlayBlockRightRef.current,
+    word1H1Ref: word1H1Ref.current,
+    word2H1Ref: word2H1Ref.current,
+    dividerLineRef: dividerLineRef.current,
+    spinnerElementRef: spinnerElementRef.current,
     countItemRefs: countItemRefs.current,
   });
 
