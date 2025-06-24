@@ -1,6 +1,5 @@
 // src/App.jsx
 import React, { useState } from "react";
-import "@/utils/gsapSetup";
 import LoaderOverlay from "@/public/home/LoaderOverlay";
 import { setupGsapOnWindow } from "@/utils/gsapSetup";
 
