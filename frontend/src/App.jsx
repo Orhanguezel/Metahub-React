@@ -1,7 +1,6 @@
 // src/App.jsx
 import React, { useState } from "react";
 import LoaderOverlay from "@/public/home/LoaderOverlay";
-import { setupGsapOnWindow } from "@/utils/gsapSetup";
 
 import { theme } from "./styles/theme.js";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -49,8 +48,6 @@ import AdminSettingsPage from "@/modules/settings/admin/pages/AdminSettingsPage"
 import AdminBikePage from "@/modules/bikes/admin/pages/AdminBikePage";
 import AdminModulePage from "@/modules/adminmodules/admin/pages/AdminModulePage";
 import AdminTenantPage from "@/modules/tenants/admin/pages/AdminTenantPage";
-
-setupGsapOnWindow();
 
 const App = () => {
   const [isLoaderAnimationComplete, setIsLoaderAnimationComplete] = useState(

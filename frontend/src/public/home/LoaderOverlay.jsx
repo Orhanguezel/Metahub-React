@@ -157,6 +157,10 @@ const LoaderOverlay = ({ onLoaded }) => {
     ],
     []
   );
+  console.log(
+    "[LoaderOverlay] window.gsap var mı:",
+    typeof window !== "undefined" && !!window.gsap
+  );
 
   console.log("[LoaderOverlay] allRefsReady:", allRefsReady, "gsap:", !!gsap);
   console.log("[LoaderOverlay] loaderWrapperRef:", loaderWrapperRef.current);
