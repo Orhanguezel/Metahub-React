@@ -50,9 +50,8 @@ import AdminModulePage from "@/modules/adminmodules/admin/pages/AdminModulePage"
 import AdminTenantPage from "@/modules/tenants/admin/pages/AdminTenantPage";
 
 const App = () => {
-  const [isLoaderAnimationComplete, setIsLoaderAnimationComplete] = useState(
-    sessionStorage.getItem("loaderAnimationComplete") === "true"
-  );
+  const [isLoaderAnimationComplete, setIsLoaderAnimationComplete] =
+    useState(true);
 
   const handleLoaderLoaded = () => {
     sessionStorage.setItem("loaderAnimationComplete", "true");
