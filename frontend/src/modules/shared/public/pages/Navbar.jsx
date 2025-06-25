@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
@@ -9,50 +9,18 @@ import {
   LanguageSelector,
   Logo,
 } from "@/modules/shared";
-import { useGsap } from "@/contexts/GsapContext";
 
-const Navbar = ({ animate }) => {
-  const gsap = useGsap();
-  const navRef = useRef(null);
+const Navbar = () => {
   const { t } = useTranslation("navbar");
 
-  useEffect(() => {
-    if (!gsap) {
-      console.error("[Navbar.jsx] gsapInstance not available from context!");
-      return;
-    }
-    if (navRef.current) {
-      if (animate) {
-        gsap.to(navRef.current, {
-          y: "0%",
-          opacity: 1,
-          visibility: "visible",
-          duration: 1.5,
-          ease: "hop",
-          delay: 0.7,
-        });
-      } else {
-        gsap.set(navRef.current, {
-          y: "0%",
-          opacity: 1,
-          visibility: "visible",
-        });
-      }
-    }
-  }, [animate, gsap]);
-
-  if (!gsap && animate) return null;
-
   return (
-    <NavStyled ref={navRef}>
+    <NavStyled>
       <LogoContainer>
         <Logo width={120} height={120} themeMode="dark" />
       </LogoContainer>
       <NavLinks className="nav-links">
-        <a href="/about">{t("about", "About")}</a>
         <a href="/bikes">{t("bikes", "Bikes")}</a>
         <a href="/home">{t("home", "Home")}</a>
-        <a href="/stories">{t("stories", "Stories")}</a>
       </NavLinks>
       <NavActions className="nav-actions">
         <LanguageSelector />

@@ -1,105 +1,86 @@
-import React, { useRef, useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
-import { useGsap } from "@/contexts/GsapContext"; // GSAP hook import
+import { useTranslation } from "react-i18next";
+import {
+  FooterLogo,
+  FooterCopyright,
+  FooterLinks,
+  FooterCompanyInfo,
+} from "@/modules/shared";
+import Loading from "@/shared/Loading";
 
-const Footer = ({ currentSlide, totalSlides, showCounter }) => {
-  const gsap = useGsap();
-  const footerRef = useRef(null);
-
-  useEffect(() => {
-    if (!gsap) {
-      console.error("[Footer.jsx] gsapInstance not available!");
-      return;
-    }
-    if (footerRef.current) {
-      if (showCounter) {
-        gsap.to(footerRef.current, {
-          opacity: 1,
-          visibility: "visible",
-          duration: 0.5,
-          ease: "power1.out",
-        });
-      } else {
-        gsap.to(footerRef.current, {
-          opacity: 0,
-          visibility: "hidden",
-          duration: 0.3,
-          ease: "power1.in",
-        });
-      }
-    }
-  }, [showCounter, gsap]);
-
-  if (!gsap && showCounter) {
-    return null;
-  }
+export default function Footer() {
+  const { t } = useTranslation("footer");
 
   return (
-    <FooterWrapper ref={footerRef}>
-      {showCounter && totalSlides > 0 && currentSlide > 0 && (
-        <SliderCounterDisplay>
-          <span className="count-digit">{currentSlide}</span>
-          <span className="divider">/</span>
-          <span className="count-digit">{totalSlides}</span>
-        </SliderCounterDisplay>
-      )}
+    <FooterWrapper>
+      <FooterLogo />
+      <FooterGrid>
+        <InfoBlock>
+          <FooterCompanyInfo />
+        </InfoBlock>
+        <InfoBlock>
+          <FooterLinks title={t("aboutUs")} />
+        </InfoBlock>
+        <InfoBlock>
+          <FooterLinks title={t("ourServices")} />
+        </InfoBlock>
+      </FooterGrid>
+
+      <FooterCopyright />
     </FooterWrapper>
   );
-};
+}
 
-export default Footer;
-
+// Styled Components
 const FooterWrapper = styled.footer`
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100vw;
-  padding: ${({ theme }) => theme.spacings.md}
-    ${({ theme }) => theme.spacings.lg};
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  z-index: 50;
-  pointer-events: none;
-  opacity: 0;
-  visibility: hidden;
-  will-change: opacity;
+  padding: ${({ theme }) => theme.spacings.xl}
+    ${({ theme }) => theme.spacings.md};
+  background-color: ${({ theme }) =>
+    theme.colors.footerBackground || theme.colors.backgroundAlt};
+  color: ${({ theme }) => theme.colors.text};
+  border-top: ${({ theme }) => theme.borders.thin} solid
+    ${({ theme }) => theme.colors.border || theme.colors.textMuted};
+  text-align: center;
+  width: 100%;
+  opacity: 1;
+  visibility: visible;
+  transition: all 0.3s ease;
+`;
 
-  @media (max-width: ${({ theme }) => theme.breakpoints.mobile || "600px"}) {
-    padding: ${({ theme }) => theme.spacings.sm}
-      ${({ theme }) => theme.spacings.md};
+const FooterGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: ${({ theme }) => theme.spacings.xl};
+  max-width: ${({ theme }) => theme.layout.containerWidth};
+  margin: ${({ theme }) => theme.spacings.lg} auto 0 auto;
+  align-items: flex-start;
+
+  ${({ theme }) => theme.media.small} {
+    grid-template-columns: 1fr;
+    gap: ${({ theme }) => theme.spacings.md};
+    margin-top: ${({ theme }) => theme.spacings.md};
   }
 `;
 
-const SliderCounterDisplay = styled.div`
+const InfoBlock = styled.div`
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin: 0 ${({ theme }) => theme.spacings.md};
+`;
+
+const SliderCounter = styled.div`
+  margin-top: ${({ theme }) => theme.spacings.md};
+  font-size: ${({ theme }) => theme.fontSizes.small || "14px"};
+  color: ${({ theme }) => theme.colors.textSecondary || theme.colors.textMuted};
+  display: flex;
+  justify-content: center;
   align-items: baseline;
-  color: ${({ theme }) => theme.colors.text || "#fff"};
-  font-family: ${({ theme }) =>
-    theme.fonts.main || '"PP Neue Montreal", sans-serif'};
-  font-size: ${({ theme }) => theme.fontSizes.small || "15px"};
-  font-weight: 300;
-  pointer-events: auto;
+  gap: 0.3em;
 
-  span {
-    display: inline-block;
-    min-width: 20px;
-    text-align: center;
-
-    &.count-digit {
-      opacity: 1;
-    }
-
-    &.divider {
-      margin: 0 0.25em;
-      opacity: 0.35;
-    }
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.mobile || "600px"}) {
-    font-size: ${({ theme }) => theme.fontSizes.xsmall || "12px"};
-    span {
-      min-width: 18px;
-    }
+  .divider {
+    opacity: 0.4;
   }
 `;

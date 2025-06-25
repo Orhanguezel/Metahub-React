@@ -1,6 +1,5 @@
 // src/App.jsx
-import React, { useState } from "react";
-import LoaderOverlay from "@/public/home/LoaderOverlay";
+import React from "react";
 
 import { theme } from "./styles/theme.js";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -13,14 +12,11 @@ import UserLayout from "@/layouts/UserLayout";
 import AdminLayout from "@/layouts/AdminLayout";
 
 // Public pages
-import Home from "@/public/pages/Home";
-import AboutPage from "@/public/pages/AboutPage";
-import StoriesPage from "@/public/pages/StoriesPage";
-import ContactPage from "@/public/pages/ContactPage";
-import FAQPage from "@/public/pages/FAQPage";
-import ShippingReturnsPage from "@/public/pages/ShippingReturnsPage";
-import PrivacyPolicyPage from "@/public/pages/PrivacyPolicyPage";
-import TermsOfServicePage from "@/public/pages/TermsOfServicePAge";
+import HomePage from "@/modules/users/public/pages/LoginPage";
+import FAQPage from "@/modules/home/public/components/FAQPage.jsx";
+import ShippingReturnsPage from "@/modules/home/public/components/ShippingReturnsPage.jsx";
+import PrivacyPolicyPage from "@/modules/home/public/components/PrivacyPolicyPage.jsx";
+import TermsOfServicePage from "@/modules/home/public/components/TermsOfServicePAge.jsx";
 
 // Auth pages
 import LoginPage from "@/modules/users/public/pages/LoginPage";
@@ -50,59 +46,26 @@ import AdminModulePage from "@/modules/adminmodules/admin/pages/AdminModulePage"
 import AdminTenantPage from "@/modules/tenants/admin/pages/AdminTenantPage";
 
 const App = () => {
-  const [isLoaderAnimationComplete, setIsLoaderAnimationComplete] =
-    useState(true);
-
-  const handleLoaderLoaded = () => {
-    sessionStorage.setItem("loaderAnimationComplete", "true");
-    setIsLoaderAnimationComplete(true);
-  };
-
   return (
-    <BrowserRouter future={{ v7_startTransition: true }}>
-      {!isLoaderAnimationComplete && (
-        <LoaderOverlay onLoaded={handleLoaderLoaded} />
-      )}
-
+    <BrowserRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
       {/* Ana Routes Ağacı */}
       <Routes>
         {/* Public Layout */}
         <Route path="/" element={<PublicLayout />}>
-          <Route
-            index
-            element={<Home isAppReady={isLoaderAnimationComplete} />}
-          />
-          <Route
-            path="all-bikes"
-            element={<AllBikesPage isAppReady={isLoaderAnimationComplete} />}
-          />
-          <Route
-            path="bikescategory/:slug"
-            element={
-              <BikeCategoryPage isAppReady={isLoaderAnimationComplete} />
-            }
-          />
-          <Route
-            path="bike/:bikeId"
-            element={<BikeDetailPage isAppReady={isLoaderAnimationComplete} />}
-          />
-          <Route
-            path="about"
-            element={<AboutPage isAppReady={isLoaderAnimationComplete} />}
-          />
-          <Route
-            path="login"
-            element={<LoginPage isAppReady={isLoaderAnimationComplete} />}
-          />
-          <Route
-            path="register"
-            element={<RegisterPage isAppReady={isLoaderAnimationComplete} />}
-          />
+          <Route index element={<HomePage />} />
+          <Route path="all-bikes" element={<AllBikesPage />} />
+          <Route path="bikescategory/:slug" element={<BikeCategoryPage />} />
+          <Route path="bike/:bikeId" element={<BikeDetailPage />} />
+          <Route path="login" element={<LoginPage />} />
+          <Route path="register" element={<RegisterPage />} />
           <Route path="forgot-password" element={<ForgotPasswordPage />} />
           <Route path="reset-password/:token" element={<ResetPasswordPage />} />
           <Route path="verify-email/:token" element={<VerifyEmailPage />} />
-          <Route path="stories" element={<StoriesPage />} />
-          <Route path="contact" element={<ContactPage />} />
           <Route path="faq" element={<FAQPage />} />
           <Route path="shipping-returns" element={<ShippingReturnsPage />} />
           <Route path="privacy" element={<PrivacyPolicyPage />} />

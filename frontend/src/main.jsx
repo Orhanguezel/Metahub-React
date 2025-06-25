@@ -1,5 +1,4 @@
 // src/main.jsx
-import "@/utils/gsapSetup";
 import "./i18n/index";
 import React from "react";
 import ReactDOM from "react-dom/client";

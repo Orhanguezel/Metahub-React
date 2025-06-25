@@ -6,15 +6,14 @@ import LanguageDetector from "i18next-browser-languagedetector";
 export const SUPPORTED_LOCALES = ["en", "de", "tr", "fr", "es", "pl"];
 
 import bikeTranslations from "@/modules/bikes/locales";
-import navbarTranslations from "@/public/common/locales/navbar";
-import footerTranslations from "@/public/common/locales/footer";
-import commonTranslations from "@/public/common/locales/common";
+import navbarTranslations from "@/modules/shared/locales/navbar";
+import footerTranslations from "@/modules/shared/locales/footer";
 import cartTranslations from "@/modules/cart/locales";
 import orderTranslations from "@/modules/order/locales";
-import termsTranslations from "@/public/locales/terms";
-import privacyTranslations from "@/public/locales/privacy";
-import contactTranslations from "@/public/locales/contact";
-import returnTranslations from "@/public/locales/return";
+import termsTranslations from "@/modules/home/locales/terms";
+import privacyTranslations from "@/modules/home/locales/privacy";
+import contactTranslations from "@/modules/home/locales/contact";
+import returnTranslations from "@/modules/home/locales/return";
 
 import loginTranslations from "@/modules/users/locales/login";
 import registerTranslations from "@/modules/users/locales/register";
@@ -44,7 +43,6 @@ const modules = [
   { ns: "bikes", translations: bikeTranslations },
   { ns: "navbar", translations: navbarTranslations },
   { ns: "footer", translations: footerTranslations },
-  { ns: "common", translations: commonTranslations },
   { ns: "cart", translations: cartTranslations },
   { ns: "order", translations: orderTranslations },
   { ns: "terms", translations: termsTranslations },
