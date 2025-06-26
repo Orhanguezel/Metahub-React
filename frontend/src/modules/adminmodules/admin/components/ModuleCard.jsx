@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { Globe, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -6,18 +6,15 @@ import * as MdIcons from "react-icons/md";
 import { ModuleStatusToggle } from "@/modules/adminmodules";
 import {
   updateAdminModule,
-  fetchTenantModules,
-} from "@/modules/adminmodules/slice/adminModuleSlice";
+  updateTenantModuleSetting,
+} from "@/modules/adminmodules/slices/adminModuleSlice";
 import { useAppDispatch } from "@/store/hooks";
 import { getCurrentLocale } from "@/utils/getCurrentLocale";
+import { toast } from "react-toastify";
 
-// --- Dynamic Icon Handler
-const dynamicIcon = (iconName) => {
-  if (iconName && MdIcons[iconName]) return MdIcons[iconName];
-  return MdIcons.MdSettings;
-};
+const dynamicIcon = (iconName) =>
+  iconName && MdIcons[iconName] ? MdIcons[iconName] : MdIcons.MdSettings;
 
-// --- Highlight Search
 const highlightMatch = (text, search) => {
   if (!search) return text;
   const regex = new RegExp(`(${search})`, "gi");
@@ -31,52 +28,82 @@ const highlightMatch = (text, search) => {
   );
 };
 
-export default function ModuleCard({ module, search = "", onClick, onDelete }) {
+// --- SADELEŞTİRİLMİŞ ve temiz ayrımlı kart ---
+export default function ModuleCard({
+  module,
+  search = "",
+  type = "global", // "global" | "tenant"
+  onShowDetail, // (modül, type) => { ... }
+  onDelete, // sadece global
+  onAfterAction,
+}) {
   const { t } = useTranslation("adminModules");
   const lang = getCurrentLocale();
   const dispatch = useAppDispatch();
+  const [updatingModuleKey, setUpdatingModuleKey] = useState(null);
 
-  // Label fallback
-  const moduleLabel =
-    module.label?.[lang]?.trim() ||
-    module.label?.en?.trim() ||
-    module.name ||
-    module.module;
+  const isGlobal = type === "global";
+  const moduleKey = isGlobal ? module.name : module.module;
+
+  // Global meta: label çoklu dil, tenantta sadece name/module
+  let moduleLabel = isGlobal
+    ? (module.label?.[lang] && module.label[lang].trim()) ||
+      (module.label?.en && module.label.en.trim()) ||
+      module.name ||
+      ""
+    : moduleKey;
 
   const IconComponent = dynamicIcon(module.icon);
 
+  // --- Sadece globalde silme ---
   const handleDeleteClick = (e) => {
     e.stopPropagation();
-    onDelete && onDelete(module.name || module.module);
+    if (isGlobal && onDelete) onDelete(moduleKey);
   };
 
-  // Her toggle sonrası tüm modülleri tekrar çek!
+  // --- Toggle sadece mevcut alanlarda çalışır (globalde SADECE enabled!) ---
   const handleToggle = async (key) => {
+    setUpdatingModuleKey(moduleKey);
     try {
-      await dispatch(
-        updateAdminModule({
-          name: module.name || module.module,
-          updates: { [key]: !module[key] },
-        })
-      ).unwrap();
-      dispatch(fetchTenantModules(module.tenant));
+      if (!isGlobal) {
+        await dispatch(
+          updateTenantModuleSetting({ module: moduleKey, [key]: !module[key] })
+        ).unwrap();
+      } else {
+        await dispatch(
+          updateAdminModule({
+            name: moduleKey,
+            updates: { [key]: !module[key] },
+          })
+        ).unwrap();
+      }
+      if (typeof onAfterAction === "function") onAfterAction();
     } catch (err) {
-      console.error("Toggle failed:", err);
+      toast.error("Güncelleme hatası!", err);
+    } finally {
+      setUpdatingModuleKey(null);
     }
   };
 
-  // Son 5 route & history
+  // --- Karta tıklayınca parent'a "modül ve tipi" ilet ---
+  const handleCardClick = () => {
+    if (typeof onShowDetail === "function") {
+      onShowDetail(module, type);
+    }
+  };
+
+  // --- Sadece globalde route/history (short) göster ---
   const shownRoutes =
-    Array.isArray(module.routes) && module.routes.length > 0
+    isGlobal && Array.isArray(module.routes) && module.routes.length > 0
       ? module.routes.slice(-5)
       : [];
   const shownHistory =
-    Array.isArray(module.history) && module.history.length > 0
+    isGlobal && Array.isArray(module.history) && module.history.length > 0
       ? module.history.slice(-5)
       : [];
 
   return (
-    <Card onClick={onClick}>
+    <Card onClick={handleCardClick} tabIndex={0}>
       <CardHeader>
         <IconWrapper>
           <IconComponent />
@@ -85,53 +112,94 @@ export default function ModuleCard({ module, search = "", onClick, onDelete }) {
           <LabelText title={moduleLabel}>
             {highlightMatch(moduleLabel, search)}
           </LabelText>
-          <NameText title={module.name || module.module}>
-            {highlightMatch(module.name || module.module, search)}
+          <NameText title={moduleKey}>
+            {highlightMatch(moduleKey, search)}
           </NameText>
         </ModuleInfo>
+        <CardBadges>
+          {isGlobal ? (
+            <BadgeGlobal title={t("global", "Global Meta")}>
+              <Globe size={13} style={{ marginRight: 2 }} />
+              {t("global", "Global")}
+            </BadgeGlobal>
+          ) : (
+            <BadgeTenant>
+              {module.tenant ? module.tenant : t("tenant", "Tenant")}
+            </BadgeTenant>
+          )}
+        </CardBadges>
         <Actions>
-          <TrashButton
-            onClick={handleDeleteClick}
-            title={t("delete", "Delete Module")}
-          >
-            <Trash2 size={18} />
-          </TrashButton>
+          {isGlobal && (
+            <TrashButton
+              onClick={handleDeleteClick}
+              title={t("delete", "Delete Module")}
+            >
+              <Trash2 size={18} />
+            </TrashButton>
+          )}
         </Actions>
       </CardHeader>
 
       <Divider />
 
-      {/* Tüm toggle'lar: enabled, sidebar, analytics, dashboard (varsa) */}
+      {/* --- TOGGLE GRUBU --- */}
       <StatusGroup>
-        <StatusItem>
-          <span>{t("enabled", "Enabled")}</span>
-          <ModuleStatusToggle
-            isActive={!!module.enabled}
-            onToggle={() => handleToggle("enabled")}
-          />
-        </StatusItem>
-        <StatusItem>
-          <span>{t("visibleInSidebar", "Sidebar")}</span>
-          <ModuleStatusToggle
-            isActive={!!module.visibleInSidebar}
-            onToggle={() => handleToggle("visibleInSidebar")}
-          />
-        </StatusItem>
-        <StatusItem>
-          <span>{t("useAnalytics", "Analytics")}</span>
-          <ModuleStatusToggle
-            isActive={!!module.useAnalytics}
-            onToggle={() => handleToggle("useAnalytics")}
-          />
-        </StatusItem>
-        {"showInDashboard" in module && (
+        {/* GLOBAL: SADECE enabled */}
+        {isGlobal && "enabled" in module && (
           <StatusItem>
-            <span>{t("showInDashboard", "Dashboard")}</span>
+            <span>{t("enabled", "Enabled")}</span>
             <ModuleStatusToggle
-              isActive={!!module.showInDashboard}
-              onToggle={() => handleToggle("showInDashboard")}
+              isActive={!!module.enabled}
+              onToggle={() => handleToggle("enabled")}
+              disabled={updatingModuleKey === moduleKey}
             />
           </StatusItem>
+        )}
+
+        {/* TENANT: sadece modelde olan alanlar */}
+        {!isGlobal && (
+          <>
+            {"enabled" in module && (
+              <StatusItem>
+                <span>{t("enabled", "Enabled")}</span>
+                <ModuleStatusToggle
+                  isActive={!!module.enabled}
+                  onToggle={() => handleToggle("enabled")}
+                  disabled={updatingModuleKey === moduleKey}
+                />
+              </StatusItem>
+            )}
+            {"visibleInSidebar" in module && (
+              <StatusItem>
+                <span>{t("visibleInSidebar", "Sidebar")}</span>
+                <ModuleStatusToggle
+                  isActive={!!module.visibleInSidebar}
+                  onToggle={() => handleToggle("visibleInSidebar")}
+                  disabled={updatingModuleKey === moduleKey}
+                />
+              </StatusItem>
+            )}
+            {"useAnalytics" in module && (
+              <StatusItem>
+                <span>{t("useAnalytics", "Analytics")}</span>
+                <ModuleStatusToggle
+                  isActive={!!module.useAnalytics}
+                  onToggle={() => handleToggle("useAnalytics")}
+                  disabled={updatingModuleKey === moduleKey}
+                />
+              </StatusItem>
+            )}
+            {"showInDashboard" in module && (
+              <StatusItem>
+                <span>{t("showInDashboard", "Dashboard")}</span>
+                <ModuleStatusToggle
+                  isActive={!!module.showInDashboard}
+                  onToggle={() => handleToggle("showInDashboard")}
+                  disabled={updatingModuleKey === moduleKey}
+                />
+              </StatusItem>
+            )}
+          </>
         )}
       </StatusGroup>
 
@@ -150,7 +218,8 @@ export default function ModuleCard({ module, search = "", onClick, onDelete }) {
         </TimeText>
       </MetaInfo>
 
-      {shownRoutes.length > 0 && (
+      {/* --- Sadece global meta'da route/history göster --- */}
+      {isGlobal && shownRoutes.length > 0 && (
         <>
           <Divider />
           <RouteList>
@@ -167,7 +236,7 @@ export default function ModuleCard({ module, search = "", onClick, onDelete }) {
         </>
       )}
 
-      {shownHistory.length > 0 && (
+      {isGlobal && shownHistory.length > 0 && (
         <>
           <Divider />
           <RouteList>
@@ -193,7 +262,7 @@ export default function ModuleCard({ module, search = "", onClick, onDelete }) {
 
       <CardFooter>
         <SwaggerLink
-          href={`/api-docs/#/${module.name || module.module}`}
+          href={`/api-docs/#/${moduleKey}`}
           target="_blank"
           rel="noreferrer"
           onClick={(e) => e.stopPropagation()}
@@ -246,6 +315,29 @@ const IconWrapper = styled.div`
 const ModuleInfo = styled.div`
   flex: 1 1 0;
   min-width: 0;
+`;
+
+const CardBadges = styled.div`
+  display: flex;
+  gap: 0.3rem;
+`;
+
+const BadgeTenant = styled.span`
+  background: ${({ theme }) => theme.colors.info};
+  color: #fff;
+  font-size: 11px;
+  border-radius: 7px;
+  padding: 1px 8px;
+  font-weight: 600;
+`;
+
+const BadgeGlobal = styled.span`
+  background: ${({ theme }) => theme.colors.primary};
+  color: #fff;
+  font-size: 11px;
+  border-radius: 7px;
+  padding: 1px 8px;
+  font-weight: 600;
 `;
 
 const Actions = styled.div`

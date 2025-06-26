@@ -1,39 +1,51 @@
-// src/hooks/useSidebarModules.js
 import { useAppSelector } from "@/store/hooks";
 import { useTranslation } from "react-i18next";
-import * as Icons from "react-icons/md";
+import * as MdIcons from "react-icons/md";
 
 /**
- * Tenant bazlı, sadece aktif ve sidebarda gösterilecek modülleri listeler.
- * - Redux slice'ta: adminModule.moduleSettings
- * - Her modül objesinde: module (name), label, icon, enabled, visibleInSidebar, order
+ * Tenant bazlı, sadece aktif ve sidebar’da gösterilecek modülleri döner.
  */
 export const useSidebarModules = () => {
-  // 1️⃣ Yeni tenant-aware slice array'i kullanılıyor!
-  const modules = useAppSelector((state) => state.adminModule.moduleSettings);
+  const modules = useAppSelector((state) => state.adminModule.tenantModules || []);
   const loading = useAppSelector((state) => state.adminModule.loading);
+
   const { i18n } = useTranslation();
   const lang = i18n.language || "en";
 
-  // 2️⃣ Sidebarda sadece aktif ve visible olanlar gösteriliyor
   const sidebarModules = (modules || [])
-    .filter((mod) => mod.enabled && mod.visibleInSidebar)
+    .filter((mod) => mod.enabled === true && mod.visibleInSidebar === true)
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
     .map((mod) => ({
-      key: mod.module,
-      path: mod.module === "dashboard" ? "/admin" : `/admin/${mod.module}`,
-      label: mod.label?.[lang] || mod.label?.en || mod.module,
+      key: mod.module || mod.name,
+      path:
+        (mod.module || mod.name) === "dashboard"
+          ? "/admin"
+          : `/admin/${mod.module || mod.name}`,
+      label:
+        (mod.label?.[lang]?.trim() ||
+          mod.label?.en?.trim() ||
+          mod.module ||
+          mod.name),
       Icon: getDynamicIcon(mod.icon),
     }));
 
   return { sidebarModules, isLoading: loading };
 };
 
-// 3️⃣ Dinamik ikon fonksiyonu
+
+
+// --- Ikon Mantığı ---
 const getDynamicIcon = (iconName) => {
   const defaultIcon = "MdSettings";
-  const mappedName = iconName?.startsWith("Md") ? iconName : `Md${capitalize(iconName)}`;
-  return Icons[mappedName] || Icons[defaultIcon];
+  if (!iconName || typeof iconName !== "string") return MdIcons[defaultIcon];
+  const normalized =
+    iconName.startsWith("Md") && iconName in MdIcons
+      ? iconName
+      : `Md${capitalize(iconName)}`;
+  return MdIcons[normalized] || MdIcons[defaultIcon];
 };
 
-const capitalize = (str) => str?.charAt(0).toUpperCase() + str?.slice(1);
+const capitalize = (str) =>
+  typeof str === "string" && str.length > 0
+    ? str.charAt(0).toUpperCase() + str.slice(1)
+    : "";

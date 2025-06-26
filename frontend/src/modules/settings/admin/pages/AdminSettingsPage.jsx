@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState, useMemo } from "react";
+import React, { useCallback, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { fetchSettings } from "@/modules/settings/slice/settingSlice";
@@ -37,12 +37,6 @@ export default function AdminSettingsPage() {
   );
   const siteTemplateSetting = settings.find((s) => s.key === "site_template");
   const selectedTheme = siteTemplateSetting?.value || "";
-
-  useEffect(() => {
-    if (!settings || settings.length === 0) {
-      dispatch(fetchSettings());
-    }
-  }, [dispatch, settings]);
 
   const [selectedSetting, setSelectedSetting] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);

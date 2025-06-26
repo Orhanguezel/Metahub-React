@@ -1,44 +1,57 @@
-import React, { useState } from "react";
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { XCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
-  updateAdminModule,
-  fetchAdminModules,
-} from "@/modules/adminmodules/slice/adminModuleSlice";
-import { useAppDispatch } from "@/store/hooks";
-import { toast } from "react-toastify";
-import { SUPPORTED_LOCALES } from "@/i18n";
-import { getCurrentLocale } from "@/utils/getCurrentLocale";
+  updateTenantModuleSetting,
+  fetchTenantModules,
+} from "@/modules/adminmodules/slices/adminModuleSlice";
 
-const getLangLabel = (lang) => lang.toUpperCase();
+// Sadece tenant setting alanları!
+const SETTING_FIELDS = [
+  "enabled",
+  "visibleInSidebar",
+  "useAnalytics",
+  "showInDashboard",
+  "roles",
+  "order",
+];
 
-export default function EditModuleModal({ module, onClose }) {
+export default function EditTenantModuleModal({
+  module,
+  onClose,
+  onAfterAction,
+}) {
   const dispatch = useAppDispatch();
   const { t } = useTranslation("adminModules");
-  const lang = getCurrentLocale();
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Her dil için label fallback
-  const safeLabel = SUPPORTED_LOCALES.reduce(
-    (acc, l) => ({ ...acc, [l]: module.label?.[l] ?? "" }),
-    {}
+  const selectedTenant = useAppSelector(
+    (state) => state.tenants.selectedTenant
   );
 
-  // Form state
+  // Form State
   const [form, setForm] = useState({
-    label: safeLabel,
-    icon: module.icon || "box",
-    roles: Array.isArray(module.roles) ? module.roles.join(", ") : "",
+    enabled: !!module.enabled,
     visibleInSidebar: !!module.visibleInSidebar,
     useAnalytics: !!module.useAnalytics,
-    enabled: !!module.enabled,
     showInDashboard: !!module.showInDashboard,
+    roles: Array.isArray(module.roles) ? module.roles.join(", ") : "",
     order: Number.isFinite(module.order) ? module.order : 0,
   });
 
-  // Input değişimi
+  useEffect(() => {
+    setForm({
+      enabled: !!module.enabled,
+      visibleInSidebar: !!module.visibleInSidebar,
+      useAnalytics: !!module.useAnalytics,
+      showInDashboard: !!module.showInDashboard,
+      roles: Array.isArray(module.roles) ? module.roles.join(", ") : "",
+      order: Number.isFinite(module.order) ? module.order : 0,
+    });
+  }, [module]);
+
+  // Input handler
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
@@ -52,20 +65,6 @@ export default function EditModuleModal({ module, onClose }) {
     }));
   };
 
-  // Çok dilli label
-  const handleLabelChange = (l, value) => {
-    setForm((prev) => ({
-      ...prev,
-      label: { ...prev.label, [l]: value },
-    }));
-  };
-
-  // Hata/success için mesaj fallback
-  const getMsg = (msg) => {
-    if (!msg) return "";
-    return typeof msg === "string" ? msg : msg?.[lang] || msg?.en || "";
-  };
-
   // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -76,86 +75,40 @@ export default function EditModuleModal({ module, onClose }) {
         .map((r) => r.trim())
         .filter(Boolean);
 
-      await dispatch(
-        updateAdminModule({
-          name: module.name,
-          updates: {
-            label: form.label,
-            icon: form.icon,
-            roles: rolesArray,
-            visibleInSidebar: form.visibleInSidebar,
-            useAnalytics: form.useAnalytics,
-            enabled: form.enabled,
-            showInDashboard: form.showInDashboard,
-            order: form.order,
-          },
-        })
-      ).unwrap();
+      const settingUpdate = {};
+      SETTING_FIELDS.forEach((key) => {
+        if (key in form) settingUpdate[key] = form[key];
+      });
+      settingUpdate.roles = rolesArray;
+      settingUpdate.module = module.module || module.name;
 
-      await dispatch(fetchAdminModules());
-      toast.success(t("updateSuccess", "Module updated successfully."));
+      await dispatch(updateTenantModuleSetting(settingUpdate)).unwrap();
+
+      if (selectedTenant) {
+        await dispatch(fetchTenantModules(selectedTenant));
+      }
+      if (onAfterAction) onAfterAction();
       onClose();
     } catch (err) {
-      toast.error(getMsg(err?.message) || t("updateError", "Update failed."));
+      alert(
+        t("updateError", "Update failed.") +
+          (err?.message ? `: ${err.message}` : "")
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  useEffect(() => {
-    setForm({
-      label: SUPPORTED_LOCALES.reduce(
-        (acc, l) => ({ ...acc, [l]: module.label?.[l] ?? "" }),
-        {}
-      ),
-      icon: module.icon || "box",
-      roles: Array.isArray(module.roles) ? module.roles.join(", ") : "",
-      visibleInSidebar: !!module.visibleInSidebar,
-      useAnalytics: !!module.useAnalytics,
-      enabled: !!module.enabled,
-      showInDashboard: !!module.showInDashboard,
-      order: Number.isFinite(module.order) ? module.order : 0,
-    });
-  }, [module]);
-
   return (
     <Overlay>
       <Modal>
         <Header>
-          <Title>{t("editTitle", "Edit Module")}</Title>
+          <Title>{t("editTitle", "Edit Tenant Setting")}</Title>
           <CloseButton onClick={onClose} aria-label={t("close", "Close")}>
             <XCircle size={22} />
           </CloseButton>
         </Header>
-
-        <form onSubmit={handleSubmit}>
-          {SUPPORTED_LOCALES.map((l) => (
-            <InputGroup key={l}>
-              <label htmlFor={`label-${l}`}>{getLangLabel(l)}</label>
-              <input
-                id={`label-${l}`}
-                value={form.label[l]}
-                onChange={(e) => handleLabelChange(l, e.target.value)}
-                placeholder={t(
-                  `labelPlaceholder.${l}`,
-                  "Module name in this language"
-                )}
-                autoComplete="off"
-              />
-            </InputGroup>
-          ))}
-
-          <InputGroup>
-            <label>{t("icon", "Icon")}</label>
-            <input
-              name="icon"
-              value={form.icon}
-              onChange={handleChange}
-              placeholder={t("iconPlaceholder", "Icon")}
-              autoComplete="off"
-            />
-          </InputGroup>
-
+        <form onSubmit={handleSubmit} autoComplete="off">
           <InputGroup>
             <label>{t("roles", "Roles (comma separated)")}</label>
             <input
@@ -166,7 +119,6 @@ export default function EditModuleModal({ module, onClose }) {
               autoComplete="off"
             />
           </InputGroup>
-
           <InputGroup>
             <label>{t("order", "Order")}</label>
             <input
@@ -178,26 +130,52 @@ export default function EditModuleModal({ module, onClose }) {
               autoComplete="off"
             />
           </InputGroup>
-
           <CheckboxGroup>
-            {[
-              ["visibleInSidebar", t("visibleInSidebar", "Show in Sidebar")],
-              ["useAnalytics", t("useAnalytics", "Enable Analytics")],
-              ["enabled", t("enabled", "Enabled")],
-              ["showInDashboard", t("showInDashboard", "Show on Dashboard")],
-            ].map(([name, label]) => (
-              <CheckboxLabel key={name}>
+            {"enabled" in form && (
+              <CheckboxLabel>
                 <input
                   type="checkbox"
-                  name={name}
-                  checked={!!form[name]}
+                  name="enabled"
+                  checked={!!form.enabled}
                   onChange={handleChange}
                 />
-                <span>{label}</span>
+                <span>{t("enabled", "Enabled")}</span>
               </CheckboxLabel>
-            ))}
+            )}
+            {"visibleInSidebar" in form && (
+              <CheckboxLabel>
+                <input
+                  type="checkbox"
+                  name="visibleInSidebar"
+                  checked={!!form.visibleInSidebar}
+                  onChange={handleChange}
+                />
+                <span>{t("visibleInSidebar", "Show in Sidebar")}</span>
+              </CheckboxLabel>
+            )}
+            {"useAnalytics" in form && (
+              <CheckboxLabel>
+                <input
+                  type="checkbox"
+                  name="useAnalytics"
+                  checked={!!form.useAnalytics}
+                  onChange={handleChange}
+                />
+                <span>{t("useAnalytics", "Enable Analytics")}</span>
+              </CheckboxLabel>
+            )}
+            {"showInDashboard" in form && (
+              <CheckboxLabel>
+                <input
+                  type="checkbox"
+                  name="showInDashboard"
+                  checked={!!form.showInDashboard}
+                  onChange={handleChange}
+                />
+                <span>{t("showInDashboard", "Show on Dashboard")}</span>
+              </CheckboxLabel>
+            )}
           </CheckboxGroup>
-
           <SubmitButton type="submit" disabled={isSubmitting}>
             {isSubmitting ? t("saving", "Saving...") : t("save", "Save")}
           </SubmitButton>

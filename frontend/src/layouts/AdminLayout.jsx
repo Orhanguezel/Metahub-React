@@ -9,8 +9,8 @@ import styled from "styled-components";
 import { fetchCompanyInfo } from "@/modules/company/slice/companySlice";
 import {
   fetchAdminModules,
-  fetchEnabledModules,
-} from "@/modules/adminmodules/slice/adminModuleSlice";
+  fetchTenantModules,
+} from "@/modules/adminmodules/slices/adminModuleSlice";
 import {
   fetchTenants,
   setSelectedTenant,
@@ -21,50 +21,62 @@ const SIDEBAR_WIDTH = 240;
 const AdminLayout = () => {
   const dispatch = useAppDispatch();
   const {
-    tenants,
-    selectedTenant,
+    tenants = [],
+    selectedTenant, // burada artık ID veya slug olabilir
     loading: tenantsLoading,
   } = useAppSelector((state) => state.tenants);
+
+  // Seçili tenant objesi (ID'den bul)
+  const selectedTenantObj =
+    tenants.find(
+      (t) => t._id === selectedTenant || t.slug === selectedTenant
+    ) || tenants[0];
+
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // Tenant listesi ilk yüklemede çekilir
+  // 1️⃣ Tüm tenantları çek (mount ile)
   useEffect(() => {
     dispatch(fetchTenants());
   }, [dispatch]);
 
-  // İlk tenant otomatik seçimi (veya localStorage’dan okunması)
+  // 2️⃣ İlk tenant otomatik seçimi ve localStorage desteği
   useEffect(() => {
-    if (!selectedTenant && tenants?.length > 0 && !tenantsLoading) {
-      // LocalStorage kontrolü: refresh sonrası aynı tenant ile devam et
+    if (!selectedTenant && tenants.length > 0 && !tenantsLoading) {
       const savedTenant = localStorage.getItem("selectedTenant");
-      const validSavedTenant = tenants.find((t) => t._id === savedTenant);
+      const validSavedTenant = tenants.find(
+        (t) => t._id === savedTenant || t.slug === savedTenant
+      );
       if (validSavedTenant) {
-        dispatch(setSelectedTenant(validSavedTenant._id));
+        dispatch(setSelectedTenant(validSavedTenant._id)); // ID ile çalışıyoruz
       } else {
-        // Liste boş değilse ilk tenantı seç
         dispatch(setSelectedTenant(tenants[0]._id));
         localStorage.setItem("selectedTenant", tenants[0]._id);
       }
     }
   }, [selectedTenant, tenants, tenantsLoading, dispatch]);
 
-  // Tenant değişince modül ve şirket fetch (veya selectedTenant ilk set edilince)
+  // 3️⃣ Tenant değişince modül ve şirket bilgilerini fetch et
   useEffect(() => {
-    if (selectedTenant) {
-      dispatch(fetchEnabledModules({ tenant: selectedTenant }));
-      dispatch(fetchAdminModules({ tenant: selectedTenant }));
-      dispatch(fetchCompanyInfo());
-      localStorage.setItem("selectedTenant", selectedTenant);
+    if (selectedTenantObj) {
+      dispatch(fetchTenantModules(selectedTenantObj._id));
+      dispatch(fetchAdminModules());
+      dispatch(fetchCompanyInfo(selectedTenantObj._id));
+      localStorage.setItem("selectedTenant", selectedTenantObj._id);
     }
-  }, [dispatch, selectedTenant]);
+  }, [dispatch, selectedTenantObj]);
 
   return (
     <ThemeProviderWrapper>
       <LayoutWrapper>
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <Sidebar
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+          tenant={selectedTenantObj} // Tenant bilgisini child’lara props olarak iletebilirsin
+        />
         <MainColumn>
           <HeaderAdmin
             onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
+            tenant={selectedTenantObj}
           />
           <MainContent>
             <Outlet />

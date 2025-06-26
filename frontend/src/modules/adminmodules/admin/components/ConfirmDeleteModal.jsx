@@ -7,6 +7,7 @@ export default function ConfirmDeleteModal({
   moduleName,
   onCancel,
   onConfirm,
+  loading = false, // opsiyonel: silme işlemi sırasında butonu disable et!
 }) {
   const { t } = useTranslation("adminModules");
   const confirmRef = useRef();
@@ -15,19 +16,18 @@ export default function ConfirmDeleteModal({
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === "Escape") onCancel();
-      // Enter veya Space ile silmeyi de destekle
       if (
         (e.key === "Enter" || e.key === " ") &&
         document.activeElement === confirmRef.current
       ) {
-        onConfirm();
+        e.preventDefault();
+        if (!loading) onConfirm();
       }
     };
     window.addEventListener("keydown", handleEsc);
-    // Modal açıldığında delete butonuna otomatik focus
     confirmRef.current?.focus();
     return () => window.removeEventListener("keydown", handleEsc);
-  }, [onCancel, onConfirm]);
+  }, [onCancel, onConfirm, loading]);
 
   return (
     <Overlay>
@@ -40,7 +40,12 @@ export default function ConfirmDeleteModal({
           <Title id="delete-module-title">
             {t("deleteTitle", "Delete Module")}
           </Title>
-          <CloseButton onClick={onCancel} aria-label={t("close", "Close")}>
+          <CloseButton
+            onClick={onCancel}
+            aria-label={t("close", "Close")}
+            title={t("close", "Close")}
+            type="button"
+          >
             <XCircle size={22} />
           </CloseButton>
         </Header>
@@ -60,7 +65,14 @@ export default function ConfirmDeleteModal({
         </Content>
 
         <ButtonGroup>
-          <CancelButton type="button" onClick={onCancel} tabIndex={0}>
+          <CancelButton
+            type="button"
+            onClick={onCancel}
+            tabIndex={0}
+            aria-label={t("cancel", "Cancel")}
+            title={t("cancel", "Cancel")}
+            disabled={loading}
+          >
             {t("cancel", "Cancel")}
           </CancelButton>
           <ConfirmButton
@@ -69,8 +81,12 @@ export default function ConfirmDeleteModal({
             onClick={onConfirm}
             tabIndex={0}
             aria-label={t("confirmDelete", "Delete Permanently")}
+            title={t("confirmDelete", "Delete Permanently")}
+            disabled={loading}
           >
-            {t("confirmDelete", "Delete Permanently")}
+            {loading
+              ? t("deleting", "Deleting...")
+              : t("confirmDelete", "Delete Permanently")}
           </ConfirmButton>
         </ButtonGroup>
       </Modal>
@@ -162,6 +178,10 @@ const CancelButton = styled.button`
     background: ${({ theme }) => theme.colors.hoverBackground};
     color: ${({ theme }) => theme.colors.primary};
   }
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 `;
 
 const ConfirmButton = styled.button`
@@ -176,5 +196,9 @@ const ConfirmButton = styled.button`
   transition: all ${({ theme }) => theme.transition.fast};
   &:hover {
     opacity: 0.9;
+  }
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 `;

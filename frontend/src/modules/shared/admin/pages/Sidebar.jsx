@@ -1,26 +1,25 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useSidebarModules } from "@/hooks/useSidebarModules";
 import { logoutUser, resetAuthState } from "@/modules/users/slice/authSlice";
 import { resetProfile } from "@/modules/users/slice/accountSlice";
 import { MdHome, MdLogout, MdClose, MdRefresh } from "react-icons/md";
 import { useTranslation } from "react-i18next";
-import { useAppSelector } from "@/store/hooks";
 import { toast } from "react-toastify";
 
 export default function Sidebar({ isOpen, onClose }) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const { i18n, t } = useTranslation("sidebar");
   const lang = i18n.language;
 
-  // Tenant'a göre aktif modüller (moduleSettings slice!)
+  // Aktif ve sidebar’da görünür modüller
   const { sidebarModules, isLoading } = useSidebarModules();
 
-  // Ayar ve başlıklar
+  // Navbar logo başlık/slogan (isteğe bağlı)
   const settings = useAppSelector((state) => state.setting?.settings) || [];
   const navbarLogoSetting = settings.find((s) => s.key === "navbar_logo_text");
   const title = navbarLogoSetting?.value?.title?.[lang];
@@ -48,7 +47,7 @@ export default function Sidebar({ isOpen, onClose }) {
   // Sidebar responsive kapanma
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 768 && onClose) onClose();
+      if (window.innerWidth >= 1024 && onClose) onClose();
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -62,7 +61,7 @@ export default function Sidebar({ isOpen, onClose }) {
             <MdHome size={20} />
           </LogoIcon>
           <LogoTextWrapper>
-            <LogoTitle>{title}</LogoTitle>
+            <LogoTitle>{title || "Admin"}</LogoTitle>
             {slogan && <LogoSlogan>{slogan}</LogoSlogan>}
           </LogoTextWrapper>
           <CloseButton onClick={onClose}>
@@ -71,17 +70,21 @@ export default function Sidebar({ isOpen, onClose }) {
         </LogoSection>
 
         <Nav>
+          {/* Dashboard her zaman ilk sırada */}
           <MenuLink to="/admin" $active={isActive("/admin")} onClick={onClose}>
             <IconWrapper $active={isActive("/admin")}>
               <MdHome size={18} />
             </IconWrapper>
             <span>{t("dashboard", "Dashboard")}</span>
           </MenuLink>
+          {/* Modüller (dinamik) */}
           {isLoading ? (
             <LoadingText>
               <MdRefresh className="spin" />
               {t("loading", "Loading menu...")}
             </LoadingText>
+          ) : sidebarModules.length === 0 ? (
+            <LoadingText>{t("noModules", "No modules available.")}</LoadingText>
           ) : (
             sidebarModules.map(({ key, path, label, Icon }) => (
               <MenuLink
@@ -112,8 +115,6 @@ export default function Sidebar({ isOpen, onClose }) {
     </>
   );
 }
-
-// --- Styled Components aynen kalabilir ---
 
 const SidebarWrapper = styled.aside`
   width: 240px;

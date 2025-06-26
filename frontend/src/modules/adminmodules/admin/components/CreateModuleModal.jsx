@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { XCircle } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { useAppDispatch } from "@/store/hooks";
 import {
   createAdminModule,
   fetchAdminModules,
-} from "@/modules/adminmodules/slice/adminModuleSlice";
+} from "@/modules/adminmodules/slices/adminModuleSlice";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { SUPPORTED_LOCALES } from "@/i18n";
@@ -16,16 +16,17 @@ const getLangLabel = (lang) => lang.toUpperCase();
 export default function CreateModuleModal({ onClose }) {
   const { t } = useTranslation("adminModules");
   const dispatch = useAppDispatch();
-  const { selectedProject } = useAppSelector((state) => state.adminModule);
+  // Seçili tenant id (artık selectedProject yerine)
+  //const { selectedTenant } = useAppSelector((state) => state.adminModule);
   const lang = getCurrentLocale();
 
-  // Çoklu dil label alanı: her dil için ayrı input!
+  // Çoklu dil label alanı
   const [label, setLabel] = useState(
     SUPPORTED_LOCALES.reduce((acc, l) => ({ ...acc, [l]: "" }), {})
   );
   const [form, setForm] = useState({
     name: "",
-    icon: "box",
+    icon: "MdSettings",
     roles: "admin",
     language: lang,
     visibleInSidebar: true,
@@ -76,18 +77,16 @@ export default function CreateModuleModal({ onClose }) {
     }
 
     try {
+      // Artık sadece meta ekleniyor; tenant bilgisi gerekmez
       await dispatch(
         createAdminModule({
           ...form,
           label,
           roles: form.roles.split(",").map((r) => r.trim()),
-          tenants: selectedProject ? [selectedProject] : undefined,
         })
       ).unwrap();
 
-      if (selectedProject) {
-        await dispatch(fetchAdminModules(selectedProject));
-      }
+      await dispatch(fetchAdminModules());
       toast.success(
         t(
           "success.created",
@@ -146,6 +145,9 @@ export default function CreateModuleModal({ onClose }) {
           <InputGroup>
             <label>{t("icon", "Icon")}</label>
             <input name="icon" value={form.icon} onChange={handleChange} />
+            <small style={{ color: "#888" }}>
+              ex: MdSettings, MdBook, MdLock (react-icons/md)
+            </small>
           </InputGroup>
 
           <InputGroup>

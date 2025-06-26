@@ -9,7 +9,8 @@ import cartReducer from "@/modules/cart/slice/cartSlice";
 // Order module
 import orderReducer from "@/modules/order/slice/ordersSlice";
 
-import adminModuleReducer from "@/modules/adminmodules/slice/adminModuleSlice";
+import adminModuleReducer from "@/modules/adminmodules/slices/adminModuleSlice";
+import extraModulesSlice from "@/modules/adminmodules/slices/extraModulesSlice";
 import settingReducer from "@/modules/settings/slice/settingSlice";
 import companyReducer from "@/modules/company/slice/companySlice";
 import tenantReducer from "@/modules/tenants/slice/tenantSlice";
@@ -37,6 +38,7 @@ export const store = configureStore({
     userCrud: userCrudReducer,
     userStatus: userStatusReducer,
     adminModule: adminModuleReducer,
+    extraModules: extraModulesSlice,
     setting: settingReducer,
     company: companyReducer,
     tenants: tenantReducer,

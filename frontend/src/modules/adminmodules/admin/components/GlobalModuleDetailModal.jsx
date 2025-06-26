@@ -2,33 +2,36 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { XCircle, Pencil } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { EditModuleModal } from "@/modules/adminmodules";
-import { toast } from "react-toastify";
+import EditGlobalModuleModal from "./EditGlobalModuleModal";
 import { getCurrentLocale } from "@/utils/getCurrentLocale";
+import { SUPPORTED_LOCALES } from "@/i18n";
 
-export default function ModuleDetailModal({ module, onClose }) {
+export default function GlobalModuleDetailModal({
+  module,
+  onClose,
+  onAfterAction,
+}) {
   const { t } = useTranslation("adminModules");
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const lang = getCurrentLocale();
 
+  // Çoklu dilde label (gösterim için)
   const moduleLabel =
     module?.label?.[lang]?.trim() ||
     module?.label?.en?.trim() ||
     module?.name ||
-    module?.module;
+    "";
 
-  // SADECE SON 5 history'yi göster
-  const shownHistory = Array.isArray(module.history)
+  // Versiyon geçmişi
+  const shownHistory = Array.isArray(module?.history)
     ? module.history.slice(-5)
     : [];
   const hasMoreHistory =
-    Array.isArray(module.history) && module.history.length > 5;
+    Array.isArray(module?.history) && module.history.length > 5;
 
-  // Edit işlemi sonrası frontend güncellemesi için
   const handleEditSuccess = () => {
-    toast.success(t("updateSuccess", "Module updated successfully!"));
     setEditModalOpen(false);
-    onClose?.();
+    if (onAfterAction) onAfterAction();
   };
 
   return (
@@ -37,7 +40,8 @@ export default function ModuleDetailModal({ module, onClose }) {
         <Modal>
           <Header>
             <Title>
-              {moduleLabel} <ModuleName>({module.name})</ModuleName>
+              {moduleLabel}
+              <ModuleName>({module?.name})</ModuleName>
             </Title>
             <ButtonGroup>
               <EditButton
@@ -58,6 +62,40 @@ export default function ModuleDetailModal({ module, onClose }) {
           </Header>
 
           <Content>
+            {/* Çoklu dilde label gösterimi */}
+            <SectionTitle>{t("labels", "Module Labels")}</SectionTitle>
+            <LabelTable>
+              <tbody>
+                {SUPPORTED_LOCALES.map((l) => (
+                  <tr key={l}>
+                    <th>{l.toUpperCase()}</th>
+                    <td>{module.label?.[l] || <em>-</em>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </LabelTable>
+
+            <DetailItem>
+              <strong>{t("icon", "Icon")}:</strong> {module.icon || "-"}
+            </DetailItem>
+            <DetailItem>
+              <strong>{t("roles", "Roles")}:</strong>{" "}
+              {Array.isArray(module.roles) ? module.roles.join(", ") : "-"}
+            </DetailItem>
+            <DetailItem>
+              <strong>{t("enabled", "Enabled")}:</strong>{" "}
+              <BoolDot $active={!!module.enabled} />
+              <span>{module.enabled ? t("yes", "Yes") : t("no", "No")}</span>
+            </DetailItem>
+            <DetailItem>
+              <strong>{t("order", "Order")}:</strong> {module.order ?? "-"}
+            </DetailItem>
+            <DetailItem>
+              <strong>{t("language", "Language")}:</strong> {module.language}
+            </DetailItem>
+            <DetailItem>
+              <strong>{t("version", "Version")}:</strong> {module.version}
+            </DetailItem>
             <DetailItem>
               <strong>{t("createdAt", "Created At")}:</strong>{" "}
               {module?.createdAt
@@ -70,7 +108,7 @@ export default function ModuleDetailModal({ module, onClose }) {
                 ? new Date(module.updatedAt).toLocaleString(lang)
                 : "-"}
             </DetailItem>
-
+            {/* Versiyon geçmişi */}
             {shownHistory.length > 0 && (
               <>
                 <SectionTitle>{t("history", "Version History")}</SectionTitle>
@@ -109,8 +147,13 @@ export default function ModuleDetailModal({ module, onClose }) {
         </Modal>
       </Overlay>
 
+      {/* Düzenleme Modalı */}
       {isEditModalOpen && (
-        <EditModuleModal module={module} onClose={handleEditSuccess} />
+        <EditGlobalModuleModal
+          module={module}
+          onClose={() => setEditModalOpen(false)}
+          onAfterAction={handleEditSuccess}
+        />
       )}
     </>
   );
@@ -155,6 +198,7 @@ const Title = styled.h3`
 const ModuleName = styled.span`
   font-size: ${({ theme }) => theme.fontSizes.sm};
   color: ${({ theme }) => theme.colors.textSecondary};
+  margin-left: 7px;
 `;
 
 const ButtonGroup = styled.div`
@@ -170,7 +214,6 @@ const EditButton = styled.button`
   padding: 0.3rem 0.6rem;
   cursor: pointer;
   transition: opacity ${({ theme }) => theme.transition.fast};
-
   &:hover {
     opacity: ${({ theme }) => theme.opacity.hover};
   }
@@ -184,7 +227,6 @@ const CloseButton = styled.button`
   padding: 0.3rem 0.6rem;
   cursor: pointer;
   transition: opacity ${({ theme }) => theme.transition.fast};
-
   &:hover {
     opacity: ${({ theme }) => theme.opacity.hover};
   }
@@ -196,11 +238,6 @@ const Content = styled.div`
   gap: ${({ theme }) => theme.spacings.sm};
 `;
 
-const DetailItem = styled.p`
-  margin: 0;
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-`;
-
 const SectionTitle = styled.h4`
   margin-top: ${({ theme }) => theme.spacings.lg};
   margin-bottom: ${({ theme }) => theme.spacings.md};
@@ -208,6 +245,46 @@ const SectionTitle = styled.h4`
   border-bottom: ${({ theme }) => theme.borders.thin}
     ${({ theme }) => theme.colors.border};
   padding-bottom: ${({ theme }) => theme.spacings.xs};
+`;
+
+const LabelTable = styled.table`
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: ${({ theme }) => theme.spacings.md};
+  th,
+  td {
+    padding: 6px 8px;
+    font-size: ${({ theme }) => theme.fontSizes.sm};
+    border: 1px solid ${({ theme }) => theme.colors.border};
+  }
+  th {
+    background: ${({ theme }) => theme.colors.backgroundSecondary};
+    text-align: left;
+    font-weight: bold;
+    color: ${({ theme }) => theme.colors.textSecondary};
+    width: 80px;
+  }
+  td {
+    background: ${({ theme }) => theme.cards.background};
+    color: ${({ theme }) => theme.colors.text};
+  }
+`;
+
+const DetailItem = styled.p`
+  margin: 0;
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+`;
+
+const BoolDot = styled.span`
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: ${({ $active, theme }) =>
+    $active ? theme.colors.success : theme.colors.danger};
+  border: 1.5px solid #ddd;
+  vertical-align: middle;
 `;
 
 const HistoryList = styled.ul`

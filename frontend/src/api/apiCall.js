@@ -26,7 +26,7 @@ const apiCall = async (
       console.log(`📡 [API] ${method.toUpperCase()} → ${url}`);
       if (data) console.log("📤 Payload:", data);
     }
-
+    const tenantOverride = localStorage.getItem("selectedTenantOverride");
     // FormData ise Content-Type elle eklenmez
     const isFormData =
       typeof FormData !== "undefined" && data instanceof FormData;
@@ -36,6 +36,9 @@ const apiCall = async (
       withCredentials: true,
       headers: {
         ...(config?.headers || {}),
+        ...(typeof tenantOverride === "string" && tenantOverride
+          ? { "x-tenant": tenantOverride }
+          : {}),
         ...(isFormData ? {} : { "Content-Type": "application/json" }),
         "Accept-Language": getLang(),
       },

@@ -5,6 +5,9 @@ import { useTranslation } from "react-i18next";
 import { ThemeToggle, AvatarMenu } from "@/modules/shared";
 import { FaBars } from "react-icons/fa";
 import { getImageSrc } from "@/shared/getImageSrc";
+import { SUPPORTED_LOCALES } from "@/i18n";
+
+// --- Slices ---
 import {
   clearSettings,
   fetchSettings,
@@ -17,43 +20,76 @@ import {
   clearAdminMessages,
   clearSelectedModule,
   fetchAdminModules,
-} from "@/modules/adminmodules/slice/adminModuleSlice";
+} from "@/modules/adminmodules/slices/adminModuleSlice";
 import { setSelectedTenant } from "@/modules/tenants/slice/tenantSlice";
-
 import { clearBikes } from "@/modules/bikes/slices/bikeSlice";
-import { SUPPORTED_LOCALES } from "@/i18n";
+// (gelişen modüllere göre buraya yeni slice'lar ekleyebilirsin)
 
 function getLocaleLabel(locale) {
   return SUPPORTED_LOCALES[locale] || locale.toUpperCase();
 }
 
-export default function HeaderAdmin({ onToggleSidebar }) {
+/**
+ * --- Tenant Switch Logic ---
+ * Tüm tenant state, ayar ve slice’ları otomatik olarak reset+fetch eder!
+ */
+const useTenantSwitcher = () => {
   const dispatch = useAppDispatch();
-  const { profile: user } = useAppSelector((state) => state.account);
-  const settings = useAppSelector((state) => state.setting.settings) || [];
-  // --- TENANT STATE ---
-  const tenantList = useAppSelector((state) => state.tenants.tenants) || []; // redux'ta tenant listesi
-  const selectedTenant =
-    useAppSelector((state) => state.adminModule.selectedTenant) || "";
 
+  return React.useCallback(
+    async (tenantId) => {
+      // --- Bütün tenant bağımlı slice’ları temizle ve yeniden yükle ---
+      dispatch(setSelectedTenant(tenantId));
+      localStorage.setItem("selectedTenant", tenantId);
+
+      // 1. Global ayarları temizle ve fetch et
+      dispatch(clearSettings());
+      dispatch(fetchSettings());
+
+      // 2. Şirket info
+      dispatch(clearCompany());
+      dispatch(fetchCompanyInfo());
+
+      // 3. Admin module meta/settings
+      dispatch(clearAdminMessages());
+      dispatch(clearSelectedModule());
+      dispatch(fetchAdminModules(tenantId));
+
+      // 4. Diğer slice'lar (örn: bikes)
+      dispatch(clearBikes());
+      // dispatch(clearBlog()); dispatch(fetchBlog()); ...
+      // Yeni tenant bağlı modül geldikçe ekleyebilirsin
+
+      // 5. Eğer UI’de başka şeyler (örn: navigasyon reset) gerekiyorsa burada yapılabilir
+      // router.push("/admin") vs...
+    },
+    [dispatch]
+  );
+};
+
+export default function HeaderAdmin({ onToggleSidebar }) {
+  //const dispatch = useAppDispatch();
+  const { profile: user } = useAppSelector((state) => state.account);
+  const tenantList = useAppSelector((state) => state.tenants.tenants) || [];
+  const selectedTenant =
+    useAppSelector((state) => state.tenants.selectedTenant) || "";
   const { t, i18n } = useTranslation("header");
-  const apiKeySetting = settings.find((s) => s.key === "api_key");
-  const hasApiKey = !!apiKeySetting?.value;
   const [showDropdown, setShowDropdown] = useState(false);
 
-  // Tenant selector ile çalış
+  const switchTenant = useTenantSwitcher();
+
+  // --- Sadece superadmin tenant değiştirebilir! ---
+  const isSuperAdmin = user?.role === "superadmin";
+
   useEffect(() => {
-    // Eğer localStorage'da tenant seçiliyse, otomatik olarak onu seç
+    // İlk açılışta localStorage'daki tenant geçerli ise onu seç
     const savedTenant = localStorage.getItem("selectedTenant");
     if (
       savedTenant &&
       savedTenant !== selectedTenant &&
       tenantList.some((t) => t._id === savedTenant)
     ) {
-      dispatch(setSelectedTenant(savedTenant));
-      dispatch(fetchSettings());
-      dispatch(fetchCompanyInfo());
-      dispatch(fetchAdminModules(savedTenant));
+      switchTenant(savedTenant);
     }
     // eslint-disable-next-line
   }, [tenantList.length]);
@@ -83,19 +119,9 @@ export default function HeaderAdmin({ onToggleSidebar }) {
   // --- Tenant değiştirici ---
   const handleTenantChange = (e) => {
     const tenantId = e.target.value;
-    dispatch(setSelectedTenant(tenantId));
     localStorage.setItem("selectedTenant", tenantId);
-
-    // Slice'ları temizle ve fetch işlemlerini yap
-    dispatch(clearSettings());
-    dispatch(clearCompany());
-    dispatch(clearAdminMessages());
-    dispatch(clearSelectedModule());
-    dispatch(clearBikes());
-
-    dispatch(fetchSettings());
-    dispatch(fetchCompanyInfo());
-    dispatch(fetchAdminModules(tenantId));
+    localStorage.setItem("selectedTenantOverride", tenantId);
+    switchTenant(tenantId); // zinciri tetikle
   };
 
   // --- Dil değiştirici ---
@@ -115,28 +141,26 @@ export default function HeaderAdmin({ onToggleSidebar }) {
           👋 {t("welcome", "Hoş geldiniz")},{" "}
           <strong>{user?.name || t("defaultUser", "Admin")}</strong>
         </Welcome>
-        {hasApiKey && (
-          <ApiKeyInfo>
-            ✅ {t("apiKeyLoaded", "API Key başarıyla yüklendi.")}
-          </ApiKeyInfo>
+
+        {/* --- Tenant Selector: SADECE SuperAdmin’e göster! --- */}
+        {isSuperAdmin && (
+          <TenantSelector>
+            <label>{t("tenant", "Kiracı seç:")}</label>
+            <select value={selectedTenant} onChange={handleTenantChange}>
+              {tenantList.length > 0 ? (
+                tenantList.map((tenant) => (
+                  <option key={tenant._id} value={tenant._id}>
+                    {tenant.name?.[i18n.language] ||
+                      tenant.name?.en ||
+                      tenant.slug}
+                  </option>
+                ))
+              ) : (
+                <option disabled>{t("noTenants", "Kiracı bulunamadı")}</option>
+              )}
+            </select>
+          </TenantSelector>
         )}
-        {/* --- Dinamik Tenant Selector --- */}
-        <TenantSelector>
-          <label>{t("tenant", "Kiracı seç:")}</label>
-          <select value={selectedTenant} onChange={handleTenantChange}>
-            {tenantList.length > 0 ? (
-              tenantList.map((tenant) => (
-                <option key={tenant._id} value={tenant._id}>
-                  {tenant.name?.[i18n.language] ||
-                    tenant.name?.en ||
-                    tenant.slug}
-                </option>
-              ))
-            ) : (
-              <option disabled>{t("noTenants", "Kiracı bulunamadı")}</option>
-            )}
-          </select>
-        </TenantSelector>
       </LeftSection>
 
       <RightSection>
@@ -151,7 +175,6 @@ export default function HeaderAdmin({ onToggleSidebar }) {
             </option>
           ))}
         </LangSelect>
-
         <ThemeToggle />
         <AvatarMenu
           isAuthenticated={!!user}

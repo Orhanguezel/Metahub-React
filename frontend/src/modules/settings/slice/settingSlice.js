@@ -8,6 +8,7 @@ const initialState = {
   error: null,
   successMessage: null,
   fetchedSettings: false,
+  lastFetchedTenant: null,
 };
 
 export const fetchSettings = createAsyncThunk(
@@ -133,6 +134,7 @@ const settingSlice = createSlice({
       state.fetchedSettings = false;
       state.error = null;
       state.successMessage = null;
+      state.lastFetchedTenant = null;
     },
   },
   extraReducers: (builder) => {
@@ -145,6 +147,7 @@ const settingSlice = createSlice({
         state.loading = false;
         state.settings = action.payload.data || action.payload;
         state.fetchedSettings = true;
+        state.lastFetchedTenant = localStorage.getItem("selectedTenant") || null;
       })
       .addCase(fetchSettings.rejected, (state, action) => {
         state.loading = false;
